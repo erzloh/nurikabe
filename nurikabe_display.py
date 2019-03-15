@@ -16,10 +16,16 @@ font = pygame.font.SysFont("Helvetica", 72)
 # Initialize Variables
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
+RED = (255, 0, 0)
+BLUE = (0, 0, 255)
 
-SCREEN_DIMENSION = (500, 500)
+CASE_LENGTH = 80
+ROWS = 5
+COLS = 10
+
+SCREEN_DIMENSION = (COLS * CASE_LENGTH, ROWS * CASE_LENGTH)
 SCREEN_CENTER = (SCREEN_DIMENSION[0] // 2, SCREEN_DIMENSION[1] // 2)
-CASE_LENGTH = 100
+
 
 active = True # Main Loop Variable
 
@@ -81,7 +87,7 @@ def draw_room2():
     window.fill(WHITE)
     print("room_2")
     
-    draw_grid(5, 5, CASE_LENGTH)
+    draw_grid(ROWS, COLS, CASE_LENGTH)
     
 # Draw Room 1
 draw_room1()
