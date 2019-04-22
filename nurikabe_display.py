@@ -1,6 +1,6 @@
-# Nurikabe Display - Version 1
+# Nurikabe Display - Version 1.01
 # Author : Eric Holzer
-# Date : 10 March 2019
+# Date : 22 April 2019
 
 # Import Modules
 import pygame
@@ -13,15 +13,26 @@ pygame.init()
 pygame.font.init()
 font = pygame.font.SysFont("Helvetica", 72)
 
+# Create Table
+""" "W" = white
+    "B" = black
+    "U" = undefined """
+
+table =[["U", "U", "1", "U", "U", "2"],
+        ["1", "U", "U", "U", "U", "U"],
+        ["U", "U", "2", "U", "U", "2"],
+        ["U", "2", "U", "U", "U", "U"]]
+
+# Set x and y length of the table
+x_len = len(table)
+y_len = len(table[0])
+
 # Initialize Variables
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
 
-CASE_LENGTH = 80
-ROWS = 5
-COLS = 10
-
-SCREEN_DIMENSION = (COLS * CASE_LENGTH, ROWS * CASE_LENGTH)
+CASE_LENGTH = 100
+SCREEN_DIMENSION = (x_len * CASE_LENGTH, y_len * CASE_LENGTH)
 SCREEN_CENTER = (SCREEN_DIMENSION[0] // 2, SCREEN_DIMENSION[1] // 2)
 
 
@@ -61,16 +72,26 @@ def draw_grid(n, m, case_length):
        Draws m vertical lines of length n*case_length."""
     
     # Draw Horizontal Lines
-    for i in range(n):
+    for i in range(n + 1):
         y = i * case_length
         x = m * case_length
         pygame.draw.line(window, BLACK, (0, y), (x, y), 5)
         
     # Draw Vertical Lines
-    for i in range(m):
+    for i in range(m + 1):
         y = n * case_length
         x = i * case_length
         pygame.draw.line(window, BLACK, (x, 0), (x, y), 5)
+
+def draw_grid_text(table, CASE_LENGTH):
+    for x in range(x_len):
+        for y in range(y_len):
+            if (table[x][y] != "U" and table[x][y] != "B" and table[x][y] != "W"):
+                number_txt = font.render(str(table[x][y]), True, BLACK)
+                number_txt_rectangle = number_txt.get_rect()
+                number_txt_rectangle.center = ((x * CASE_LENGTH) + (CASE_LENGTH / 2), (y * CASE_LENGTH) + (CASE_LENGTH / 2))
+                window.blit(number_txt, number_txt_rectangle)
+            
 
 # Get the case index
 def get_index(x, y, case_length):
@@ -85,7 +106,8 @@ def draw_room2():
     window.fill(WHITE)
     print("room_2")
     
-    draw_grid(ROWS, COLS, CASE_LENGTH)
+    draw_grid(y_len, x_len, CASE_LENGTH)
+    draw_grid_text(table, CASE_LENGTH)
     
 # Draw Room 1
 draw_room1()
