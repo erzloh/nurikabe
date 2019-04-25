@@ -14,7 +14,7 @@ pygame.init()
 # Initialize Font
 pygame.font.init()
 font = pygame.font.SysFont("Helvetica", 72)
-font_little = pygame.font.SysFont("Helvetica", 36)
+font_little = pygame.font.SysFont("Helvetica", 24)
 
 # Create Table
 """ "W" = white
@@ -62,6 +62,9 @@ white_cell_rectangle   = pygame.Rect(0, 0, 20, 20)
 black_cell_rectangle   = pygame.Rect(0, 0, CASE_LENGTH, CASE_LENGTH)
 
 around_one_button_rectangle = pygame.Rect(0, 0, 150, 30)
+adj_button_rectangle        = pygame.Rect(0, 0, 150, 30)
+diagonal_button_rectangle   = pygame.Rect(0, 0, 150, 30)
+reset_button_rectangle      = pygame.Rect(0, 0, 150, 30)
 
 active = True # Main Loop Variable
 
@@ -85,6 +88,7 @@ def draw_room1():
     
     # Reset table
     table = sample_table
+    reset_table(table)
 
     # Draw Title
     title_txt = font.render("Nurikabe", True, BLACK)
@@ -102,6 +106,7 @@ def draw_room1():
     play_button_rectangle.center = play_button_txt_rectangle.center
     pygame.draw.rect(window, BLACK, play_button_rectangle, 5)
     
+    
     # Draw Solve Button Text
     solve_button_txt = font.render("SOLVE", True, BLACK)
     solve_button_txt_rectangle = solve_button_txt.get_rect()
@@ -111,7 +116,19 @@ def draw_room1():
     # Draw Solve Button Rectangle
     solve_button_rectangle.center = solve_button_txt_rectangle.center
     pygame.draw.rect(window, BLACK, solve_button_rectangle, 5)
+    
+    
+    # Draw Autor's names Text
+    author_name_txt = font_little.render("Made by Eric Holzer and Jacek Wikeira, 2019", True, BLACK)
+    author_name_txt_rectangle = author_name_txt.get_rect()
+    author_name_txt_rectangle.bottomright = (SCREEN_DIMENSION[0] - 10, SCREEN_DIMENSION[1] - 10)
+    window.blit(author_name_txt, author_name_txt_rectangle)
 
+def reset_table(table):
+    for x in range(x_len):
+        for y in range(y_len):
+            if (table[x][y] == "W" or table[x][y] == "B"):
+                table[x][y] = "U"
 # Room 2
 def draw_grid(n, m, case_length):
     """Draws n horizontal lines of length m * case_length.
@@ -179,6 +196,39 @@ def draw_buttons():
     # Draw around_one Button Rectangle
     around_one_button_rectangle.center = around_one_button_txt_rectangle.center
     pygame.draw.rect(window, BLACK, around_one_button_rectangle, 2)
+    
+    
+    # Draw between_numbers Button Text
+    adj_button_txt = font_little.render("between_numbers", True, BLACK)
+    adj_button_txt_rectangle = adj_button_txt.get_rect()
+    adj_button_txt_rectangle.center = ((x_len * CASE_LENGTH) + CASE_LENGTH, 80)
+    window.blit(adj_button_txt, adj_button_txt_rectangle)
+
+    # Draw between_numbers Button Rectangle
+    adj_button_rectangle.center = adj_button_txt_rectangle.center
+    pygame.draw.rect(window, BLACK, adj_button_rectangle, 2)
+    
+    
+    # Draw diagonal Button Text
+    diagonal_button_txt = font_little.render("diagonal", True, BLACK)
+    diagonal_button_txt_rectangle = diagonal_button_txt.get_rect()
+    diagonal_button_txt_rectangle.center = ((x_len * CASE_LENGTH) + CASE_LENGTH, 130)
+    window.blit(diagonal_button_txt, diagonal_button_txt_rectangle)
+
+    # Draw diagonal Button Rectangle
+    diagonal_button_rectangle.center = diagonal_button_txt_rectangle.center
+    pygame.draw.rect(window, BLACK, diagonal_button_rectangle, 2)
+    
+    
+    # Draw reset Button Text
+    reset_button_txt = font_little.render("reset", True, RED)
+    reset_button_txt_rectangle = reset_button_txt.get_rect()
+    reset_button_txt_rectangle.center = ((x_len * CASE_LENGTH) + CASE_LENGTH, SCREEN_DIMENSION[1] - 30)
+    window.blit(reset_button_txt, reset_button_txt_rectangle)
+
+    # Draw reset Button Rectangle
+    reset_button_rectangle.center = reset_button_txt_rectangle.center
+    pygame.draw.rect(window, BLACK, reset_button_rectangle, 2)
 
 def draw_room3():
     """Solving room"""
@@ -199,7 +249,7 @@ while active:
             active = False
             
         elif event.type == KEYDOWN: # If a key is down
-            if event.key == K_m:
+            if event.key == K_ESCAPE:
                 room = 1
                 table = sample_table
             
@@ -232,6 +282,15 @@ while active:
             elif room == 3:
                 if around_one_button_rectangle.collidepoint(event.pos):
                     table = nurikabe.elimAroundOnes(table)
+                    
+                if adj_button_rectangle.collidepoint(event.pos):
+                    table = nurikabe.elimAdj(table)
+                    
+                if diagonal_button_rectangle.collidepoint(event.pos):
+                    table = nurikabe.diagonal(table)
+                    
+                if reset_button_rectangle.collidepoint(event.pos):
+                    reset_table(table)
         
         elif event.type == MOUSEMOTION: # If the mouse is moving
             if room == 2:
