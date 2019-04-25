@@ -5,6 +5,7 @@
 # Import Modules
 import pygame
 from pygame.locals import * # Get Input Variables
+import numpy as np
 
 # Initialize Pygame
 pygame.init()
@@ -27,6 +28,13 @@ table = [["U", "U", "1", "U", "U", "2"],
 x_len = len(table)
 y_len = len(table[0])
 
+# Create a player table made out of 0
+""" 0 = undefined
+    1 = white
+    2 = black """
+
+player_table = np.zeros((x_len, y_len), int)
+
 # Initialize Variables
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
@@ -38,11 +46,12 @@ SCREEN_CENTER    = (SCREEN_DIMENSION[0] / 2, SCREEN_DIMENSION[1] / 2)
 
 play_button_rectangle = pygame.Rect(0, 0, 200, 80)
 cursor_rectangle = pygame.Rect(0, 0, CASE_LENGTH, CASE_LENGTH)
+white_cell_rectangle = pygame.Rect(0, 0, 20, 20)
+black_cell_rectangle = pygame.Rect(0, 0, CASE_LENGTH, CASE_LENGTH)
 
 active = True # Main Loop Variable
 
-# The game starts with room 1.
-room = 1
+room = 1 # The game starts with room 1
 
 # Create Window
 window_title = "Nurikabe"
@@ -52,6 +61,8 @@ pygame.display.set_caption(window_title)
 # Room 1
 def draw_room1():
     """Draws a title and some buttons (play)."""
+    
+    room = 1
     
     window.fill(WHITE)
     
@@ -88,33 +99,52 @@ def draw_grid(n, m, case_length):
         x = i * case_length
         pygame.draw.line(window, BLACK, (x, 0), (x, y), 5)
 
-def draw_grid_text(table, CASE_LENGTH): # Draw numbers in the grid
+def draw_grid_text(table, case_length): # Draw numbers in the grid
     for x in range(x_len):
         for y in range(y_len):
             # If case is a number, print the number
             if (table[x][y] != "U" and table[x][y] != "B" and table[x][y] != "W"):
                 number_txt = font.render(str(table[x][y]), True, BLACK)
                 number_txt_rectangle = number_txt.get_rect()
-                number_txt_rectangle.center = ((x * CASE_LENGTH) + (CASE_LENGTH / 2), (y * CASE_LENGTH) + (CASE_LENGTH / 2))
+                number_txt_rectangle.center = ((x * case_length) + (case_length / 2), (y * case_length) + (case_length / 2))
                 window.blit(number_txt, number_txt_rectangle)
                 
+def draw_grid_color(table, case_length):
+    """Fill the cell with the according color."""
+    for x in range(x_len):
+        for y in range(y_len):
+            if table[x][y] == "W":
+                white_cell_rectangle.center = ((x * case_length) + (case_length / 2), (y * case_length) + (case_length / 2))
+                pygame.draw.rect(window, BLACK, white_cell_rectangle)
+                
+            elif table[x][y] == "B":
+                black_cell_rectangle.center = ((x * case_length) + (case_length / 2), (y * case_length) + (case_length / 2))
+                pygame.draw.rect(window, BLACK, black_cell_rectangle)
+    
+                
 def get_index(x, y, case_length): # Get the case index
-    """Returns the (row, col) case index."""
-    row = y // case_length
-    col = x // case_length
-    return (row, col)
+    """Returns the (i, j) case index."""
+    i = x // case_length
+    j = y // case_length
+    
+    return (i, j)
 
 def draw_room2():
     """Draw the nurikabe game grid."""
+    
+    room = 2
+    
     window.fill(WHITE)
     draw_grid(y_len, x_len, CASE_LENGTH)
     draw_grid_text(table, CASE_LENGTH)
+    draw_grid_color(table, CASE_LENGTH)
     
     pygame.draw.rect(window, RED, cursor_rectangle, 5)
 
-    
+draw_room1()
 # Main Loop
 while active:
+            
     for event in pygame.event.get():
         
         if event.type == QUIT: # If Close The Window
@@ -131,17 +161,28 @@ while active:
             
             elif room == 2:
                 # Get the case index
-                (row, col) = get_index(event.pos[0], event.pos[1], CASE_LENGTH)
-                print(event.pos, row, col)
+                (i, j) = get_index(event.pos[0], event.pos[1], CASE_LENGTH)
+                
+                if table[i][j] == "U":
+                    table[i][j] = "W"
+                    
+                elif table[i][j] == "W":
+                    table[i][j] = "B"
+                    
+                elif table[i][j] == "B":
+                    table[i][j] = "U"
+                
+                
+                """player_table[col, row] += 1
+                player_table[col, row] %= 3"""
         
-        elif event.type == MOUSEMOTION:
+        elif event.type == MOUSEMOTION: # If the mouse is moving
             if room == 2:
+                (i, j) = get_index(event.pos[0], event.pos[1], CASE_LENGTH)
                 
-                (row, col) = get_index(event.pos[0], event.pos[1], CASE_LENGTH)
+                cursor_rectangle.x = i * CASE_LENGTH
+                cursor_rectangle.y = j * CASE_LENGTH
                 
-                cursor_rectangle.y = row * CASE_LENGTH
-                cursor_rectangle.x = col * CASE_LENGTH
-            
         # All drawing is done here
         if room == 1:
             draw_room1()
