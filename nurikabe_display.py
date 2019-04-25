@@ -1,12 +1,11 @@
-# Nurikabe Display - Version 1.02
+# Nurikabe Display - Version 1.03
 # Author : Eric Holzer
 # Date : 25 April 2019
 
 # Import Modules
 import pygame
 from pygame.locals import * # Get Input Variables
-import numpy as np
-import nurikabe
+import nurikabe # Jacek's program
 
 # Initialize Pygame
 pygame.init()
@@ -21,29 +20,29 @@ font_little = pygame.font.SysFont("Helvetica", 24)
     "B" = black
     "U" = undefined """
 
-sample_table = [["U", "U", "1", "U", "U", "2"],
-                ["1", "U", "U", "U", "U", "U"],
-                ["U", "U", "2", "U", "U", "2"],
-                ["U", "2", "U", "U", "U", "U"]]
+# Table 1
+table = [["U", "U", "1", "U", "U", "2"],
+         ["1", "U", "U", "U", "U", "U"],
+         ["U", "U", "2", "U", "U", "2"],
+         ["U", "2", "U", "U", "U", "U"]]
 
-table = sample_table
+# Table 2
+table = [["U", "2", "U", "U", "U"],
+         ["U", "U", "U", "2", "U"],
+         ["U", "U", "U", "U", "U"],
+         ["U", "1", "U", "U", "U"],
+         ["U", "U", "U", "U", "2"]]
 
-"""table = [["U", "U", "5", "U", "U"],
-         ["U", "3", "U", "U", "U"],
+# Table 3
+table = [["U", "U", "U", "1", "U"],
          ["U", "U", "U", "U", "U"],
-         ["U", "U", "U", "U", "U"],
-         ["1", "U", "U", "2", "U"]]"""
+         ["U", "U", "3", "U", "4"],
+         ["U", "1", "U", "U", "U"],
+         ["U", "U", "U", "U", "U"]]
 
 # Set x and y length of the table
 x_len = len(table)
 y_len = len(table[0])
-
-# Create a player table made out of 0
-""" 0 = undefined
-    1 = white
-    2 = black """
-
-player_table = np.zeros((x_len, y_len), int)
 
 # Initialize Variables
 WHITE = (255, 255, 255)
@@ -68,7 +67,7 @@ reset_button_rectangle      = pygame.Rect(0, 0, 150, 30)
 
 active = True # Main Loop Variable
 
-room = 1 # The game starts with room 1
+room = 1 # The game starts in room 1
 
 # Create Window
 window_title = "Nurikabe"
@@ -87,7 +86,6 @@ def draw_room1():
     window.fill(WHITE)
     
     # Reset table
-    table = sample_table
     reset_table(table)
 
     # Draw Title
@@ -251,7 +249,6 @@ while active:
         elif event.type == KEYDOWN: # If a key is down
             if event.key == K_ESCAPE:
                 room = 1
-                table = sample_table
             
         elif event.type == MOUSEBUTTONDOWN: # If a mouse button is pressed
             if room == 1:
@@ -262,6 +259,7 @@ while active:
                     room = 3
             
             elif room == 2:
+                # If the mouse stay in the nurikabe grid
                 if (event.pos[0] < CASE_LENGTH * x_len) and (event.pos[1] < CASE_LENGTH * y_len):
                     # Get the case index
                     (i, j) = get_index(event.pos[0], event.pos[1], CASE_LENGTH)
@@ -274,10 +272,6 @@ while active:
                         
                     elif table[i][j] == "B":
                         table[i][j] = "U"
-                    
-                    
-                    """player_table[col, row] += 1
-                    player_table[col, row] %= 3"""
                     
             elif room == 3:
                 if around_one_button_rectangle.collidepoint(event.pos):
@@ -294,12 +288,13 @@ while active:
         
         elif event.type == MOUSEMOTION: # If the mouse is moving
             if room == 2:
+                # Get the case index
                 (i, j) = get_index(event.pos[0], event.pos[1], CASE_LENGTH)
                 
                 cursor_rectangle.x = i * CASE_LENGTH
                 cursor_rectangle.y = j * CASE_LENGTH
                 
-                cursor_rectangle.x = clamp(cursor_rectangle.x, 0, (x_len - 1) * CASE_LENGTH)
+                #cursor_rectangle.x = clamp(cursor_rectangle.x, 0, (x_len - 1) * CASE_LENGTH)
                 
         # All drawing is done here
         if room == 1:

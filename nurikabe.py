@@ -75,6 +75,8 @@ def checkWallIntegrity(table):
 
 #turn tiles between numbers black "B"
 def elimAdj(table):
+    x_len = len(table)
+    y_len = len(table[0])
     for i in range(x_len):
         for j in range(y_len):
             #check in the right direction
@@ -87,6 +89,9 @@ def elimAdj(table):
 
 #turns tiles next to "ones" black ("B")
 def elimAroundOnes(table):
+    x_len = len(table)
+    y_len = len(table[0])
+                
     for i in range(x_len):
         for j in range(y_len):
             if table[i][j] == "1":
@@ -102,6 +107,8 @@ def elimAroundOnes(table):
 
 #turns tiles in diagonal black ("B")
 def diagonal(table):
+    x_len = len(table)
+    y_len = len(table[0])
     for i in range(x_len):
         for j in range(y_len):
             # case n°1: "2" "w"
@@ -125,38 +132,22 @@ def printTable(table):
             tempStr += table[j][i]+" "
         print(tempStr)
         tempStr = ""
+        
+# Create Table
 
-#old table
-table = ["w", "1", "w", "w",
-         "w", "w", "w", "2",
-         "1", "w", "2", "w",
-         "w", "w", "w", "w",
-         "w", "w", "w", "w",
-         "2", "w", "2", "w"]
-#new table
-"""table =[["B", "B", "1", "B", "I", "2"],
-        ["1", "B", "B", "B", "Q", "B"],
-        ["B", "B", "2", "I", "B", "2"],
-        ["I", "2", "B", "B", "B", "I"]]"""
-
-table = [["U", "U", "1", "U", "U", "2"],
+"""table = [["U", "U", "1", "U", "U", "2"],
          ["1", "U", "U", "U", "U", "U"],
          ["U", "U", "2", "U", "U", "2"],
-         ["U", "2", "U", "U", "U", "U"]]
-#new table
-"""table =[["B", "w", "1", "B", "I", "2"],
-        ["1", "B", "B", "B", "B", "B"],
-        ["B", "B", "2", "I", "B", "2"],
-        ["I", "2", "B", "B", "B", "I"]]"""
+         ["U", "2", "U", "U", "U", "U"]]"""
 
 #set x and y length of the table
-x_len = len(table)
-y_len = len(table[0])
+#x_len = len(table)
+#y_len = len(table[0])
 
 #execute functions
-table = elimAroundOnes(table)
-table = elimAdj(table)
-table = diagonal(table)
+#table = elimAroundOnes(table)
+#table = elimAdj(table)
+#table = diagonal(table)
 
 #checkWallIntegrity(table)
 
