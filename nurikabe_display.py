@@ -1,11 +1,12 @@
 # Nurikabe Display - Version 1.02
 # Author : Eric Holzer
-# Date : 24 April 2019
+# Date : 25 April 2019
 
 # Import Modules
 import pygame
 from pygame.locals import * # Get Input Variables
 import numpy as np
+import nurikabe
 
 # Initialize Pygame
 pygame.init()
@@ -13,16 +14,25 @@ pygame.init()
 # Initialize Font
 pygame.font.init()
 font = pygame.font.SysFont("Helvetica", 72)
+font_little = pygame.font.SysFont("Helvetica", 36)
 
 # Create Table
 """ "W" = white
     "B" = black
     "U" = undefined """
 
-table = [["U", "U", "1", "U", "U", "2"],
-         ["1", "U", "U", "U", "U", "U"],
-         ["U", "U", "2", "U", "U", "2"],
-         ["U", "2", "U", "U", "U", "U"]]
+sample_table = [["U", "U", "1", "U", "U", "2"],
+                ["1", "U", "U", "U", "U", "U"],
+                ["U", "U", "2", "U", "U", "2"],
+                ["U", "2", "U", "U", "U", "U"]]
+
+table = sample_table
+
+"""table = [["U", "U", "5", "U", "U"],
+         ["U", "3", "U", "U", "U"],
+         ["U", "U", "U", "U", "U"],
+         ["U", "U", "U", "U", "U"],
+         ["1", "U", "U", "2", "U"]]"""
 
 # Set x and y length of the table
 x_len = len(table)
@@ -40,14 +50,18 @@ WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
 RED   = (255, 0, 0)
 
-CASE_LENGTH      = 100
-SCREEN_DIMENSION = (x_len * CASE_LENGTH, y_len * CASE_LENGTH)
-SCREEN_CENTER    = (SCREEN_DIMENSION[0] / 2, SCREEN_DIMENSION[1] / 2)
+DISTANCE_BETWEEN_EDGE = 200
+CASE_LENGTH           = 100
+SCREEN_DIMENSION      = ((x_len * CASE_LENGTH) + DISTANCE_BETWEEN_EDGE, (y_len * CASE_LENGTH))
+SCREEN_CENTER         = (SCREEN_DIMENSION[0] / 2, SCREEN_DIMENSION[1] / 2)
 
-play_button_rectangle = pygame.Rect(0, 0, 200, 80)
-cursor_rectangle = pygame.Rect(0, 0, CASE_LENGTH, CASE_LENGTH)
-white_cell_rectangle = pygame.Rect(0, 0, 20, 20)
-black_cell_rectangle = pygame.Rect(0, 0, CASE_LENGTH, CASE_LENGTH)
+play_button_rectangle  = pygame.Rect(0, 0, 200, 80)
+solve_button_rectangle = pygame.Rect(0, 0, 200, 80)
+cursor_rectangle       = pygame.Rect(0, 0, CASE_LENGTH, CASE_LENGTH)
+white_cell_rectangle   = pygame.Rect(0, 0, 20, 20)
+black_cell_rectangle   = pygame.Rect(0, 0, CASE_LENGTH, CASE_LENGTH)
+
+around_one_button_rectangle = pygame.Rect(0, 0, 150, 30)
 
 active = True # Main Loop Variable
 
@@ -58,14 +72,20 @@ window_title = "Nurikabe"
 window = pygame.display.set_mode(SCREEN_DIMENSION)
 pygame.display.set_caption(window_title)
 
+# Useful Function
+def clamp(n, smallest, largest):
+    """Keep the value between 2 numbers."""
+    return max(smallest, min(n, largest))
+
 # Room 1
 def draw_room1():
     """Draws a title and some buttons (play)."""
     
-    room = 1
-    
     window.fill(WHITE)
     
+    # Reset table
+    table = sample_table
+
     # Draw Title
     title_txt = font.render("Nurikabe", True, BLACK)
     title_txt_rectangle = title_txt.get_rect()
@@ -81,6 +101,16 @@ def draw_room1():
     # Draw Play Button Rectangle
     play_button_rectangle.center = play_button_txt_rectangle.center
     pygame.draw.rect(window, BLACK, play_button_rectangle, 5)
+    
+    # Draw Solve Button Text
+    solve_button_txt = font.render("SOLVE", True, BLACK)
+    solve_button_txt_rectangle = solve_button_txt.get_rect()
+    solve_button_txt_rectangle.center = (SCREEN_CENTER[0], SCREEN_CENTER[1] + 100)
+    window.blit(solve_button_txt, solve_button_txt_rectangle)
+    
+    # Draw Solve Button Rectangle
+    solve_button_rectangle.center = solve_button_txt_rectangle.center
+    pygame.draw.rect(window, BLACK, solve_button_rectangle, 5)
 
 # Room 2
 def draw_grid(n, m, case_length):
@@ -120,7 +150,6 @@ def draw_grid_color(table, case_length):
             elif table[x][y] == "B":
                 black_cell_rectangle.center = ((x * case_length) + (case_length / 2), (y * case_length) + (case_length / 2))
                 pygame.draw.rect(window, BLACK, black_cell_rectangle)
-    
                 
 def get_index(x, y, case_length): # Get the case index
     """Returns the (i, j) case index."""
@@ -130,9 +159,7 @@ def get_index(x, y, case_length): # Get the case index
     return (i, j)
 
 def draw_room2():
-    """Draw the nurikabe game grid."""
-    
-    room = 2
+    """Playable room"""
     
     window.fill(WHITE)
     draw_grid(y_len, x_len, CASE_LENGTH)
@@ -140,8 +167,29 @@ def draw_room2():
     draw_grid_color(table, CASE_LENGTH)
     
     pygame.draw.rect(window, RED, cursor_rectangle, 5)
+    
+# Room 3
+def draw_buttons():
+    # Draw around_one Button Text
+    around_one_button_txt = font_little.render("around_one", True, BLACK)
+    around_one_button_txt_rectangle = around_one_button_txt.get_rect()
+    around_one_button_txt_rectangle.center = ((x_len * CASE_LENGTH) + CASE_LENGTH, 30)
+    window.blit(around_one_button_txt, around_one_button_txt_rectangle)
 
-draw_room1()
+    # Draw around_one Button Rectangle
+    around_one_button_rectangle.center = around_one_button_txt_rectangle.center
+    pygame.draw.rect(window, BLACK, around_one_button_rectangle, 2)
+
+def draw_room3():
+    """Solving room"""
+    
+    window.fill(WHITE)
+    draw_grid(y_len, x_len, CASE_LENGTH)
+    draw_grid_text(table, CASE_LENGTH)
+    draw_grid_color(table, CASE_LENGTH)
+    
+    draw_buttons()
+    
 # Main Loop
 while active:
             
@@ -153,28 +201,37 @@ while active:
         elif event.type == KEYDOWN: # If a key is down
             if event.key == K_m:
                 room = 1
+                table = sample_table
             
         elif event.type == MOUSEBUTTONDOWN: # If a mouse button is pressed
             if room == 1:
                 if play_button_rectangle.collidepoint(event.pos): # If Play Button is pressed
                     room = 2
+                    
+                if solve_button_rectangle.collidepoint(event.pos):
+                    room = 3
             
             elif room == 2:
-                # Get the case index
-                (i, j) = get_index(event.pos[0], event.pos[1], CASE_LENGTH)
-                
-                if table[i][j] == "U":
-                    table[i][j] = "W"
+                if (event.pos[0] < CASE_LENGTH * x_len) and (event.pos[1] < CASE_LENGTH * y_len):
+                    # Get the case index
+                    (i, j) = get_index(event.pos[0], event.pos[1], CASE_LENGTH)
                     
-                elif table[i][j] == "W":
-                    table[i][j] = "B"
+                    if table[i][j] == "U":
+                        table[i][j] = "W"
+                        
+                    elif table[i][j] == "W":
+                        table[i][j] = "B"
+                        
+                    elif table[i][j] == "B":
+                        table[i][j] = "U"
                     
-                elif table[i][j] == "B":
-                    table[i][j] = "U"
-                
-                
-                """player_table[col, row] += 1
-                player_table[col, row] %= 3"""
+                    
+                    """player_table[col, row] += 1
+                    player_table[col, row] %= 3"""
+                    
+            elif room == 3:
+                if around_one_button_rectangle.collidepoint(event.pos):
+                    table = nurikabe.elimAroundOnes(table)
         
         elif event.type == MOUSEMOTION: # If the mouse is moving
             if room == 2:
@@ -183,11 +240,15 @@ while active:
                 cursor_rectangle.x = i * CASE_LENGTH
                 cursor_rectangle.y = j * CASE_LENGTH
                 
+                cursor_rectangle.x = clamp(cursor_rectangle.x, 0, (x_len - 1) * CASE_LENGTH)
+                
         # All drawing is done here
         if room == 1:
             draw_room1()
         elif room == 2:
             draw_room2()
+        elif room == 3:
+            draw_room3()
             
         pygame.display.update()
 
