@@ -5,7 +5,7 @@
 # Import Modules
 import pygame
 from pygame.locals import * # Get Input Variables
-import nurikabe # Jacek's program
+import nurikabe_solver as ns # Jacek's program
 
 # Initialize Pygame
 pygame.init()
@@ -27,18 +27,18 @@ table = [["U", "U", "1", "U", "U", "2"],
          ["U", "2", "U", "U", "U", "U"]]
 
 # Table 2
-table = [["U", "2", "U", "U", "U"],
+"""table = [["U", "2", "U", "U", "U"],
          ["U", "U", "U", "2", "U"],
          ["U", "U", "U", "U", "U"],
          ["U", "1", "U", "U", "U"],
-         ["U", "U", "U", "U", "2"]]
+         ["U", "U", "U", "U", "2"]]"""
 
 # Table 3
-table = [["U", "U", "U", "1", "U"],
+"""table = [["U", "U", "U", "1", "U"],
          ["U", "U", "U", "U", "U"],
          ["U", "U", "3", "U", "4"],
          ["U", "1", "U", "U", "U"],
-         ["U", "U", "U", "U", "U"]]
+         ["U", "U", "U", "U", "U"]]"""
 
 # Set x and y length of the table
 x_len = len(table)
@@ -54,6 +54,8 @@ CASE_LENGTH           = 100
 SCREEN_DIMENSION      = ((x_len * CASE_LENGTH) + DISTANCE_BETWEEN_EDGE, (y_len * CASE_LENGTH))
 SCREEN_CENTER         = (SCREEN_DIMENSION[0] / 2, SCREEN_DIMENSION[1] / 2)
 
+DISTANCE_BETWEEN_BUTTON = 50
+
 play_button_rectangle  = pygame.Rect(0, 0, 200, 80)
 solve_button_rectangle = pygame.Rect(0, 0, 200, 80)
 cursor_rectangle       = pygame.Rect(0, 0, CASE_LENGTH, CASE_LENGTH)
@@ -64,6 +66,7 @@ around_one_button_rectangle = pygame.Rect(0, 0, 150, 30)
 adj_button_rectangle        = pygame.Rect(0, 0, 150, 30)
 diagonal_button_rectangle   = pygame.Rect(0, 0, 150, 30)
 reset_button_rectangle      = pygame.Rect(0, 0, 150, 30)
+continuity_button_rectangle = pygame.Rect(0, 0, 150, 30)
 
 active = True # Main Loop Variable
 
@@ -78,6 +81,25 @@ pygame.display.set_caption(window_title)
 def clamp(n, smallest, largest):
     """Keep the value between 2 numbers."""
     return max(smallest, min(n, largest))
+
+def draw_button(name, distance_from_top, small_button_rectangle, color):
+    """Create a button : text surrounded by a rectangle."""
+    
+    # Draw Button Text
+    button_txt = font_little.render(name, True, color)
+    button_txt_rectangle = button_txt.get_rect()
+    button_txt_rectangle.center = ((x_len * CASE_LENGTH) + CASE_LENGTH, distance_from_top)
+    window.blit(button_txt, button_txt_rectangle)
+
+    # Draw Button Rectangle
+    small_button_rectangle.center = button_txt_rectangle.center
+    pygame.draw.rect(window, BLACK, small_button_rectangle, 2)
+    
+def reset_table(table):
+    for x in range(x_len):
+        for y in range(y_len):
+            if (table[x][y] == "W" or table[x][y] == "B"):
+                table[x][y] = "U"
 
 # Room 1
 def draw_room1():
@@ -121,12 +143,7 @@ def draw_room1():
     author_name_txt_rectangle = author_name_txt.get_rect()
     author_name_txt_rectangle.bottomright = (SCREEN_DIMENSION[0] - 10, SCREEN_DIMENSION[1] - 10)
     window.blit(author_name_txt, author_name_txt_rectangle)
-
-def reset_table(table):
-    for x in range(x_len):
-        for y in range(y_len):
-            if (table[x][y] == "W" or table[x][y] == "B"):
-                table[x][y] = "U"
+    
 # Room 2
 def draw_grid(n, m, case_length):
     """Draws n horizontal lines of length m * case_length.
@@ -177,66 +194,36 @@ def draw_room2():
     """Playable room"""
     
     window.fill(WHITE)
+    
+    # Draw Grid
     draw_grid(y_len, x_len, CASE_LENGTH)
     draw_grid_text(table, CASE_LENGTH)
     draw_grid_color(table, CASE_LENGTH)
     
     pygame.draw.rect(window, RED, cursor_rectangle, 5)
     
+    # Draw Buttons
+    draw_button("check_continuity", 30, continuity_button_rectangle, BLACK)
+    draw_button("reset", SCREEN_DIMENSION[1] - DISTANCE_BETWEEN_BUTTON, reset_button_rectangle, RED)
+    
+    
 # Room 3
-def draw_buttons():
-    # Draw around_one Button Text
-    around_one_button_txt = font_little.render("around_one", True, BLACK)
-    around_one_button_txt_rectangle = around_one_button_txt.get_rect()
-    around_one_button_txt_rectangle.center = ((x_len * CASE_LENGTH) + CASE_LENGTH, 30)
-    window.blit(around_one_button_txt, around_one_button_txt_rectangle)
-
-    # Draw around_one Button Rectangle
-    around_one_button_rectangle.center = around_one_button_txt_rectangle.center
-    pygame.draw.rect(window, BLACK, around_one_button_rectangle, 2)
-    
-    
-    # Draw between_numbers Button Text
-    adj_button_txt = font_little.render("between_numbers", True, BLACK)
-    adj_button_txt_rectangle = adj_button_txt.get_rect()
-    adj_button_txt_rectangle.center = ((x_len * CASE_LENGTH) + CASE_LENGTH, 80)
-    window.blit(adj_button_txt, adj_button_txt_rectangle)
-
-    # Draw between_numbers Button Rectangle
-    adj_button_rectangle.center = adj_button_txt_rectangle.center
-    pygame.draw.rect(window, BLACK, adj_button_rectangle, 2)
-    
-    
-    # Draw diagonal Button Text
-    diagonal_button_txt = font_little.render("diagonal", True, BLACK)
-    diagonal_button_txt_rectangle = diagonal_button_txt.get_rect()
-    diagonal_button_txt_rectangle.center = ((x_len * CASE_LENGTH) + CASE_LENGTH, 130)
-    window.blit(diagonal_button_txt, diagonal_button_txt_rectangle)
-
-    # Draw diagonal Button Rectangle
-    diagonal_button_rectangle.center = diagonal_button_txt_rectangle.center
-    pygame.draw.rect(window, BLACK, diagonal_button_rectangle, 2)
-    
-    
-    # Draw reset Button Text
-    reset_button_txt = font_little.render("reset", True, RED)
-    reset_button_txt_rectangle = reset_button_txt.get_rect()
-    reset_button_txt_rectangle.center = ((x_len * CASE_LENGTH) + CASE_LENGTH, SCREEN_DIMENSION[1] - 30)
-    window.blit(reset_button_txt, reset_button_txt_rectangle)
-
-    # Draw reset Button Rectangle
-    reset_button_rectangle.center = reset_button_txt_rectangle.center
-    pygame.draw.rect(window, BLACK, reset_button_rectangle, 2)
-
 def draw_room3():
-    """Solving room"""
+    """Solving Room"""
     
     window.fill(WHITE)
+    
+    # Draw Grid
     draw_grid(y_len, x_len, CASE_LENGTH)
     draw_grid_text(table, CASE_LENGTH)
     draw_grid_color(table, CASE_LENGTH)
     
-    draw_buttons()
+    # Draw Buttons
+    draw_button("around_one", DISTANCE_BETWEEN_BUTTON, around_one_button_rectangle, BLACK)
+    draw_button("between_numbers", DISTANCE_BETWEEN_BUTTON * 2, adj_button_rectangle, BLACK)
+    draw_button("diagonal", DISTANCE_BETWEEN_BUTTON * 3, diagonal_button_rectangle, BLACK)
+    
+    draw_button("reset", SCREEN_DIMENSION[1] - DISTANCE_BETWEEN_BUTTON, reset_button_rectangle, RED)
     
 # Main Loop
 while active:
@@ -249,6 +236,9 @@ while active:
         elif event.type == KEYDOWN: # If a key is down
             if event.key == K_ESCAPE:
                 room = 1
+            if event.key == K_c:
+                ns.checkWallIntegrity(table)
+                
             
         elif event.type == MOUSEBUTTONDOWN: # If a mouse button is pressed
             if room == 1:
@@ -272,16 +262,22 @@ while active:
                         
                     elif table[i][j] == "B":
                         table[i][j] = "U"
+                        
+                if continuity_button_rectangle.collidepoint(event.pos):
+                    ns.checkWallIntegrity(table)
+                    
+                if reset_button_rectangle.collidepoint(event.pos):
+                    reset_table(table)
                     
             elif room == 3:
                 if around_one_button_rectangle.collidepoint(event.pos):
-                    table = nurikabe.elimAroundOnes(table)
+                    table = ns.elimAroundOnes(table)
                     
                 if adj_button_rectangle.collidepoint(event.pos):
-                    table = nurikabe.elimAdj(table)
+                    table = ns.elimAdj(table)
                     
                 if diagonal_button_rectangle.collidepoint(event.pos):
-                    table = nurikabe.diagonal(table)
+                    table = ns.diagonal(table)
                     
                 if reset_button_rectangle.collidepoint(event.pos):
                     reset_table(table)
@@ -294,7 +290,7 @@ while active:
                 cursor_rectangle.x = i * CASE_LENGTH
                 cursor_rectangle.y = j * CASE_LENGTH
                 
-                #cursor_rectangle.x = clamp(cursor_rectangle.x, 0, (x_len - 1) * CASE_LENGTH)
+                cursor_rectangle.x = clamp(cursor_rectangle.x, 0, (x_len - 1) * CASE_LENGTH)
                 
         # All drawing is done here
         if room == 1:

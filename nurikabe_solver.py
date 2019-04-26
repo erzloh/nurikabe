@@ -18,6 +18,9 @@ def areTouching(x1, y1, x2, y2):
 
 #check continuity of the wall
 def checkWallIntegrity(table):
+    x_len = len(table)
+    y_len = len(table[0])
+    
     setList = []
     for i in range(x_len):
         for j in range(y_len):
