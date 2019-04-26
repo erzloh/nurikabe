@@ -1,6 +1,6 @@
 # Nurikabe Display - Version 1.03
 # Author : Eric Holzer
-# Date : 25 April 2019
+# Date : 26 April 2019
 
 # Import Modules
 import pygame
@@ -49,6 +49,9 @@ WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
 RED   = (255, 0, 0)
 
+color1 = WHITE
+color2 = BLACK
+
 DISTANCE_BETWEEN_EDGE = 200
 CASE_LENGTH           = 100
 SCREEN_DIMENSION      = ((x_len * CASE_LENGTH) + DISTANCE_BETWEEN_EDGE, (y_len * CASE_LENGTH))
@@ -56,11 +59,15 @@ SCREEN_CENTER         = (SCREEN_DIMENSION[0] / 2, SCREEN_DIMENSION[1] / 2)
 
 DISTANCE_BETWEEN_BUTTON = 50
 
-play_button_rectangle  = pygame.Rect(0, 0, 200, 80)
-solve_button_rectangle = pygame.Rect(0, 0, 200, 80)
-cursor_rectangle       = pygame.Rect(0, 0, CASE_LENGTH, CASE_LENGTH)
-white_cell_rectangle   = pygame.Rect(0, 0, 20, 20)
-black_cell_rectangle   = pygame.Rect(0, 0, CASE_LENGTH, CASE_LENGTH)
+play_button_rectangle   = pygame.Rect(0, 0, 250, 80)
+solve_button_rectangle  = pygame.Rect(0, 0, 250, 80)
+option_button_rectangle = pygame.Rect(0, 0, 250, 80)
+
+inverse_color_button_rectangle = pygame.Rect(0, 0, 400, 80)
+
+cursor_rectangle        = pygame.Rect(0, 0, CASE_LENGTH, CASE_LENGTH)
+white_cell_rectangle    = pygame.Rect(0, 0, 20, 20)
+black_cell_rectangle    = pygame.Rect(0, 0, CASE_LENGTH, CASE_LENGTH)
 
 around_one_button_rectangle = pygame.Rect(0, 0, 150, 30)
 adj_button_rectangle        = pygame.Rect(0, 0, 150, 30)
@@ -93,7 +100,20 @@ def draw_button(name, distance_from_top, small_button_rectangle, color):
 
     # Draw Button Rectangle
     small_button_rectangle.center = button_txt_rectangle.center
-    pygame.draw.rect(window, BLACK, small_button_rectangle, 2)
+    pygame.draw.rect(window, color, small_button_rectangle, 2)
+    
+def draw_title_button(name, distance_from_center, big_button_rectangle, color):
+    """Create a title button : text surrounded by a rectangle."""
+    
+    # Draw Button Text
+    button_txt = font.render(name, True, color)
+    button_txt_rectangle = button_txt.get_rect()
+    button_txt_rectangle.center = (SCREEN_CENTER[0], SCREEN_CENTER[1] + distance_from_center)
+    window.blit(button_txt, button_txt_rectangle)
+
+    # Draw Button Rectangle
+    big_button_rectangle.center = button_txt_rectangle.center
+    pygame.draw.rect(window, color, big_button_rectangle, 5)
     
 def reset_table(table):
     for x in range(x_len):
@@ -101,50 +121,33 @@ def reset_table(table):
             if (table[x][y] == "W" or table[x][y] == "B"):
                 table[x][y] = "U"
 
-# Room 1
+# Room 1 (Title)
 def draw_room1():
     """Draws a title and some buttons (play)."""
     
-    window.fill(WHITE)
+    window.fill(color1)
     
     # Reset table
     reset_table(table)
 
     # Draw Title
-    title_txt = font.render("Nurikabe", True, BLACK)
+    title_txt = font.render("Nurikabe", True, color2)
     title_txt_rectangle = title_txt.get_rect()
     title_txt_rectangle.center = (SCREEN_CENTER[0], SCREEN_CENTER[1] - 100)
     window.blit(title_txt, title_txt_rectangle)
-
-    # Draw Play Button Text
-    play_button_txt = font.render("PLAY", True, BLACK)
-    play_button_txt_rectangle = play_button_txt.get_rect()
-    play_button_txt_rectangle.center = SCREEN_CENTER
-    window.blit(play_button_txt, play_button_txt_rectangle)
-
-    # Draw Play Button Rectangle
-    play_button_rectangle.center = play_button_txt_rectangle.center
-    pygame.draw.rect(window, BLACK, play_button_rectangle, 5)
     
-    
-    # Draw Solve Button Text
-    solve_button_txt = font.render("SOLVE", True, BLACK)
-    solve_button_txt_rectangle = solve_button_txt.get_rect()
-    solve_button_txt_rectangle.center = (SCREEN_CENTER[0], SCREEN_CENTER[1] + 100)
-    window.blit(solve_button_txt, solve_button_txt_rectangle)
-    
-    # Draw Solve Button Rectangle
-    solve_button_rectangle.center = solve_button_txt_rectangle.center
-    pygame.draw.rect(window, BLACK, solve_button_rectangle, 5)
-    
+    # Draw Title Buttons
+    draw_title_button("PLAY", 0, play_button_rectangle, color2)
+    draw_title_button("SOLVE", 100, solve_button_rectangle, color2)
+    draw_title_button("OPTION", 200, option_button_rectangle, color2)
     
     # Draw Autor's names Text
-    author_name_txt = font_little.render("Made by Eric Holzer and Jacek Wikeira, 2019", True, BLACK)
+    author_name_txt = font_little.render("Made by Eric Holzer and Jacek Wikeira, 2019", True, color2)
     author_name_txt_rectangle = author_name_txt.get_rect()
     author_name_txt_rectangle.bottomright = (SCREEN_DIMENSION[0] - 10, SCREEN_DIMENSION[1] - 10)
     window.blit(author_name_txt, author_name_txt_rectangle)
     
-# Room 2
+# Room 2 (Play)
 def draw_grid(n, m, case_length):
     """Draws n horizontal lines of length m * case_length.
        Draws m vertical lines of length n * case_length."""
@@ -153,20 +156,20 @@ def draw_grid(n, m, case_length):
     for i in range(n + 1):
         y = i * case_length
         x = m * case_length
-        pygame.draw.line(window, BLACK, (0, y), (x, y), 5)
+        pygame.draw.line(window, color2, (0, y), (x, y), 5)
         
     # Draw Vertical Lines
     for i in range(m + 1):
         y = n * case_length
         x = i * case_length
-        pygame.draw.line(window, BLACK, (x, 0), (x, y), 5)
+        pygame.draw.line(window, color2, (x, 0), (x, y), 5)
 
 def draw_grid_text(table, case_length): # Draw numbers in the grid
     for x in range(x_len):
         for y in range(y_len):
             # If case is a number, print the number
             if (table[x][y] != "U" and table[x][y] != "B" and table[x][y] != "W"):
-                number_txt = font.render(str(table[x][y]), True, BLACK)
+                number_txt = font.render(str(table[x][y]), True, color2)
                 number_txt_rectangle = number_txt.get_rect()
                 number_txt_rectangle.center = ((x * case_length) + (case_length / 2), (y * case_length) + (case_length / 2))
                 window.blit(number_txt, number_txt_rectangle)
@@ -177,11 +180,11 @@ def draw_grid_color(table, case_length):
         for y in range(y_len):
             if table[x][y] == "W":
                 white_cell_rectangle.center = ((x * case_length) + (case_length / 2), (y * case_length) + (case_length / 2))
-                pygame.draw.rect(window, BLACK, white_cell_rectangle)
+                pygame.draw.rect(window, color2, white_cell_rectangle)
                 
             elif table[x][y] == "B":
                 black_cell_rectangle.center = ((x * case_length) + (case_length / 2), (y * case_length) + (case_length / 2))
-                pygame.draw.rect(window, BLACK, black_cell_rectangle)
+                pygame.draw.rect(window, color2, black_cell_rectangle)
                 
 def get_index(x, y, case_length): # Get the case index
     """Returns the (i, j) case index."""
@@ -190,10 +193,10 @@ def get_index(x, y, case_length): # Get the case index
     
     return (i, j)
 
-def draw_room2():
+def draw_room2(): 
     """Playable room"""
     
-    window.fill(WHITE)
+    window.fill(color1)
     
     # Draw Grid
     draw_grid(y_len, x_len, CASE_LENGTH)
@@ -203,15 +206,15 @@ def draw_room2():
     pygame.draw.rect(window, RED, cursor_rectangle, 5)
     
     # Draw Buttons
-    draw_button("check_continuity", 30, continuity_button_rectangle, BLACK)
+    draw_button("check_continuity", 30, continuity_button_rectangle, color2)
     draw_button("reset", SCREEN_DIMENSION[1] - DISTANCE_BETWEEN_BUTTON, reset_button_rectangle, RED)
     
     
-# Room 3
+# Room 3 (Solve)
 def draw_room3():
     """Solving Room"""
     
-    window.fill(WHITE)
+    window.fill(color1)
     
     # Draw Grid
     draw_grid(y_len, x_len, CASE_LENGTH)
@@ -219,12 +222,17 @@ def draw_room3():
     draw_grid_color(table, CASE_LENGTH)
     
     # Draw Buttons
-    draw_button("around_one", DISTANCE_BETWEEN_BUTTON, around_one_button_rectangle, BLACK)
-    draw_button("between_numbers", DISTANCE_BETWEEN_BUTTON * 2, adj_button_rectangle, BLACK)
-    draw_button("diagonal", DISTANCE_BETWEEN_BUTTON * 3, diagonal_button_rectangle, BLACK)
+    draw_button("around_one", DISTANCE_BETWEEN_BUTTON, around_one_button_rectangle, color2)
+    draw_button("between_numbers", DISTANCE_BETWEEN_BUTTON * 2, adj_button_rectangle, color2)
+    draw_button("diagonal", DISTANCE_BETWEEN_BUTTON * 3, diagonal_button_rectangle, color2)
     
     draw_button("reset", SCREEN_DIMENSION[1] - DISTANCE_BETWEEN_BUTTON, reset_button_rectangle, RED)
+
+# Room 4 (Option)
+def draw_room4():
+    window.fill(color1)
     
+    draw_title_button("inverse_color", 0, inverse_color_button_rectangle, color2)
 # Main Loop
 while active:
             
@@ -236,8 +244,6 @@ while active:
         elif event.type == KEYDOWN: # If a key is down
             if event.key == K_ESCAPE:
                 room = 1
-            if event.key == K_c:
-                ns.checkWallIntegrity(table)
                 
             
         elif event.type == MOUSEBUTTONDOWN: # If a mouse button is pressed
@@ -247,6 +253,9 @@ while active:
                     
                 if solve_button_rectangle.collidepoint(event.pos):
                     room = 3
+                    
+                if option_button_rectangle.collidepoint(event.pos):
+                    room = 4
             
             elif room == 2:
                 # If the mouse stay in the nurikabe grid
@@ -281,6 +290,16 @@ while active:
                     
                 if reset_button_rectangle.collidepoint(event.pos):
                     reset_table(table)
+                    
+            elif room == 4:
+                if inverse_color_button_rectangle.collidepoint(event.pos):
+                    if color1 == WHITE:
+                        color1 = BLACK
+                        color2 = WHITE
+                        
+                    elif color1 == BLACK:
+                        color1 = WHITE
+                        color2 = BLACK
         
         elif event.type == MOUSEMOTION: # If the mouse is moving
             if room == 2:
@@ -299,6 +318,8 @@ while active:
             draw_room2()
         elif room == 3:
             draw_room3()
+        elif room == 4:
+            draw_room4()
             
         pygame.display.update()
 
