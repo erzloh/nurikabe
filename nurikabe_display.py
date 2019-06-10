@@ -52,9 +52,10 @@ RED   = (255, 0, 0)
 color1 = WHITE
 color2 = BLACK
 
+TOOLBAR_DISTANCE  = 50
 DISTANCE_BETWEEN_EDGE = 200
 CASE_LENGTH           = 100
-SCREEN_DIMENSION      = ((x_len * CASE_LENGTH) + DISTANCE_BETWEEN_EDGE, (y_len * CASE_LENGTH))
+SCREEN_DIMENSION      = ((x_len * CASE_LENGTH) + DISTANCE_BETWEEN_EDGE, (y_len * CASE_LENGTH) + TOOLBAR_DISTANCE)
 SCREEN_CENTER         = (SCREEN_DIMENSION[0] / 2, SCREEN_DIMENSION[1] / 2)
 
 DISTANCE_BETWEEN_BUTTON = 50
@@ -74,6 +75,8 @@ adj_button_rectangle        = pygame.Rect(0, 0, 150, 30)
 diagonal_button_rectangle   = pygame.Rect(0, 0, 150, 30)
 reset_button_rectangle      = pygame.Rect(0, 0, 150, 30)
 continuity_button_rectangle = pygame.Rect(0, 0, 150, 30)
+
+return_button_rectangle = pygame.Rect(0, 0, 75, 30)
 
 active = True # Main Loop Variable
 
@@ -114,6 +117,19 @@ def draw_title_button(name, distance_from_center, big_button_rectangle, color):
     # Draw Button Rectangle
     big_button_rectangle.center = button_txt_rectangle.center
     pygame.draw.rect(window, color, big_button_rectangle, 5)
+    
+def draw_return_button(name, x, y, small_button_rectangle, color):
+    """Create a button : text surrounded by a rectangle."""
+    
+    # Draw Button Text
+    button_txt = font_little.render(name, True, color)
+    button_txt_rectangle = button_txt.get_rect()
+    button_txt_rectangle.center = (x, y)
+    window.blit(button_txt, button_txt_rectangle)
+
+    # Draw Button Rectangle
+    small_button_rectangle.center = button_txt_rectangle.center
+    pygame.draw.rect(window, color, small_button_rectangle, 2)
     
 def reset_table(table):
     for x in range(x_len):
@@ -156,13 +172,13 @@ def draw_grid(n, m, case_length):
     for i in range(n + 1):
         y = i * case_length
         x = m * case_length
-        pygame.draw.line(window, color2, (0, y), (x, y), 5)
+        pygame.draw.line(window, color2, (0, y + TOOLBAR_DISTANCE), (x, y + TOOLBAR_DISTANCE), 5)
         
     # Draw Vertical Lines
     for i in range(m + 1):
         y = n * case_length
         x = i * case_length
-        pygame.draw.line(window, color2, (x, 0), (x, y), 5)
+        pygame.draw.line(window, color2, (x, TOOLBAR_DISTANCE), (x, y + TOOLBAR_DISTANCE), 5)
 
 def draw_grid_text(table, case_length): # Draw numbers in the grid
     for x in range(x_len):
@@ -171,7 +187,7 @@ def draw_grid_text(table, case_length): # Draw numbers in the grid
             if (table[x][y] != "U" and table[x][y] != "B" and table[x][y] != "W"):
                 number_txt = font.render(str(table[x][y]), True, color2)
                 number_txt_rectangle = number_txt.get_rect()
-                number_txt_rectangle.center = ((x * case_length) + (case_length / 2), (y * case_length) + (case_length / 2))
+                number_txt_rectangle.center = ((x * case_length) + (case_length / 2), (y * case_length) + (case_length / 2) + TOOLBAR_DISTANCE)
                 window.blit(number_txt, number_txt_rectangle)
                 
 def draw_grid_color(table, case_length):
@@ -179,17 +195,17 @@ def draw_grid_color(table, case_length):
     for x in range(x_len):
         for y in range(y_len):
             if table[x][y] == "W":
-                white_cell_rectangle.center = ((x * case_length) + (case_length / 2), (y * case_length) + (case_length / 2))
+                white_cell_rectangle.center = ((x * case_length) + (case_length / 2), (y * case_length) + (case_length / 2) + TOOLBAR_DISTANCE)
                 pygame.draw.rect(window, color2, white_cell_rectangle)
                 
             elif table[x][y] == "B":
-                black_cell_rectangle.center = ((x * case_length) + (case_length / 2), (y * case_length) + (case_length / 2))
+                black_cell_rectangle.center = ((x * case_length) + (case_length / 2), (y * case_length) + (case_length / 2) + TOOLBAR_DISTANCE)
                 pygame.draw.rect(window, color2, black_cell_rectangle)
                 
 def get_index(x, y, case_length): # Get the case index
     """Returns the (i, j) case index."""
     i = x // case_length
-    j = y // case_length
+    j = (y - TOOLBAR_DISTANCE) // case_length
     
     return (i, j)
 
@@ -206,9 +222,9 @@ def draw_room2():
     pygame.draw.rect(window, RED, cursor_rectangle, 5)
     
     # Draw Buttons
-    draw_button("check_continuity", 30, continuity_button_rectangle, color2)
+    draw_button("check_continuity", TOOLBAR_DISTANCE + 30, continuity_button_rectangle, color2)
     draw_button("reset", SCREEN_DIMENSION[1] - DISTANCE_BETWEEN_BUTTON, reset_button_rectangle, RED)
-    
+    draw_return_button("menu", 50, 25, return_button_rectangle, color2)
     
 # Room 3 (Solve)
 def draw_room3():
@@ -222,11 +238,12 @@ def draw_room3():
     draw_grid_color(table, CASE_LENGTH)
     
     # Draw Buttons
-    draw_button("around_one", DISTANCE_BETWEEN_BUTTON, around_one_button_rectangle, color2)
-    draw_button("between_numbers", DISTANCE_BETWEEN_BUTTON * 2, adj_button_rectangle, color2)
-    draw_button("diagonal", DISTANCE_BETWEEN_BUTTON * 3, diagonal_button_rectangle, color2)
+    draw_button("around_one", TOOLBAR_DISTANCE + DISTANCE_BETWEEN_BUTTON, around_one_button_rectangle, color2)
+    draw_button("between_numbers", TOOLBAR_DISTANCE + (DISTANCE_BETWEEN_BUTTON * 2), adj_button_rectangle, color2)
+    draw_button("diagonal", TOOLBAR_DISTANCE + (DISTANCE_BETWEEN_BUTTON * 3), diagonal_button_rectangle, color2)
     
     draw_button("reset", SCREEN_DIMENSION[1] - DISTANCE_BETWEEN_BUTTON, reset_button_rectangle, RED)
+    draw_return_button("menu", 50, 25, return_button_rectangle, color2)
 
 # Room 4 (Option)
 def draw_room4():
@@ -259,7 +276,7 @@ while active:
                     
             # PLAYABLE ROOM
             elif room == 2:
-                # If the mouse stay in the nurikabe grid
+                # If the mouse is in the nurikabe grid
                 if (event.pos[0] < CASE_LENGTH * x_len) and (event.pos[1] < CASE_LENGTH * y_len):
                     # Get the case index
                     (i, j) = get_index(event.pos[0], event.pos[1], CASE_LENGTH)
@@ -279,6 +296,9 @@ while active:
                 if reset_button_rectangle.collidepoint(event.pos):
                     reset_table(table)
                     
+                if return_button_rectangle.collidepoint(event.pos):
+                    room = 1
+                    
             # SOLVING ROOM
             elif room == 3:
                 if around_one_button_rectangle.collidepoint(event.pos):
@@ -292,6 +312,9 @@ while active:
                     
                 if reset_button_rectangle.collidepoint(event.pos):
                     reset_table(table)
+                    
+                if return_button_rectangle.collidepoint(event.pos):
+                    room = 1
                     
             # OPTION ROOM
             elif room == 4:
@@ -310,9 +333,10 @@ while active:
                 (i, j) = get_index(event.pos[0], event.pos[1], CASE_LENGTH)
                 
                 cursor_rectangle.x = i * CASE_LENGTH
-                cursor_rectangle.y = j * CASE_LENGTH
+                cursor_rectangle.y = j * CASE_LENGTH + TOOLBAR_DISTANCE
                 
                 cursor_rectangle.x = clamp(cursor_rectangle.x, 0, (x_len - 1) * CASE_LENGTH)
+                cursor_rectangle.y = clamp(cursor_rectangle.y, TOOLBAR_DISTANCE, (y_len - 1) * CASE_LENGTH)
                 
         # All drawing is done here
         if room == 1:
