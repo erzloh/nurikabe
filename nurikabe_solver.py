@@ -1,6 +1,7 @@
 # Nurikabe solver part
 # By Jacek Wikiera
 # last edit 27 april 19 - 22:45
+# last edit 10 June 19 (Eric)
 
 import sys, math
 
@@ -72,6 +73,10 @@ def checkWallIntegrity(table):
 
 # turn tiles between numbers black "B"
 def elimAdj(table):
+    # set x and y length of the table
+    x_len = len(table)
+    y_len = len(table[0])
+    
     for i in range(x_len):
         for j in range(y_len):
             # check in the right direction
@@ -85,6 +90,11 @@ def elimAdj(table):
 
 # turns tiles next to "ones" black ("B")
 def elimAroundOnes(table):
+    
+    # set x and y length of the table
+    x_len = len(table)
+    y_len = len(table[0])
+    
     for i in range(x_len):
         for j in range(y_len):
             if table[i][j] == "1":
@@ -101,6 +111,10 @@ def elimAroundOnes(table):
 
 # turns tiles in diagonal black ("B")
 def diagonal(table):
+    # set x and y length of the table
+    x_len = len(table)
+    y_len = len(table[0])
+    
     for i in range(x_len):
         for j in range(y_len):
             # case n1: "2" "w"
@@ -126,7 +140,7 @@ def printTable(table):
         print(tempStr)
         tempStr = ""
 
-
+"""
 # old table
 table = ["w", "1", "w", "w",
          "w", "w", "w", "2",
@@ -138,11 +152,9 @@ table = ["w", "1", "w", "w",
 table = [["w", "w", "1", "w", "w", "2"],
          ["1", "w", "w", "w", "w", "w"],
          ["w", "w", "2", "w", "w", "2"],
-         ["w", "2", "w", "w", "w", "w"]]
+         ["w", "2", "w", "w", "w", "w"]]"""
 
-# set x and y length of the table
-x_len = len(table)
-y_len = len(table[0])
+
 
 """# execute functions
 table = elimAroundOnes(table)

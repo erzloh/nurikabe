@@ -21,10 +21,10 @@ font_little = pygame.font.SysFont("Helvetica", 24)
     "U" = undefined """
 
 # Table 1
-table = [["U", "U", "1", "U", "U", "2"],
+"""table = [["U", "U", "1", "U", "U", "2"],
          ["1", "U", "U", "U", "U", "U"],
          ["U", "U", "2", "U", "U", "2"],
-         ["U", "2", "U", "U", "U", "U"]]
+         ["U", "2", "U", "U", "U", "U"]]"""
 
 # Table 2
 """table = [["U", "2", "U", "U", "U"],
@@ -34,12 +34,11 @@ table = [["U", "U", "1", "U", "U", "2"],
          ["U", "U", "U", "U", "2"]]"""
 
 # Table 3
-"""table = [["U", "U", "U", "1", "U"],
+table = [["U", "U", "U", "1", "U"],
          ["U", "U", "U", "U", "U"],
          ["U", "U", "3", "U", "4"],
          ["U", "1", "U", "U", "U"],
-         ["U", "U", "U", "U", "U"]]"""
-
+         ["U", "U", "U", "U", "U"]]
 # Set x and y length of the table
 x_len = len(table)
 y_len = len(table[0])
@@ -250,6 +249,7 @@ def draw_room4():
     window.fill(color1)
     
     draw_title_button("inverse_color", 0, inverse_color_button_rectangle, color2)
+    draw_return_button("menu", 50, 25, return_button_rectangle, color2)
 # Main Loop
 while active:
             
@@ -326,6 +326,9 @@ while active:
                     elif color1 == BLACK:
                         color1 = WHITE
                         color2 = BLACK
+                        
+                if return_button_rectangle.collidepoint(event.pos):
+                    room = 1
         
         elif event.type == MOUSEMOTION: # If the mouse is moving
             if room == 2:
@@ -336,7 +339,7 @@ while active:
                 cursor_rectangle.y = j * CASE_LENGTH + TOOLBAR_DISTANCE
                 
                 cursor_rectangle.x = clamp(cursor_rectangle.x, 0, (x_len - 1) * CASE_LENGTH)
-                cursor_rectangle.y = clamp(cursor_rectangle.y, TOOLBAR_DISTANCE, (y_len - 1) * CASE_LENGTH)
+                cursor_rectangle.y = clamp(cursor_rectangle.y, TOOLBAR_DISTANCE, ((y_len - 1) * CASE_LENGTH) + TOOLBAR_DISTANCE)
                 
         # All drawing is done here
         if room == 1:
