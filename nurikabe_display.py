@@ -256,7 +256,8 @@ while active:
                     
                 if option_button_rectangle.collidepoint(event.pos):
                     room = 4
-            
+                    
+            # PLAYABLE ROOM
             elif room == 2:
                 # If the mouse stay in the nurikabe grid
                 if (event.pos[0] < CASE_LENGTH * x_len) and (event.pos[1] < CASE_LENGTH * y_len):
@@ -273,11 +274,12 @@ while active:
                         table[i][j] = "U"
                         
                 if continuity_button_rectangle.collidepoint(event.pos):
-                    ns.checkWallIntegrity(table)
+                    ns.checkWallIntegrity2(table)
                     
                 if reset_button_rectangle.collidepoint(event.pos):
                     reset_table(table)
                     
+            # SOLVING ROOM
             elif room == 3:
                 if around_one_button_rectangle.collidepoint(event.pos):
                     table = ns.elimAroundOnes(table)
@@ -291,6 +293,7 @@ while active:
                 if reset_button_rectangle.collidepoint(event.pos):
                     reset_table(table)
                     
+            # OPTION ROOM
             elif room == 4:
                 if inverse_color_button_rectangle.collidepoint(event.pos):
                     if color1 == WHITE:
