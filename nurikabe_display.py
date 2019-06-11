@@ -1,11 +1,12 @@
 # Nurikabe Display - Version 1.03
 # Author : Eric Holzer
-# Date : 26 April 2019
+# Date : 10 June 2019
 
 # Import Modules
 import pygame
 from pygame.locals import * # Get Input Variables
 import nurikabe_solver as ns # Jacek's program
+import nurikabe_tables as nt # Nurikabe Tables
 
 # Initialize Pygame
 pygame.init()
@@ -21,10 +22,10 @@ font_little = pygame.font.SysFont("Helvetica", 24)
     "U" = undefined """
 
 # Table 1
-"""table = [["U", "U", "1", "U", "U", "2"],
+table = [["U", "U", "1", "U", "U", "2"],
          ["1", "U", "U", "U", "U", "U"],
          ["U", "U", "2", "U", "U", "2"],
-         ["U", "2", "U", "U", "U", "U"]]"""
+         ["U", "2", "U", "U", "U", "U"]]
 
 # Table 2
 """table = [["U", "2", "U", "U", "U"],
@@ -34,11 +35,12 @@ font_little = pygame.font.SysFont("Helvetica", 24)
          ["U", "U", "U", "U", "2"]]"""
 
 # Table 3
-table = [["U", "U", "U", "1", "U"],
+"""table = [["U", "U", "U", "1", "U"],
          ["U", "U", "U", "U", "U"],
          ["U", "U", "3", "U", "4"],
          ["U", "1", "U", "U", "U"],
-         ["U", "U", "U", "U", "U"]]
+         ["U", "U", "U", "U", "U"]]"""
+
 # Set x and y length of the table
 x_len = len(table)
 y_len = len(table[0])
@@ -77,9 +79,15 @@ continuity_button_rectangle = pygame.Rect(0, 0, 150, 30)
 
 return_button_rectangle = pygame.Rect(0, 0, 75, 30)
 
+level1_button_rectangle = pygame.Rect(0, 0, 100, 100)
+level2_button_rectangle = pygame.Rect(0, 0, 100, 100)
+level3_button_rectangle = pygame.Rect(0, 0, 100, 100)
+
 active = True # Main Loop Variable
 
-room = 1 # The game starts in room 1
+room = 1 # The game starts in room 1, corresponding to the title screen
+
+room_mode = "" # Whether "solve" or "play"
 
 # Create Window
 window_title = "Nurikabe"
@@ -130,6 +138,31 @@ def draw_return_button(name, x, y, small_button_rectangle, color):
     small_button_rectangle.center = button_txt_rectangle.center
     pygame.draw.rect(window, color, small_button_rectangle, 2)
     
+def draw_level_button(name, level_button_rectangle, color, number_of_levels):
+    """Create a level button : number surrounded by a square."""
+    
+    """number_of_rows = 1
+    actual_row = 1
+    
+    if number_of_levels > 5:
+        number_of_rows = 2
+        if int(name) > 5:
+            actual_row = 2
+    if number_of_levels > 10:
+        number_of_rows = 3
+        if int(name) > 5:
+            actual_row = 3"""
+    
+    # Draw Button Number
+    button_txt = font.render(name, True, color)
+    button_txt_rectangle = button_txt.get_rect()
+    button_txt_rectangle.center = ((SCREEN_DIMENSION[0] // (number_of_levels + 1))* int(name), SCREEN_CENTER[1])
+    window.blit(button_txt, button_txt_rectangle)
+
+    # Draw Button Rectangle
+    level_button_rectangle.center = button_txt_rectangle.center
+    pygame.draw.rect(window, color, level_button_rectangle, 5)
+    
 def reset_table(table):
     for x in range(x_len):
         for y in range(y_len):
@@ -138,7 +171,7 @@ def reset_table(table):
 
 # Room 1 (Title)
 def draw_room1():
-    """Draws a title and some buttons (play)."""
+    """Draws a title and some buttons."""
     
     window.fill(color1)
     
@@ -225,6 +258,12 @@ def draw_room2():
     draw_button("reset", SCREEN_DIMENSION[1] - DISTANCE_BETWEEN_BUTTON, reset_button_rectangle, RED)
     draw_return_button("menu", 50, 25, return_button_rectangle, color2)
     
+    # Draw Room Mode
+    mode_txt = font_little.render("MODE : " + room_mode, True, color2)
+    mode_txt_rectangle = mode_txt.get_rect()
+    mode_txt_rectangle.center = (SCREEN_CENTER[0], 25)
+    window.blit(mode_txt, mode_txt_rectangle)
+    
 # Room 3 (Solve)
 def draw_room3():
     """Solving Room"""
@@ -243,6 +282,12 @@ def draw_room3():
     
     draw_button("reset", SCREEN_DIMENSION[1] - DISTANCE_BETWEEN_BUTTON, reset_button_rectangle, RED)
     draw_return_button("menu", 50, 25, return_button_rectangle, color2)
+    
+    # Draw Room Mode
+    mode_txt = font_little.render("MODE : " + room_mode, True, color2)
+    mode_txt_rectangle = mode_txt.get_rect()
+    mode_txt_rectangle.center = (SCREEN_CENTER[0], 25)
+    window.blit(mode_txt, mode_txt_rectangle)
 
 # Room 4 (Option)
 def draw_room4():
@@ -250,6 +295,24 @@ def draw_room4():
     
     draw_title_button("inverse_color", 0, inverse_color_button_rectangle, color2)
     draw_return_button("menu", 50, 25, return_button_rectangle, color2)
+    
+# Room 5 (Choice of level)
+def draw_room5():
+    window.fill(color1)
+    
+    # Draw Title
+    title_txt = font.render("Choose a level", True, color2)
+    title_txt_rectangle = title_txt.get_rect()
+    title_txt_rectangle.center = (SCREEN_CENTER[0], 100)
+    window.blit(title_txt, title_txt_rectangle)
+    
+    # Draw Level Buttons
+    draw_level_button("1", level1_button_rectangle, color2, nt.number_of_levels)
+    draw_level_button("2", level2_button_rectangle, color2, nt.number_of_levels)
+    draw_level_button("3", level3_button_rectangle, color2, nt.number_of_levels)
+    
+    draw_return_button("menu", 50, 25, return_button_rectangle, color2)
+
 # Main Loop
 while active:
             
@@ -266,10 +329,12 @@ while active:
         elif event.type == MOUSEBUTTONDOWN: # If a mouse button is pressed
             if room == 1:
                 if play_button_rectangle.collidepoint(event.pos): # If Play Button is pressed
-                    room = 2
+                    room_mode = "play"
+                    room = 5
                     
                 if solve_button_rectangle.collidepoint(event.pos):
-                    room = 3
+                    room_mode = "solve"
+                    room = 5
                     
                 if option_button_rectangle.collidepoint(event.pos):
                     room = 4
@@ -329,6 +394,56 @@ while active:
                         
                 if return_button_rectangle.collidepoint(event.pos):
                     room = 1
+                    
+            # LEVEL CHOOSING ROOM
+            elif room == 5:
+                if level1_button_rectangle.collidepoint(event.pos): # LEVEL 1
+                    
+                    table = nt.table1
+                    x_len = len(table)
+                    y_len = len(table[0])
+                    
+                    if room_mode == "play":
+                        room = 2
+                    elif room_mode == "solve":
+                        room = 3
+                    
+                    SCREEN_DIMENSION = ((x_len * CASE_LENGTH) + DISTANCE_BETWEEN_EDGE, (y_len * CASE_LENGTH) + TOOLBAR_DISTANCE)
+                    SCREEN_CENTER    = (SCREEN_DIMENSION[0] / 2, SCREEN_DIMENSION[1] / 2)
+                    window = pygame.display.set_mode(SCREEN_DIMENSION)
+                    
+                if level2_button_rectangle.collidepoint(event.pos): # LEVEL 2
+                    
+                    table = nt.table2
+                    x_len = len(table)
+                    y_len = len(table[0])
+                    
+                    if room_mode == "play":
+                        room = 2
+                    elif room_mode == "solve":
+                        room = 3
+                    
+                    SCREEN_DIMENSION = ((x_len * CASE_LENGTH) + DISTANCE_BETWEEN_EDGE, (y_len * CASE_LENGTH) + TOOLBAR_DISTANCE)
+                    SCREEN_CENTER    = (SCREEN_DIMENSION[0] / 2, SCREEN_DIMENSION[1] / 2)
+                    window = pygame.display.set_mode(SCREEN_DIMENSION)
+                    
+                if level3_button_rectangle.collidepoint(event.pos): # LEVEL 3
+                    
+                    table = nt.table3
+                    x_len = len(table)
+                    y_len = len(table[0])
+                    
+                    if room_mode == "play":
+                        room = 2
+                    elif room_mode == "solve":
+                        room = 3
+                    
+                    SCREEN_DIMENSION = ((x_len * CASE_LENGTH) + DISTANCE_BETWEEN_EDGE, (y_len * CASE_LENGTH) + TOOLBAR_DISTANCE)
+                    SCREEN_CENTER    = (SCREEN_DIMENSION[0] / 2, SCREEN_DIMENSION[1] / 2)
+                    window = pygame.display.set_mode(SCREEN_DIMENSION)
+                    
+                if return_button_rectangle.collidepoint(event.pos):
+                    room = 1
         
         elif event.type == MOUSEMOTION: # If the mouse is moving
             if room == 2:
@@ -350,6 +465,8 @@ while active:
             draw_room3()
         elif room == 4:
             draw_room4()
+        elif room == 5:
+            draw_room5()
             
         pygame.display.update()
 
