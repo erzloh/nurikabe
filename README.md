@@ -1,2 +1,2 @@
 # nurikabe
-School project to program a Nurikabe game
+School project to program a Nurikabe solver
