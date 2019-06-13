@@ -7,6 +7,7 @@ import pygame
 from pygame.locals import * # Get Input Variables
 import nurikabe_solver as ns # Jacek's program
 import nurikabe_tables as nt # Nurikabe Tables
+import validite # functions that check if the Nurikabe is completed
 
 # Initialize Pygame
 pygame.init()
@@ -76,12 +77,14 @@ adj_button_rectangle        = pygame.Rect(0, 0, 150, 30)
 diagonal_button_rectangle   = pygame.Rect(0, 0, 150, 30)
 reset_button_rectangle      = pygame.Rect(0, 0, 150, 30)
 continuity_button_rectangle = pygame.Rect(0, 0, 150, 30)
+block_2x2_button_rectangle = pygame.Rect(0, 0, 150, 30)
 
 return_button_rectangle = pygame.Rect(0, 0, 75, 30)
 
 level1_button_rectangle = pygame.Rect(0, 0, 100, 100)
 level2_button_rectangle = pygame.Rect(0, 0, 100, 100)
 level3_button_rectangle = pygame.Rect(0, 0, 100, 100)
+level4_button_rectangle = pygame.Rect(0, 0, 100, 100)
 
 active = True # Main Loop Variable
 
@@ -254,7 +257,8 @@ def draw_room2():
     pygame.draw.rect(window, RED, cursor_rectangle, 5)
     
     # Draw Buttons
-    draw_button("check_continuity", TOOLBAR_DISTANCE + 30, continuity_button_rectangle, color2)
+    draw_button("check_continuity", TOOLBAR_DISTANCE + DISTANCE_BETWEEN_BUTTON, continuity_button_rectangle, color2)
+    draw_button("2x2_block", TOOLBAR_DISTANCE + (DISTANCE_BETWEEN_BUTTON * 2), block_2x2_button_rectangle, color2)
     draw_button("reset", SCREEN_DIMENSION[1] - DISTANCE_BETWEEN_BUTTON, reset_button_rectangle, RED)
     draw_return_button("menu", 50, 25, return_button_rectangle, color2)
     
@@ -310,6 +314,7 @@ def draw_room5():
     draw_level_button("1", level1_button_rectangle, color2, nt.number_of_levels)
     draw_level_button("2", level2_button_rectangle, color2, nt.number_of_levels)
     draw_level_button("3", level3_button_rectangle, color2, nt.number_of_levels)
+    draw_level_button("4", level4_button_rectangle, color2, nt.number_of_levels)
     
     draw_return_button("menu", 50, 25, return_button_rectangle, color2)
 
@@ -357,6 +362,9 @@ while active:
                         
                 if continuity_button_rectangle.collidepoint(event.pos):
                     ns.checkWallIntegrity2(table)
+                    
+                if block_2x2_button_rectangle.collidepoint(event.pos):
+                    validite.wallBlockCheck(table)
                     
                 if reset_button_rectangle.collidepoint(event.pos):
                     reset_table(table)
@@ -430,6 +438,24 @@ while active:
                 if level3_button_rectangle.collidepoint(event.pos): # LEVEL 3
                     
                     table = nt.table3
+                    x_len = len(table)
+                    y_len = len(table[0])
+                    
+                    if room_mode == "play":
+                        room = 2
+                    elif room_mode == "solve":
+                        room = 3
+                    
+                    SCREEN_DIMENSION = ((x_len * CASE_LENGTH) + DISTANCE_BETWEEN_EDGE, (y_len * CASE_LENGTH) + TOOLBAR_DISTANCE)
+                    SCREEN_CENTER    = (SCREEN_DIMENSION[0] / 2, SCREEN_DIMENSION[1] / 2)
+                    window = pygame.display.set_mode(SCREEN_DIMENSION)
+                    
+                if return_button_rectangle.collidepoint(event.pos):
+                    room = 1
+                    
+                if level4_button_rectangle.collidepoint(event.pos): # LEVEL 4
+                    
+                    table = nt.table4
                     x_len = len(table)
                     y_len = len(table[0])
                     

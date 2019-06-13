@@ -104,6 +104,9 @@ def diagonal(table):
 
 #check for 2x2 wall blocks
 def wallBlockCheck(table):
+    x_len = len(table)
+    y_len = len(table[0])
+    
     foundBlock = False
     for i in range(x_len-1):
         for j in range(y_len-1):
@@ -160,7 +163,7 @@ def printTable(table):
 """table =[["B", "B", "1", "B", "I", "2"],
         ["1", "B", "B", "B", "Q", "B"],
         ["B", "B", "2", "I", "B", "2"],
-        ["I", "2", "B", "B", "B", "I"]]"""
+        ["I", "2", "B", "B", "B", "I"]]
 #new table
 table =[["B", "B", "1", "B", "I", "2"],
         ["1", "B", "B", "B", "B", "B"],
@@ -177,18 +180,18 @@ table = [["1", "B", "2", "I", "B", "2", "I"],
 
 #set x and y length of the table
 x_len = len(table)
-y_len = len(table[0])
+y_len = len(table[0])"""
 
 #execute functions
 #table = elimAroundOnes(table)
 #table = elimAdj(table)
 #table = diagonal(table)
-wallBlockCheck(table)
-completeIslands(table)
+#wallBlockCheck(table)
+#completeIslands(table)
 
-checkWallIntegrity(table)
+#checkWallIntegrity(table)
 
-printTable(table)
+#printTable(table)
 
         #["w", "1", "w", "w",
          #"w", "w", "w", "2",

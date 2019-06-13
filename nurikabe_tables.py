@@ -4,7 +4,7 @@
     "B" = black
     "U" = undefined """
 
-number_of_levels = 3 # Number of Tables
+number_of_levels = 4 # Number of Tables
 
 # Table 1
 table1 = [["U", "U", "1", "U", "U", "2"],
@@ -25,3 +25,12 @@ table3 = [["U", "U", "U", "1", "U"],
          ["U", "U", "3", "U", "4"],
          ["U", "1", "U", "U", "U"],
          ["U", "U", "U", "U", "U"]]
+
+# Table 4
+table4 = [["1", "U", "2", "U", "U", "2", "U"],
+         ["U", "U", "U", "U", "U", "U", "U"],
+         ["2", "U", "U", "4", "U", "U", "1"],
+         ["U", "U", "U", "U", "U", "U", "U"],
+         ["2", "U", "U", "U", "2", "U", "U"],
+         ["U", "U", "4", "U", "U", "U", "U"],
+         ["U", "U", "U", "U", "U", "U", "1"]]
