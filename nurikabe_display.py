@@ -463,6 +463,9 @@ while active:
                     SCREEN_CENTER    = (SCREEN_DIMENSION[0] / 2, SCREEN_DIMENSION[1] / 2)
                     window = pygame.display.set_mode(SCREEN_DIMENSION)
                     
+                    pygame.mixer.music.load("dog_song.mp3")
+                    pygame.mixer.music.play()
+                    
             # LEVEL CHOOSING ROOM
             elif room == 5:
                 if level1_button_rectangle.collidepoint(event.pos): # LEVEL 1

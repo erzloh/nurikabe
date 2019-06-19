@@ -45,5 +45,14 @@ def create_table(x_len, y_len):
             tempTable[x].append("U")
     return tempTable
 
-table_draw = create_table(9, 9)
 
+table_draw = [["U", "U", "U", "U", "U", "U", "U", "U", "U"],
+              ["U", "U", "U", "U", "U", "U", "U", "U", "U"],
+              ["U", "U", "U", "U", "U", "B", "U", "U", "U"],
+              ["U", "U", "B", "U", "U", "U", "B", "U", "U"],
+              ["U", "U", "U", "U", "B", "B", "B", "U", "U"],
+              ["U", "U", "U", "U", "B", "U", "B", "U", "U"],
+              ["U", "U", "B", "U", "U", "U", "B", "U", "U"],
+              ["U", "U", "U", "U", "U", "B", "U", "U", "U"],
+              ["U", "U", "U", "U", "U", "U", "U", "U", "U"],
+              ["U", "U", "U", "U", "U", "U", "U", "U", "U"]]
