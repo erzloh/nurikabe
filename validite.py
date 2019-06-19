@@ -118,6 +118,7 @@ def wallBlockCheck(table):
                 
     if not foundBlock:
         print("No 2x2 blocks in the wall")
+        return None
         
        
 

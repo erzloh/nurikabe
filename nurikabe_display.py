@@ -55,6 +55,7 @@ solve_button_rectangle  = pygame.Rect(0, 0, 250, 80)
 option_button_rectangle = pygame.Rect(0, 0, 250, 80)
 
 inverse_color_button_rectangle = pygame.Rect(0, 0, 400, 80)
+enjoy_button_rectangle         = pygame.Rect(0, 0, 400, 80)
 
 cursor_rectangle        = pygame.Rect(0, 0, CASE_LENGTH, CASE_LENGTH)
 white_cell_rectangle    = pygame.Rect(0, 0, 20, 20)
@@ -168,6 +169,12 @@ def reset_table(table):
         for y in range(y_len):
             if (table[x][y] == "W" or table[x][y] == "B"):
                 table[x][y] = "U"
+                
+def reset_debug_table(table):
+    for x in range(x_len):
+        for y in range(y_len):
+            if (table[x][y] == "R" or table[x][y] == "B"):
+                table[x][y] = 0
 
 # Room 1 (Title)
 def draw_room1():
@@ -305,6 +312,7 @@ def draw_room4():
     window.fill(color1)
     
     draw_title_button("inverse_color", 0, inverse_color_button_rectangle, color2)
+    draw_title_button("enjoy", 100, enjoy_button_rectangle, color2)
     draw_return_button("menu", 50, 25, return_button_rectangle, color2)
     
 # Room 5 (Choice of level)
@@ -324,6 +332,26 @@ def draw_room5():
     draw_level_button("4", level4_button_rectangle, color2, nt.number_of_levels)
     
     draw_return_button("menu", 50, 25, return_button_rectangle, color2)
+    
+# Room 6 (Drawing Room)
+def draw_room6():
+    window.fill(color1)
+    
+    # Draw Grid
+    draw_grid(y_len, x_len, CASE_LENGTH)
+    draw_grid_color(table, CASE_LENGTH)
+    
+    pygame.draw.rect(window, RED, cursor_rectangle, 5)
+    
+    # Draw Buttons
+    draw_button("reset", SCREEN_DIMENSION[1] - DISTANCE_BETWEEN_BUTTON, reset_button_rectangle, RED)
+    draw_return_button("menu", 50, 25, return_button_rectangle, color2)
+    
+    # Draw Room Mode
+    mode_txt = font_little.render("MODE : " + room_mode, True, color2)
+    mode_txt_rectangle = mode_txt.get_rect()
+    mode_txt_rectangle.center = (SCREEN_CENTER[0], 25)
+    window.blit(mode_txt, mode_txt_rectangle)
 
 # Main Loop
 while active:
@@ -352,7 +380,7 @@ while active:
                     room = 4
                     
             # PLAYABLE ROOM
-            elif room == 2:
+            elif room == 2 or room == 6:
                 # If the mouse is in the nurikabe grid
                 if (event.pos[0] < CASE_LENGTH * x_len) and (event.pos[1] < CASE_LENGTH * y_len):
                     # Get the case index
@@ -383,6 +411,7 @@ while active:
                     
                 if reset_button_rectangle.collidepoint(event.pos):
                     reset_table(table)
+                    reset_debug_table(debug_table)
                     
                 if return_button_rectangle.collidepoint(event.pos):
                     room = 1
@@ -417,6 +446,22 @@ while active:
                         
                 if return_button_rectangle.collidepoint(event.pos):
                     room = 1
+                    
+                if enjoy_button_rectangle.collidepoint(event.pos):
+                    
+                    table = nt.table_draw
+                    x_len = len(table)
+                    y_len = len(table[0])
+                    
+                    debug_table = initialize_debug_table()
+                    
+                    room_mode == "draw"
+                    
+                    room = 6
+                    
+                    SCREEN_DIMENSION = ((x_len * CASE_LENGTH) + DISTANCE_BETWEEN_EDGE, (y_len * CASE_LENGTH) + TOOLBAR_DISTANCE)
+                    SCREEN_CENTER    = (SCREEN_DIMENSION[0] / 2, SCREEN_DIMENSION[1] / 2)
+                    window = pygame.display.set_mode(SCREEN_DIMENSION)
                     
             # LEVEL CHOOSING ROOM
             elif room == 5:
@@ -495,7 +540,7 @@ while active:
                     room = 1
         
         elif event.type == MOUSEMOTION: # If the mouse is moving
-            if room == 2:
+            if room == 2 or room == 6:
                 # Get the case index
                 (i, j) = get_index(event.pos[0], event.pos[1], CASE_LENGTH)
                 
@@ -516,6 +561,8 @@ while active:
             draw_room4()
         elif room == 5:
             draw_room5()
+        elif room == 6:
+            draw_room6()
             
         pygame.display.update()
 

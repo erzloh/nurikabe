@@ -34,3 +34,16 @@ table4 = [["1", "U", "2", "U", "U", "2", "U"],
          ["2", "U", "U", "U", "2", "U", "U"],
          ["U", "U", "4", "U", "U", "U", "U"],
          ["U", "U", "U", "U", "U", "U", "1"]]
+
+# Table where we can draw :D
+def create_table(x_len, y_len):
+    """ Return a table full of "U" of dimensions x_len and y_len """
+    tempTable = []
+    for x in range(x_len):
+        tempTable.append([])
+        for y in range(y_len):
+            tempTable[x].append("U")
+    return tempTable
+
+table_draw = create_table(9, 9)
+
