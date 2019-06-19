@@ -371,17 +371,15 @@ while active:
                     ns.checkWallIntegrity2(table)
                     
                 if block_2x2_button_rectangle.collidepoint(event.pos):
-                    validite.wallBlockCheck(table)
                     
-                    """block_coord = validite.wallBlockCheck(table)
-                    
-                    print(block_coord[0])
-                    b0 = block_coord[0]
-                    b1 = block_coord[1]
-                    
-                    debug_table[b0][b1] = "R"""
-                    
-                    debug_table[0][0] = "R"
+                    block_coord = validite.wallBlockCheck(table)
+                
+                    if block_coord != None:
+                        print(block_coord[0])
+                        b0 = block_coord[0]
+                        b1 = block_coord[1]
+                        
+                        debug_table[b0][b1] = "R"
                     
                 if reset_button_rectangle.collidepoint(event.pos):
                     reset_table(table)
