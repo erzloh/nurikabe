@@ -113,8 +113,13 @@ def wallBlockCheck(table):
             if table[i][j] == "B" and table[i+1][j] == "B" and table[i][j+1] == "B" and table[i+1][j+1] == "B":
                 foundBlock = True
                 print("2x2 wall block found at x:",i,"and y:",j)
+                
+                return (i, j)
+                
     if not foundBlock:
         print("No 2x2 blocks in the wall")
+        
+       
 
 #check if all islands are complete
 def completeIslands(table):
@@ -160,8 +165,8 @@ def printTable(table):
         tempStr = ""
 
 #new table
-"""table =[["B", "B", "1", "B", "I", "2"],
-        ["1", "B", "B", "B", "Q", "B"],
+"""table =[["B", "B", "1", "B", "B", "2"],
+        ["1", "B", "B", "B", "B", "B"],
         ["B", "B", "2", "I", "B", "2"],
         ["I", "2", "B", "B", "B", "I"]]
 #new table
@@ -186,7 +191,8 @@ y_len = len(table[0])"""
 #table = elimAroundOnes(table)
 #table = elimAdj(table)
 #table = diagonal(table)
-#wallBlockCheck(table)
+#block_coord = wallBlockCheck(table)
+#print(block_coord[1])
 #completeIslands(table)
 
 #checkWallIntegrity(table)

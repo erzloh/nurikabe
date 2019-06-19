@@ -1,6 +1,6 @@
-# Nurikabe Display - Version 1.03
+# Nurikabe Display - Version 1.??
 # Author : Eric Holzer
-# Date : 10 June 2019
+# Date : 19 June 2019
 
 # Import Modules
 import pygame
@@ -28,20 +28,6 @@ table = [["U", "U", "1", "U", "U", "2"],
          ["U", "U", "2", "U", "U", "2"],
          ["U", "2", "U", "U", "U", "U"]]
 
-# Table 2
-"""table = [["U", "2", "U", "U", "U"],
-         ["U", "U", "U", "2", "U"],
-         ["U", "U", "U", "U", "U"],
-         ["U", "1", "U", "U", "U"],
-         ["U", "U", "U", "U", "2"]]"""
-
-# Table 3
-"""table = [["U", "U", "U", "1", "U"],
-         ["U", "U", "U", "U", "U"],
-         ["U", "U", "3", "U", "4"],
-         ["U", "1", "U", "U", "U"],
-         ["U", "U", "U", "U", "U"]]"""
-
 # Set x and y length of the table
 x_len = len(table)
 y_len = len(table[0])
@@ -50,11 +36,13 @@ y_len = len(table[0])
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
 RED   = (255, 0, 0)
+BLUE  = (0, 0, 255)
+GREEN = (0, 255, 0)
 
 color1 = WHITE
 color2 = BLACK
 
-TOOLBAR_DISTANCE  = 50
+TOOLBAR_DISTANCE      = 50
 DISTANCE_BETWEEN_EDGE = 200
 CASE_LENGTH           = 100
 SCREEN_DIMENSION      = ((x_len * CASE_LENGTH) + DISTANCE_BETWEEN_EDGE, (y_len * CASE_LENGTH) + TOOLBAR_DISTANCE)
@@ -77,7 +65,7 @@ adj_button_rectangle        = pygame.Rect(0, 0, 150, 30)
 diagonal_button_rectangle   = pygame.Rect(0, 0, 150, 30)
 reset_button_rectangle      = pygame.Rect(0, 0, 150, 30)
 continuity_button_rectangle = pygame.Rect(0, 0, 150, 30)
-block_2x2_button_rectangle = pygame.Rect(0, 0, 150, 30)
+block_2x2_button_rectangle  = pygame.Rect(0, 0, 150, 30)
 
 return_button_rectangle = pygame.Rect(0, 0, 75, 30)
 
@@ -97,7 +85,16 @@ window_title = "Nurikabe"
 window = pygame.display.set_mode(SCREEN_DIMENSION)
 pygame.display.set_caption(window_title)
 
-# Useful Function
+# Creating Functions
+def initialize_debug_table():
+    """ Return an empty table that has the same dimension as the initial table """
+    tempTable = []
+    for x in range(x_len):
+        tempTable.append([])
+        for y in range(y_len):
+            tempTable[x].append(0)
+    return tempTable
+
 def clamp(n, smallest, largest):
     """Keep the value between 2 numbers."""
     return max(smallest, min(n, largest))
@@ -237,6 +234,14 @@ def draw_grid_color(table, case_length):
                 black_cell_rectangle.center = ((x * case_length) + (case_length / 2), (y * case_length) + (case_length / 2) + TOOLBAR_DISTANCE)
                 pygame.draw.rect(window, color2, black_cell_rectangle)
                 
+def draw_debug_table(debug_table, case_length):
+    """Fill the cell with the according color."""
+    for x in range(x_len):
+        for y in range(y_len):
+            if debug_table[x][y] == "R":
+                white_cell_rectangle.center = ((x * case_length) + (case_length / 2), (y * case_length) + (case_length / 2) + TOOLBAR_DISTANCE)
+                pygame.draw.rect(window, RED, white_cell_rectangle)
+                
 def get_index(x, y, case_length): # Get the case index
     """Returns the (i, j) case index."""
     i = x // case_length
@@ -253,6 +258,8 @@ def draw_room2():
     draw_grid(y_len, x_len, CASE_LENGTH)
     draw_grid_text(table, CASE_LENGTH)
     draw_grid_color(table, CASE_LENGTH)
+    
+    draw_debug_table(debug_table, CASE_LENGTH)
     
     pygame.draw.rect(window, RED, cursor_rectangle, 5)
     
@@ -366,6 +373,16 @@ while active:
                 if block_2x2_button_rectangle.collidepoint(event.pos):
                     validite.wallBlockCheck(table)
                     
+                    """block_coord = validite.wallBlockCheck(table)
+                    
+                    print(block_coord[0])
+                    b0 = block_coord[0]
+                    b1 = block_coord[1]
+                    
+                    debug_table[b0][b1] = "R"""
+                    
+                    debug_table[0][0] = "R"
+                    
                 if reset_button_rectangle.collidepoint(event.pos):
                     reset_table(table)
                     
@@ -411,6 +428,8 @@ while active:
                     x_len = len(table)
                     y_len = len(table[0])
                     
+                    debug_table = initialize_debug_table()
+                    
                     if room_mode == "play":
                         room = 2
                     elif room_mode == "solve":
@@ -426,6 +445,8 @@ while active:
                     x_len = len(table)
                     y_len = len(table[0])
                     
+                    debug_table = initialize_debug_table()
+                    
                     if room_mode == "play":
                         room = 2
                     elif room_mode == "solve":
@@ -440,6 +461,8 @@ while active:
                     table = nt.table3
                     x_len = len(table)
                     y_len = len(table[0])
+                    
+                    debug_table = initialize_debug_table()
                     
                     if room_mode == "play":
                         room = 2
@@ -458,6 +481,8 @@ while active:
                     table = nt.table4
                     x_len = len(table)
                     y_len = len(table[0])
+                    
+                    debug_table = initialize_debug_table()
                     
                     if room_mode == "play":
                         room = 2
