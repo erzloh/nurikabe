@@ -113,40 +113,6 @@ def wallBlockCheck(table):
     if not foundBlock:
         print("No 2x2 blocks in the wall")
 
-#check if all islands are complete
-def completeIslands(table):
-    partsFound = 0
-    tempInt = 0
-    # find whole island
-    def findIsland(table, i, j):
-        partsFound = 0
-        found = False
-        for k in range(x_len):
-            for l in range(y_len):
-                if areTouching(i, j, k, l) and not (k, l) in tempTable:
-                    found = True
-                    partsFound += 1
-                    tempTable.append((k, l))
-                    findIsland(table, k, l)
-        if not found:
-            findIsland(table, i, j)
-        if not found and partsFound == tempInt:
-            print("found complete island")
-    for i in range(x_len):
-        for j in range(y_len):
-            if isInt(table, i, j) and not table[i][j] == "1":
-                tempInt = int(table[i][j])
-                print(tempInt)
-                tempTable = []
-                partsFound = 0
-                print("launching reccurrent self")
-                findIsland(table, i, j)
-
-
-
-
-
-
 #display table in console
 def printTable(table):
     tempStr = ""
@@ -155,17 +121,6 @@ def printTable(table):
             tempStr += table[j][i]+" "
         print(tempStr)
         tempStr = ""
-
-#new table
-"""table =[["B", "B", "1", "B", "I", "2"],
-        ["1", "B", "B", "B", "Q", "B"],
-        ["B", "B", "2", "I", "B", "2"],
-        ["I", "2", "B", "B", "B", "I"]]"""
-#new table
-table =[["B", "B", "1", "B", "I", "2"],
-        ["1", "B", "B", "B", "B", "B"],
-        ["B", "B", "2", "I", "B", "2"],
-        ["I", "2", "B", "B", "B", "I"]]
 
 table = [["1", "B", "2", "I", "B", "2", "I"],
          ["B", "B", "B", "B", "B", "B", "B"],
@@ -184,12 +139,12 @@ y_len = len(table[0])
 #table = elimAroundOnes(table)
 #table = elimAdj(table)
 #table = diagonal(table)
-wallBlockCheck(table)
+#wallBlockCheck(table)
 #completeIslands(table)
 
-checkWallIntegrity(table)
+#checkWallIntegrity(table)
 
-printTable(table)
+#printTable(table)
 
 #recursion test
 def factorielle(n):
@@ -197,38 +152,58 @@ def factorielle(n):
         return n * factorielle(n-1)
     else:
         return 1
-print(factorielle(3))
+#print(factorielle(3))
 
 
-table = [["B", "B", "B", "B"],
-         ["B", "I", "I", "B"],
-         ["B", "4", "I", "B"],
-         ["B", "B", "B", "B"]]
+table = [["B", "B", "I", "I"],
+         ["B", "I", "I", "I"],
+         ["I", "9", "B", "I"],
+         ["I", "B", "B", "B"]]
 #table = [["1"]]
 x_len = len(table)
 y_len = len(table[0])
+printTable(table)
+
 tempTable = []
 counter = int(table[2][1])
+revertTable = []
+returning = False
 print("counter is",counter)
-def islandCheck(x, y, table, counter):
+def islandCheck(x, y, table, counter, returning):
     if (x, y) not in tempTable:
         counter = counter-1
         print("counter is",counter)
         if counter == 0:
-            return "complete"
-    tempTable.append((x, y))
+            print("Island complete")
+            return True
+        tempTable.append((x, y))
+    if not returning:
+        revertTable.append((x, y))
     if x > 0 and table[x-1][y] == "I" and (x-1, y) not in tempTable:
         print("left")
-        
+        returning = False
+        islandCheck(x-1, y, table, counter, returning)
     elif y > 0 and table[x][y-1] == "I" and (x, y-1) not in tempTable:
         print("up")
-        #
-    elif x < x_len and table[x+1][y] == "I" and (x+1, y) not in tempTable: #I wonder if the < x_len works in all cases
+        returning = False
+        islandCheck(x, y-1, table, counter, returning)
+    elif (x < x_len-1) and table[x+1][y] == "I" and (x+1, y) not in tempTable: #I wonder if the < x_len-1 works in all cases
         print("right")
-    elif y < y_len and table[x][y+1] == "I" and (x, y+1) not in tempTable:
+        returning = False
+        islandCheck(x+1, y, table, counter, returning)
+    elif (y < y_len-1) and table[x][y+1] == "I" and (x, y+1) not in tempTable:
         print("down")
-    else: islandCheck(x d avant, y d avant, table, counter)
-print(islandCheck(2, 1, table, counter))
-print(tempTable)
-        
-printTable(table)
+        returning = False
+        islandCheck(x, y+1, table, counter, returning)
+    else:
+        revertTable.pop()
+        print("returning")
+        returning = True
+        islandCheck(revertTable[len(revertTable)-1][0], revertTable[len(revertTable)-1][1], table, counter, returning)
+#print(islandCheck(2, 1, table, counter, returning))
+if islandCheck(2, 1, table, counter, returning) == True:
+    print("true")
+else:
+    print("false")
+    
+print("tempTable:",tempTable)
