@@ -1,5 +1,4 @@
 import sys, math
-
 #Function to check if tile is an int (just a float function changed for name)
 def isInt(table, x, y):
     flag = True
@@ -169,7 +168,8 @@ def checkWallIntegrity2(table):
         else: #print("La mer est continue")
             return True
     # If there are no wall cells at all
-    else: #print("Il n'y a pas de mer")
+    else:
+        print("Il n'y a pas de mer")
         return None
 
 #Function to turn tiles between numbers black "B"
@@ -233,6 +233,10 @@ def wallBlockCheck(table):
 tempTable = []
 revertTable = []
 def islandCheck(x, y, table, counter, returning = False):
+    
+    x_len = len(table)
+    y_len = len(table[1])
+    
     if (x, y) not in tempTable:
         counter = counter-1 #print("counter is",counter)
         if counter == 0: #print("Island complete")
@@ -256,6 +260,10 @@ def islandCheck(x, y, table, counter, returning = False):
 
 #Function to check if all islands are complete
 def allIslCheck(table):
+    
+    x_len = len(table)
+    y_len = len(table[1])
+    
     flag = True
     for i in range(x_len):
         for j in range(y_len):
