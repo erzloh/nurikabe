@@ -155,6 +155,16 @@ y_len = len(table[0])
 
 #checkWallIntegrity(table)
 
+#printTable(table)
+
+#recursion test
+def factorielle(n):
+    if n > 1:
+        return n * factorielle(n-1)
+    else:
+        return 1
+#print(factorielle(3))
+
 printTable(table)
 
 tempTable = []
@@ -170,7 +180,7 @@ def islandCheck(x, y, table, counter, returning = False):
             print("Island complete")
             return True
         tempTable.append((x, y))
-    #if returning and 
+    print("tempTable:",tempTable)
     if not returning:
         revertTable.append((x, y))
     if x > 0 and table[x-1][y] == "I" and (x-1, y) not in tempTable:
@@ -190,7 +200,8 @@ def islandCheck(x, y, table, counter, returning = False):
         print("returning")
         return islandCheck(revertTable[len(revertTable)-1][0], revertTable[len(revertTable)-1][1], table, counter, returning = True)
     else:
+        print("island not complete")
         return False
 #!!DON'T FORGET TO RESET VARIABLES BEFORE SECOND FUNCTION CALL!!
 
-print(islandCheck(2, 1, table, counter))
+print(islandCheck(2, 3, table, counter))
