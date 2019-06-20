@@ -1,12 +1,12 @@
 import sys, math
 #check if tile is an int (just a float function changed for name)
 def isInt(table, x, y):
-    val = True
+    flag = True
     try:
         int(table[x][y])
     except ValueError:
-        val = False
-    return val
+        flag = False
+    return flag
 
 #check if two given tiles are touching
 def areTouching(x1, y1, x2, y2):
@@ -106,55 +106,64 @@ def diagonal(table):
 def wallBlockCheck(table):
     x_len = len(table)
     y_len = len(table[0])
-    
     foundBlock = False
     for i in range(x_len-1):
         for j in range(y_len-1):
             if table[i][j] == "B" and table[i+1][j] == "B" and table[i][j+1] == "B" and table[i+1][j+1] == "B":
                 foundBlock = True
                 print("2x2 wall block found at x:",i,"and y:",j)
-                
                 return (i, j)
-                
     if not foundBlock:
         print("No 2x2 blocks in the wall")
         return None
         
-       
+#Check if a single island is complete
+tempTable = []
+revertTable = []
+def islandCheck(x, y, table, counter, returning = False):
+    #print("revertTable length:",len(revertTable))
+    if (x, y) not in tempTable:
+        counter = counter-1
+        #print("counter is",counter)
+        if counter == 0:
+            print("Island complete")
+            return True
+        tempTable.append((x, y))
+    if not returning:
+        revertTable.append((x, y))
+    if x > 0 and table[x-1][y] == "I" and (x-1, y) not in tempTable:
+        #print("left")
+        return islandCheck(x-1, y, table, counter, returning = False)
+    elif y > 0 and table[x][y-1] == "I" and (x, y-1) not in tempTable:
+        #print("up")
+        return islandCheck(x, y-1, table, counter, returning = False)
+    elif (x < x_len-1) and table[x+1][y] == "I" and (x+1, y) not in tempTable: #I wonder if the < x_len-1 works in all cases
+        #print("right")
+        return islandCheck(x+1, y, table, counter, returning = False)
+    elif (y < y_len-1) and table[x][y+1] == "I" and (x, y+1) not in tempTable:
+        #print("down")
+        return islandCheck(x, y+1, table, counter, returning = False)
+    elif len(revertTable) > 1:
+        revertTable.pop()
+        #print("returning")
+        return islandCheck(revertTable[len(revertTable)-1][0], revertTable[len(revertTable)-1][1], table, counter, returning = True)
+    else:
+        print("Island not complete")
+        return False
+#!!DON'T FORGET TO RESET VARIABLES BEFORE SECOND FUNCTION CALL!!
 
 #check if all islands are complete
-def completeIslands(table):
-    partsFound = 0
-    tempInt = 0
-    # find whole island
-    def findIsland(table, i, j):
-        partsFound = 0
-        found = False
-        for k in range(x_len):
-            for l in range(y_len):
-                if areTouching(i, j, k, l) and not (k, l) in tempTable:
-                    found = True
-                    partsFound += 1
-                    tempTable.append((k, l))
-                    findIsland(table, k, l)
-        if not found:
-            findIsland(table, i, j)
-        if not found and partsFound == tempInt:
-            print("found complete island")
+def allIslCheck(table):
+    flag = True
     for i in range(x_len):
         for j in range(y_len):
-            if isInt(table, i, j) and not table[i][j] == "1":
-                tempInt = int(table[i][j])
-                print(tempInt)
+            if isInt(table, i, j):
+                print("found island of size",table[i][j])
                 tempTable = []
-                partsFound = 0
-                print("launching reccurrent self")
-                findIsland(table, i, j)
-
-
-
-
-
+                revertTable = []
+                if flag:
+                    flag = islandCheck(i, j, table, int(table[i][j]))
+    return flag
 
 #display table in console
 def printTable(table):
@@ -166,7 +175,7 @@ def printTable(table):
         tempStr = ""
 
 #new table
-"""table =[["B", "B", "1", "B", "B", "2"],
+table =[["B", "B", "1", "B", "B", "2"],
         ["1", "B", "B", "B", "B", "B"],
         ["B", "B", "2", "I", "B", "2"],
         ["I", "2", "B", "B", "B", "I"]]
@@ -178,7 +187,7 @@ table =[["B", "B", "1", "B", "I", "2"],
 
 table = [["1", "B", "2", "I", "B", "2", "I"],
          ["B", "B", "B", "B", "B", "B", "B"],
-         ["2", "I", "B", "4", "I", "B", "1"],
+         ["2", "I", "B", "4", "M", "B", "1"], #the "M" field means nothing, it makes just the island non-complete
          ["B", "B", "I", "I", "B", "B", "B"],
          ["2", "B", "B", "B", "2", "I", "B"],
          ["I", "B", "4", "B", "B", "B", "B"],
@@ -186,7 +195,7 @@ table = [["1", "B", "2", "I", "B", "2", "I"],
 
 #set x and y length of the table
 x_len = len(table)
-y_len = len(table[0])"""
+y_len = len(table[0])
 
 #execute functions
 #table = elimAroundOnes(table)
@@ -194,11 +203,12 @@ y_len = len(table[0])"""
 #table = diagonal(table)
 #block_coord = wallBlockCheck(table)
 #print(block_coord[1])
-#completeIslands(table)
 
 #checkWallIntegrity(table)
 
-#printTable(table)
+print(allIslCheck(table))
+
+printTable(table)
 
         #["w", "1", "w", "w",
          #"w", "w", "w", "2",
