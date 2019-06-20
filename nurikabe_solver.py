@@ -1,4 +1,5 @@
 import sys, math
+
 #Function to check if tile is an int (just a float function changed for name)
 def isInt(table, x, y):
     flag = True
@@ -168,8 +169,7 @@ def checkWallIntegrity2(table):
         else: #print("La mer est continue")
             return True
     # If there are no wall cells at all
-    else:
-        print("Il n'y a pas de mer")
+    else: #print("Il n'y a pas de mer")
         return None
 
 #Function to turn tiles between numbers black "B"
@@ -233,10 +233,6 @@ def wallBlockCheck(table):
 tempTable = []
 revertTable = []
 def islandCheck(x, y, table, counter, returning = False):
-    
-    x_len = len(table)
-    y_len = len(table[1])
-    
     if (x, y) not in tempTable:
         counter = counter-1 #print("counter is",counter)
         if counter == 0: #print("Island complete")
@@ -260,10 +256,6 @@ def islandCheck(x, y, table, counter, returning = False):
 
 #Function to check if all islands are complete
 def allIslCheck(table):
-    
-    x_len = len(table)
-    y_len = len(table[1])
-    
     flag = True
     for i in range(x_len):
         for j in range(y_len):
@@ -275,6 +267,37 @@ def allIslCheck(table):
                     flag = islandCheck(i, j, table, counter)
                     revertTable
     return flag
+
+#Function that returns a requested neighbour. Directions can be: up, down, right, left. "E" = edge
+def neighbour(table, x, y, direction):
+    if direction == "up":
+        if y == 0:
+            return "E"
+        else:
+            return table[x][y-1]
+    if direction == "down":
+        if y == len(table[0])-1:
+            return "E"
+        else:
+            return table[x][y+1]
+    if direction == "left":
+        if x == 0:
+            return "E"
+        else:
+            return table[x-1][y]
+    if direction == "right":
+        if x == len(table)-1:
+            return "E"
+        else:
+            return table[x+1][y]
+
+#Function to turn a "U" in "B" if surrounded by "B" or edge
+def surround(table):
+    for i in range(x_len):
+        for j in range(y_len):
+            if table[i][j] == "U" and (neighbour(table,i,j,"up")=="E" or neighbour(table,i,j,"up")=="B") and (neighbour(table,i,j,"down")=="E" or neighbour(table,i,j,"down")=="B") and (neighbour(table,i,j,"left")=="E" or neighbour(table,i,j,"left")=="B") and (neighbour(table,i,j,"right")=="E" or neighbour(table,i,j,"right")=="B"):
+                table[i][j] = "B"
+    return table
 
 #Function to display table in console
 def printTable(table):
