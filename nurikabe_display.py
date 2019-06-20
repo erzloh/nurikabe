@@ -320,6 +320,12 @@ def get_index(x, y, case_length): # Get the case index
     
     return (i, j)
 
+def set_table_length(table):
+    global x_len, y_len
+    
+    x_len = len(table)
+    y_len = len(table[0])
+
 def draw_room2(): 
     """Playable room"""
     
@@ -514,9 +520,11 @@ while active:
             # SOLVING ROOM
             elif room == 3:
                 if around_one_button_rectangle.collidepoint(event.pos):
+                    
                     table = ns.elimAroundOnes(table)
                     
                 if adj_button_rectangle.collidepoint(event.pos):
+                    set_table_length(table)
                     table = ns.elimAdj(table)
                     
                 if diagonal_button_rectangle.collidepoint(event.pos):
