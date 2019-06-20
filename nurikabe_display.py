@@ -5,6 +5,7 @@
 # Import Modules
 import pygame
 from pygame.locals import * # Get Input Variables
+from pygame import Rect
 import nurikabe_solver as ns # Jacek's program
 import nurikabe_tables as nt # Nurikabe Tables
 import validite # functions that check if the Nurikabe is completed
@@ -27,6 +28,30 @@ table = [["U", "U", "1", "U", "U", "2"],
          ["1", "U", "U", "U", "U", "U"],
          ["U", "U", "2", "U", "U", "2"],
          ["U", "2", "U", "U", "U", "U"]]
+
+tab_00 = """
+u1uu
+uuu2
+1u2u
+uuuu
+uuuu
+2u2u"""
+
+tab_01 = tab_00.split() # split lines along white space
+
+tab_02 = []
+for line in tab_01:
+    line = line.upper()
+    character_list = list(line) # separates string in list of caracters
+    print(line, character_list)
+    tab_02.append(character_list)
+    
+
+print('multiline string', tab_00)
+print('list of lines', tab_01)
+print('list of characters', tab_02)
+
+
 
 # Set x and y length of the table
 x_len = len(table)
@@ -86,9 +111,45 @@ window_title = "Nurikabe"
 window = pygame.display.set_mode(SCREEN_DIMENSION)
 pygame.display.set_caption(window_title)
 
+
+class Button:
+    """Define a Button class. To create (instanciate) a button object we write:
+    Button('PLAY', (200, 300))
+    Button('SOLVE', (200, 400))
+    Button('OPTION', (200, 500))
+    """
+    # This is a class attribute, accessible by Button.font
+    font = pygame.font.SysFont("Helvetica", 72)
+    
+    def __init__(self, label, pos, size=(250, 80), col=BLACK, cmd=None):
+        """This is the 'constructor' function which is always called __init__().
+        self - is always the first parameter, it refers to the object (Button)
+        label - the text displayed
+        size - we initialize the parameter with a default value
+        cmd - the function called when the button is pressed
+        """
+        
+        self.label = label
+        self.pos = pos
+        self.size = size
+        self.col = col
+        self.cmd = cmd
+        self.rect = Rect(*pos, *size)
+        self.text = Button.font.render(self.label, True, self.col) # create an image with the text
+        self.text_rect = self.text.get_rect()
+        self.text_rect.center = self.rect.center
+        
+    def draw(self):
+        """This function knows how to draw the button."""
+        window.blit(self.text, self.text_rect)
+        pygame.draw.rect(window, self.col, self.rect, 5)
+        # pygame.draw.rect(window, RED, self.text_rect, 1)
+
+
+
 # Creating Functions
 def initialize_debug_table():
-    """ Return an empty table that has the same dimension as the initial table """
+    """Return an empty table that has the same dimension as the initial table."""
     tempTable = []
     for x in range(x_len):
         tempTable.append([])
@@ -181,7 +242,10 @@ def draw_room1():
     """Draws a title and some buttons."""
     
     window.fill(color1)
-    
+    b0.draw()
+    b1.draw()
+    b2.draw()
+
     # Reset table
     reset_table(table)
 
@@ -197,7 +261,7 @@ def draw_room1():
     draw_title_button("OPTION", 200, option_button_rectangle, color2)
     
     # Draw Autor's names Text
-    author_name_txt = font_little.render("Made by Eric Holzer and Jacek Wikeira, 2019", True, color2)
+    author_name_txt = font_little.render("Made by Eric Holzer and Jacek Wikiera, 2019", True, color2)
     author_name_txt_rectangle = author_name_txt.get_rect()
     author_name_txt_rectangle.bottomright = (SCREEN_DIMENSION[0] - 10, SCREEN_DIMENSION[1] - 10)
     window.blit(author_name_txt, author_name_txt_rectangle)
@@ -354,6 +418,20 @@ def draw_room6():
     window.blit(mode_txt, mode_txt_rectangle)
 
 # Main Loop
+
+def b0_callback():
+    global room_mode, room
+    
+    print('click on button b0')
+    room_mode = "play"
+    room = 5
+
+b0 = Button('PLAY', (0, 300), cmd=b0_callback)
+b1 = Button('SOLVE', (0, 400))
+b2 = Button('OPTION', (0, 500))
+
+print(b0, b1, b2)
+    
 while active:
             
     for event in pygame.event.get():
@@ -378,6 +456,9 @@ while active:
                     
                 if option_button_rectangle.collidepoint(event.pos):
                     room = 4
+                    
+                if b0.rect.collidepoint(event.pos):
+                    b0.cmd()
                     
             # PLAYABLE ROOM
             elif room == 2 or room == 6:
