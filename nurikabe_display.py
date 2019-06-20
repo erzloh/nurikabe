@@ -91,6 +91,7 @@ reset_button_rectangle            = pygame.Rect(0, 0, 150, 30)
 continuity_button_rectangle       = pygame.Rect(0, 0, 150, 30)
 block_2x2_button_rectangle        = pygame.Rect(0, 0, 150, 30)
 island_complete_button_rectangle  = pygame.Rect(0, 0, 150, 30)
+surrounded_button_rectangle       = pygame.Rect(0, 0, 150, 30)
 
 return_button_rectangle = pygame.Rect(0, 0, 75, 30)
 
@@ -409,6 +410,8 @@ def draw_room3():
     draw_button("around_one", TOOLBAR_DISTANCE + DISTANCE_BETWEEN_BUTTON, around_one_button_rectangle, color2)
     draw_button("between_numbers", TOOLBAR_DISTANCE + (DISTANCE_BETWEEN_BUTTON * 2), adj_button_rectangle, color2)
     draw_button("diagonal", TOOLBAR_DISTANCE + (DISTANCE_BETWEEN_BUTTON * 3), diagonal_button_rectangle, color2)
+    draw_button("surrounded", TOOLBAR_DISTANCE + (DISTANCE_BETWEEN_BUTTON * 4), surrounded_button_rectangle, color2)
+
     
     draw_button("reset", SCREEN_DIMENSION[1] - DISTANCE_BETWEEN_BUTTON, reset_button_rectangle, RED)
     draw_return_button("menu", 50, 25, return_button_rectangle, color2)
@@ -570,6 +573,10 @@ while active:
                     
                 if diagonal_button_rectangle.collidepoint(event.pos):
                     table = ns.diagonal(table)
+                    
+                if surrounded_button_rectangle.collidepoint(event.pos):
+                    table = ns.surround(table)
+                    print(table)
                     
                 if reset_button_rectangle.collidepoint(event.pos):
                     reset_table(table)
