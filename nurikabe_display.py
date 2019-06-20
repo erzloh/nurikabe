@@ -8,7 +8,6 @@ from pygame.locals import * # Get Input Variables
 from pygame import Rect
 import nurikabe_solver as ns # Jacek's program
 import nurikabe_tables as nt # Nurikabe Tables
-import validite # functions that check if the Nurikabe is completed
 
 # Initialize Pygame
 pygame.init()
@@ -112,6 +111,37 @@ window = pygame.display.set_mode(SCREEN_DIMENSION)
 pygame.display.set_caption(window_title)
 
 
+class App:
+    rooms = []
+    room = None
+    
+
+class Room:
+    id = 0
+    
+    def __init__(self):
+        # Append new room to app and make it the current room
+        App.rooms.append(self)
+        App.room = self
+        self.objects = []
+        
+    def do_event(event):
+        if event.type == MOUSEBUTTONDOWN:
+            for object in objects:
+                if object.rect.collidepoint(event.pos):
+                    print('click in', object)
+                    object.cmd()
+        
+    def draw(self):
+        """Draw all the objects of a room."""
+        window.fill(color1)
+        
+        # each object is going to draw itself
+        for object in self.objects:
+            object.draw()
+        
+    
+    
 class Button:
     """Define a Button class. To create (instanciate) a button object we write:
     Button('PLAY', (200, 300))
@@ -121,13 +151,16 @@ class Button:
     # This is a class attribute, accessible by Button.font
     font = pygame.font.SysFont("Helvetica", 72)
     
-    def __init__(self, label, pos, size=(250, 80), col=BLACK, cmd=None):
+    def __init__(self, label, pos, size=(250, 80), col=BLACK, cmd=''):
         """This is the 'constructor' function which is always called __init__().
         self - is always the first parameter, it refers to the object (Button)
         label - the text displayed
         size - we initialize the parameter with a default value
         cmd - the function called when the button is pressed
         """
+        
+        # Append the button to the object list of the current room
+        App.room.objects.append(self)
         
         self.label = label
         self.pos = pos
@@ -144,7 +177,15 @@ class Button:
         window.blit(self.text, self.text_rect)
         pygame.draw.rect(window, self.col, self.rect, 5)
         # pygame.draw.rect(window, RED, self.text_rect, 1)
+        
+    def do_cmd(self):
+        exec(self.cmd)
 
+
+Room()
+Button('PLAY', (0, 300), cmd='print(123')
+Button('SOLVE', (0, 400))
+Button('OPTION', (0, 500))
 
 
 # Creating Functions
@@ -242,9 +283,9 @@ def draw_room1():
     """Draws a title and some buttons."""
     
     window.fill(color1)
-    #b0.draw()
-    #b1.draw()
-    #b2.draw()
+    b0.draw()
+    b1.draw()
+    b2.draw()
 
     # Reset table
     reset_table(table)
