@@ -1,4 +1,5 @@
 import sys, math
+
 #Function to check if tile is an int (just a float function changed for name)
 def isInt(table, x, y):
     flag = True
@@ -168,8 +169,7 @@ def checkWallIntegrity2(table):
         else: #print("La mer est continue")
             return True
     # If there are no wall cells at all
-    else:
-        print("Il n'y a pas de mer")
+    else: #print("Il n'y a pas de mer")
         return None
 
 #Function to turn tiles between numbers black "B"
