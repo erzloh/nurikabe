@@ -122,9 +122,20 @@ def printTable(table):
         print(tempStr)
         tempStr = ""
 
+#new table
+"""table =[["B", "B", "1", "B", "I", "2"],
+        ["1", "B", "B", "B", "Q", "B"],
+        ["B", "B", "2", "I", "B", "2"],
+        ["I", "2", "B", "B", "B", "I"]]"""
+#new table
+table =[["B", "B", "1", "B", "I", "2"],
+        ["1", "B", "B", "B", "B", "B"],
+        ["B", "B", "2", "I", "B", "2"],
+        ["I", "2", "B", "B", "B", "I"]]
+
 table = [["1", "B", "2", "I", "B", "2", "I"],
          ["B", "B", "B", "B", "B", "B", "B"],
-         ["2", "I", "B", "4", "I", "B", "1"],
+         ["2", "I", "B", "4", "M", "B", "1"],
          ["B", "B", "I", "I", "B", "B", "B"],
          ["2", "B", "B", "B", "2", "I", "B"],
          ["I", "B", "4", "B", "B", "B", "B"],
@@ -144,32 +155,14 @@ y_len = len(table[0])
 
 #checkWallIntegrity(table)
 
-#printTable(table)
-
-#recursion test
-def factorielle(n):
-    if n > 1:
-        return n * factorielle(n-1)
-    else:
-        return 1
-#print(factorielle(3))
-
-
-table = [["B", "B", "I", "I"],
-         ["B", "I", "I", "I"],
-         ["I", "9", "B", "I"],
-         ["I", "B", "B", "B"]]
-#table = [["1"]]
-x_len = len(table)
-y_len = len(table[0])
 printTable(table)
 
 tempTable = []
-counter = int(table[2][1])
+counter = int(table[2][3])
 revertTable = []
-returning = False
 print("counter is",counter)
-def islandCheck(x, y, table, counter, returning):
+def islandCheck(x, y, table, counter, returning = False):
+    print("revertTable length:",len(revertTable))
     if (x, y) not in tempTable:
         counter = counter-1
         print("counter is",counter)
@@ -177,33 +170,27 @@ def islandCheck(x, y, table, counter, returning):
             print("Island complete")
             return True
         tempTable.append((x, y))
+    #if returning and 
     if not returning:
         revertTable.append((x, y))
     if x > 0 and table[x-1][y] == "I" and (x-1, y) not in tempTable:
         print("left")
-        returning = False
-        islandCheck(x-1, y, table, counter, returning)
+        return islandCheck(x-1, y, table, counter, returning = False)
     elif y > 0 and table[x][y-1] == "I" and (x, y-1) not in tempTable:
         print("up")
-        returning = False
-        islandCheck(x, y-1, table, counter, returning)
+        return islandCheck(x, y-1, table, counter, returning = False)
     elif (x < x_len-1) and table[x+1][y] == "I" and (x+1, y) not in tempTable: #I wonder if the < x_len-1 works in all cases
         print("right")
-        returning = False
-        islandCheck(x+1, y, table, counter, returning)
+        return islandCheck(x+1, y, table, counter, returning = False)
     elif (y < y_len-1) and table[x][y+1] == "I" and (x, y+1) not in tempTable:
         print("down")
-        returning = False
-        islandCheck(x, y+1, table, counter, returning)
-    else:
+        return islandCheck(x, y+1, table, counter, returning = False)
+    elif len(revertTable) > 1:
         revertTable.pop()
         print("returning")
-        returning = True
-        islandCheck(revertTable[len(revertTable)-1][0], revertTable[len(revertTable)-1][1], table, counter, returning)
-#print(islandCheck(2, 1, table, counter, returning))
-if islandCheck(2, 1, table, counter, returning) == True:
-    print("true")
-else:
-    print("false")
-    
-print("tempTable:",tempTable)
+        return islandCheck(revertTable[len(revertTable)-1][0], revertTable[len(revertTable)-1][1], table, counter, returning = True)
+    else:
+        return False
+#!!DON'T FORGET TO RESET VARIABLES BEFORE SECOND FUNCTION CALL!!
+
+print(islandCheck(2, 1, table, counter))
