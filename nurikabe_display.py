@@ -15,8 +15,8 @@ pygame.init()
 
 # Initialize Font
 pygame.font.init()
-font = pygame.font.SysFont("Helvetica", 72)
-font_little = pygame.font.SysFont("Helvetica", 24)
+font = pygame.font.SysFont("Helvetica", 64)
+font_little = pygame.font.SysFont("Helvetica", 18)
 
 # Create Table
 """ "W" = white
@@ -29,6 +29,7 @@ table = [["U", "U", "1", "U", "U", "2"],
          ["U", "U", "2", "U", "U", "2"],
          ["U", "2", "U", "U", "U", "U"]]
 
+# Table Generator
 tab_00 = """
 u1uu
 uuu2
@@ -47,11 +48,9 @@ for line in tab_01:
     tab_02.append(character_list)
     
 
-print('multiline string', tab_00)
-print('list of lines', tab_01)
-print('list of characters', tab_02)
-
-
+#print('multiline string', tab_00)
+#print('list of lines', tab_01)
+#print('list of characters', tab_02)
 
 # Set x and y length of the table
 x_len = len(table)
@@ -86,12 +85,13 @@ cursor_rectangle        = pygame.Rect(0, 0, CASE_LENGTH, CASE_LENGTH)
 white_cell_rectangle    = pygame.Rect(0, 0, 20, 20)
 black_cell_rectangle    = pygame.Rect(0, 0, CASE_LENGTH, CASE_LENGTH)
 
-around_one_button_rectangle = pygame.Rect(0, 0, 150, 30)
-adj_button_rectangle        = pygame.Rect(0, 0, 150, 30)
-diagonal_button_rectangle   = pygame.Rect(0, 0, 150, 30)
-reset_button_rectangle      = pygame.Rect(0, 0, 150, 30)
-continuity_button_rectangle = pygame.Rect(0, 0, 150, 30)
-block_2x2_button_rectangle  = pygame.Rect(0, 0, 150, 30)
+around_one_button_rectangle       = pygame.Rect(0, 0, 150, 30)
+adj_button_rectangle              = pygame.Rect(0, 0, 150, 30)
+diagonal_button_rectangle         = pygame.Rect(0, 0, 150, 30)
+reset_button_rectangle            = pygame.Rect(0, 0, 150, 30)
+continuity_button_rectangle       = pygame.Rect(0, 0, 150, 30)
+block_2x2_button_rectangle        = pygame.Rect(0, 0, 150, 30)
+island_complete_button_rectangle  = pygame.Rect(0, 0, 150, 30)
 
 return_button_rectangle = pygame.Rect(0, 0, 75, 30)
 
@@ -242,9 +242,9 @@ def draw_room1():
     """Draws a title and some buttons."""
     
     window.fill(color1)
-    b0.draw()
-    b1.draw()
-    b2.draw()
+    #b0.draw()
+    #b1.draw()
+    #b2.draw()
 
     # Reset table
     reset_table(table)
@@ -320,6 +320,12 @@ def get_index(x, y, case_length): # Get the case index
     
     return (i, j)
 
+def set_table_length(table):
+    global x_len, y_len
+    
+    x_len = len(table)
+    y_len = len(table[0])
+
 def draw_room2(): 
     """Playable room"""
     
@@ -337,6 +343,7 @@ def draw_room2():
     # Draw Buttons
     draw_button("check_continuity", TOOLBAR_DISTANCE + DISTANCE_BETWEEN_BUTTON, continuity_button_rectangle, color2)
     draw_button("2x2_block", TOOLBAR_DISTANCE + (DISTANCE_BETWEEN_BUTTON * 2), block_2x2_button_rectangle, color2)
+    draw_button("island_complete", TOOLBAR_DISTANCE + (DISTANCE_BETWEEN_BUTTON * 3), island_complete_button_rectangle, color2)
     draw_button("reset", SCREEN_DIMENSION[1] - DISTANCE_BETWEEN_BUTTON, reset_button_rectangle, RED)
     draw_return_button("menu", 50, 25, return_button_rectangle, color2)
     
@@ -477,18 +484,31 @@ while active:
                         table[i][j] = "U"
                         
                 if continuity_button_rectangle.collidepoint(event.pos):
-                    ns.checkWallIntegrity2(table)
+                    if ns.checkWallIntegrity2(table):
+                        print("the wall is continuous")
+                    elif not ns.checkWallIntegrity2(table):
+                        print("the wall is not continuous")
+                    else:
+                        print("there is no walls")
                     
                 if block_2x2_button_rectangle.collidepoint(event.pos):
                     
-                    block_coord = validite.wallBlockCheck(table)
+                    block_coord = ns.wallBlockCheck(table)
                 
                     if block_coord != None:
-                        print(block_coord[0])
+                        print("there is a 2x2 block")
                         b0 = block_coord[0]
                         b1 = block_coord[1]
                         
                         debug_table[b0][b1] = "R"
+                    else:
+                        print("there is no 2x2 block")
+                        
+                if island_complete_button_rectangle.collidepoint(event.pos):
+                    if ns.allIslCheck(table):
+                        print("All the islands are complete")
+                    else:
+                        print("All the islands are not complete")
                     
                 if reset_button_rectangle.collidepoint(event.pos):
                     reset_table(table)
@@ -500,9 +520,11 @@ while active:
             # SOLVING ROOM
             elif room == 3:
                 if around_one_button_rectangle.collidepoint(event.pos):
+                    
                     table = ns.elimAroundOnes(table)
                     
                 if adj_button_rectangle.collidepoint(event.pos):
+                    set_table_length(table)
                     table = ns.elimAdj(table)
                     
                 if diagonal_button_rectangle.collidepoint(event.pos):
