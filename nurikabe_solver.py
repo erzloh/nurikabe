@@ -9,6 +9,15 @@ def isInt(table, x, y):
         flag = False
     return flag
 
+#Function to check if a var is an int, must not be a tile
+def isIntTwo(var):
+    flag = True
+    try:
+        int(var)
+    except ValueError:
+        flag = False
+    return flag
+
 #Function to check if two given tiles are touching
 def areTouching(x1, y1, x2, y2):
     touching = False
@@ -322,6 +331,79 @@ def surround(table):
             if table[i][j] == "U" and (neighbour(table,i,j,"up")=="E" or neighbour(table,i,j,"up")=="B") and (neighbour(table,i,j,"down")=="E" or neighbour(table,i,j,"down")=="B") and (neighbour(table,i,j,"left")=="E" or neighbour(table,i,j,"left")=="B") and (neighbour(table,i,j,"right")=="E" or neighbour(table,i,j,"right")=="B"):
                 table[i][j] = "B"
     return table
+
+#Function to return all island parts
+partList = []
+def islandParts(x, y, table, counter, returning = False):
+    #print("iteration of islandParts on", x, y)
+    x_len = len(table)
+    y_len = len(table[1])
+    if (x, y) not in tempTable:
+        #print(x,y,"not in tempTable")
+        counter = counter-1 #print("counter is",counter)
+        partList.append((x, y))
+        if counter == 0: #print("Island complete")
+            return partList
+        tempTable.append((x, y))
+        #print("appended",x,y,"to partlist: ",partList)
+    if not returning:
+        revertTable.append((x, y))
+    if x > 0 and table[x-1][y] == "W" and (x-1, y) not in tempTable: #print("left")
+        return islandParts(x-1, y, table, counter, returning = False)
+    elif y > 0 and table[x][y-1] == "W" and (x, y-1) not in tempTable: #print("up")
+        return islandParts(x, y-1, table, counter, returning = False)
+    elif (x < x_len-1) and table[x+1][y] == "W" and (x+1, y) not in tempTable: #I wonder if the < x_len-1 works in all cases ###print("right")
+        return islandParts(x+1, y, table, counter, returning = False)
+    elif (y < y_len-1) and table[x][y+1] == "W" and (x, y+1) not in tempTable: #print("down")        
+        return islandParts(x, y+1, table, counter, returning = False)
+    elif len(revertTable) > 1:
+        revertTable.pop() #print("returning")
+        return islandParts(revertTable[len(revertTable)-1][0], revertTable[len(revertTable)-1][1], table, counter, returning = True)
+    else: #print("Island not complete")
+        return False
+
+#Function to turn tiles next to islands into "B". It has two modes: "complete" and "everything". The complete mode will check if the island is complete before proceeding, the everything mode won't do that check.
+def wallAroundIslands(table, mode="complete"):
+    
+    x_len = len(table)
+    y_len = len(table[1])
+    
+    if mode == "complete":
+        for i in range(x_len):
+            for j in range(y_len):
+                if isInt(table, i, j):
+                    tempTable.clear()
+                    revertTable.clear()
+                    partList.clear()
+                    if islandCheck(i, j, table, int(table[i][j])):
+                        tempTable.clear()
+                        revertTable.clear()
+                        partList.clear()
+                        tiles = islandParts(i, j, table, int(table[i][j]))
+
+                        for tile in tiles:
+                            if neighbour(table, tile[0], tile[1], "up") != "W" and neighbour(table, tile[0], tile[1], "up") != "E" and not isIntTwo(neighbour(table, tile[0], tile[1], "up")):
+                                table[tile[0]][tile[1]-1] = "B"
+                            if neighbour(table, tile[0], tile[1], "right") != "W" and neighbour(table, tile[0], tile[1], "right") != "E" and not isIntTwo(neighbour(table, tile[0], tile[1], "right")):
+                                table[tile[0]+1][tile[1]] = "B"
+                            if neighbour(table, tile[0], tile[1], "down") != "W" and neighbour(table, tile[0], tile[1], "down") != "E" and not isIntTwo(neighbour(table, tile[0], tile[1], "down")):
+                                table[tile[0]][tile[1]+1] = "B"
+                            if neighbour(table, tile[0], tile[1], "left") != "W" and neighbour(table, tile[0], tile[1], "left") != "E" and not isIntTwo(neighbour(table, tile[0], tile[1], "left")):
+                                table[tile[0]-1][tile[1]] = "B"
+                    else:
+                        print("Could not put wall around island",i,j,". Not complete") #actually should not happen but who knows
+    else:
+        for i in range(x_len):
+            for j in range(y_len):
+                if isIntTwo(table[i][j]) or table[i][j] == "W":
+                    if neighbour(table, i, j, "up") != "W" and neighbour(table, i, j, "up") != "E" and not isIntTwo(neighbour(table, i, j, "up")):
+                        table[i][j-1] = "B"
+                    if neighbour(table, i, j, "right") != "W" and neighbour(table, i, j, "right") != "E" and not isIntTwo(neighbour(table, i, j, "right")):
+                        table[i+1][j] = "B"
+                    if neighbour(table, i, j, "down") != "W" and neighbour(table, i, j, "down") != "E" and not isIntTwo(neighbour(table, i, j, "down")):
+                        table[i][j+1] = "B"
+                    if neighbour(table, i, j, "left") != "W" and neighbour(table, i, j, "left") != "E" and not isIntTwo(neighbour(table, i, j, "left")):
+                        table[i-1][j] = "B"
 
 #Function to display table in console
 def printTable(table):

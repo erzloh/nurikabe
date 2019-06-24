@@ -1,6 +1,6 @@
 # Nurikabe Display - Version 1.??
 # Author : Eric Holzer
-# Date : 20 June 2019
+# Date : 24 June 2019
 
 # Import Modules
 import pygame
@@ -92,6 +92,9 @@ continuity_button_rectangle       = pygame.Rect(0, 0, 150, 30)
 block_2x2_button_rectangle        = pygame.Rect(0, 0, 150, 30)
 island_complete_button_rectangle  = pygame.Rect(0, 0, 150, 30)
 surrounded_button_rectangle       = pygame.Rect(0, 0, 150, 30)
+around_island_button_rectangle    = pygame.Rect(0, 0, 150, 30)
+check_button_rectangle            = pygame.Rect(0, 0, 150, 30)
+fill_button_rectangle             = pygame.Rect(0, 0, 150, 30)
 
 return_button_rectangle = pygame.Rect(0, 0, 75, 30)
 
@@ -284,9 +287,9 @@ def draw_room1():
     """Draws a title and some buttons."""
     
     window.fill(color1)
-    b0.draw()
-    b1.draw()
-    b2.draw()
+    #b0.draw()
+    #b1.draw()
+    #b2.draw()
 
     # Reset table
     reset_table(table)
@@ -386,6 +389,9 @@ def draw_room2():
     draw_button("check_continuity", TOOLBAR_DISTANCE + DISTANCE_BETWEEN_BUTTON, continuity_button_rectangle, color2)
     draw_button("2x2_block", TOOLBAR_DISTANCE + (DISTANCE_BETWEEN_BUTTON * 2), block_2x2_button_rectangle, color2)
     draw_button("island_complete", TOOLBAR_DISTANCE + (DISTANCE_BETWEEN_BUTTON * 3), island_complete_button_rectangle, color2)
+    
+    draw_button("nurikabe_fill", SCREEN_DIMENSION[1] - (DISTANCE_BETWEEN_BUTTON * 3), fill_button_rectangle, GREEN)
+    draw_button("nurikabe_check", SCREEN_DIMENSION[1] - (DISTANCE_BETWEEN_BUTTON * 2), check_button_rectangle, BLUE)
     draw_button("reset", SCREEN_DIMENSION[1] - DISTANCE_BETWEEN_BUTTON, reset_button_rectangle, RED)
     draw_return_button("menu", 50, 25, return_button_rectangle, color2)
     
@@ -411,8 +417,10 @@ def draw_room3():
     draw_button("between_numbers", TOOLBAR_DISTANCE + (DISTANCE_BETWEEN_BUTTON * 2), adj_button_rectangle, color2)
     draw_button("diagonal", TOOLBAR_DISTANCE + (DISTANCE_BETWEEN_BUTTON * 3), diagonal_button_rectangle, color2)
     draw_button("surrounded", TOOLBAR_DISTANCE + (DISTANCE_BETWEEN_BUTTON * 4), surrounded_button_rectangle, color2)
-
+    draw_button("around_island", TOOLBAR_DISTANCE + (DISTANCE_BETWEEN_BUTTON * 5), around_island_button_rectangle, color2)
     
+    draw_button("nurikabe_fill", SCREEN_DIMENSION[1] - (DISTANCE_BETWEEN_BUTTON * 3), fill_button_rectangle, GREEN)
+    draw_button("nurikabe_check", SCREEN_DIMENSION[1] - (DISTANCE_BETWEEN_BUTTON * 2), check_button_rectangle, BLUE)
     draw_button("reset", SCREEN_DIMENSION[1] - DISTANCE_BETWEEN_BUTTON, reset_button_rectangle, RED)
     draw_return_button("menu", 50, 25, return_button_rectangle, color2)
     
@@ -558,6 +566,32 @@ while active:
                     reset_table(table)
                     reset_debug_table(debug_table)
                     
+                if check_button_rectangle.collidepoint(event.pos):
+                    if ns.checkWallIntegrity2(table):
+                        print("the wall is continuous")
+                    elif not ns.checkWallIntegrity2(table):
+                        print("the wall is not continuous")
+                    elif ns.checkWallIntegrity2(table) == None:
+                        print("there is no walls")
+                    
+                    if ns.wallBlockCheck(table):
+                        print("there is a 2x2 block")
+                    else:
+                        print("there is no 2x2 block")
+                        
+                    if ns.allIslCheck(table):
+                        print("All the islands are complete")
+                    else:
+                        print("All the islands are not complete")
+                        
+                if fill_button_rectangle.collidepoint(event.pos):
+                    table = ns.elimAroundOnes(table)
+                    table = ns.elimAdj(table)
+                    table = ns.diagonal(table)
+                    table = ns.surround(table)
+                    ns.wallAroundIslands(table)
+                    
+                    
                 if return_button_rectangle.collidepoint(event.pos):
                     room = 1
                     
@@ -576,11 +610,38 @@ while active:
                     
                 if surrounded_button_rectangle.collidepoint(event.pos):
                     table = ns.surround(table)
-                    print(table)
+                    
+                if around_island_button_rectangle.collidepoint(event.pos):
+                    ns.wallAroundIslands(table)
                     
                 if reset_button_rectangle.collidepoint(event.pos):
                     reset_table(table)
                     
+                if check_button_rectangle.collidepoint(event.pos):
+                    if ns.checkWallIntegrity2(table):
+                        print("the wall is continuous")
+                    elif not ns.checkWallIntegrity2(table):
+                        print("the wall is not continuous")
+                    elif ns.checkWallIntegrity2(table) == None:
+                        print("there is no walls")
+                    
+                    if ns.wallBlockCheck(table):
+                        print("there is a 2x2 block")
+                    else:
+                        print("there is no 2x2 block")
+                        
+                    if ns.allIslCheck(table):
+                        print("All the islands are complete")
+                    else:
+                        print("All the islands are not complete")
+                      
+                if fill_button_rectangle.collidepoint(event.pos):
+                    table = ns.elimAroundOnes(table)
+                    table = ns.elimAdj(table)
+                    table = ns.diagonal(table)
+                    table = ns.surround(table)
+                    ns.wallAroundIslands(table)
+                
                 if return_button_rectangle.collidepoint(event.pos):
                     room = 1
                     
