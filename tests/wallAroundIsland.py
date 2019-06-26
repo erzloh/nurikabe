@@ -107,8 +107,12 @@ def islandParts(x, y, table, counter, returning = False):
     else: #print("Island not complete")
         return False
 
-#Function to turn tiles next to islands "B". It has two modes: "complete" and "everything". The complete mode will check if the island is complete before proceeding, the everything mode won't do that check.
+#Function to turn tiles next to islands into "B". It has two modes: "complete" and "everything". The complete mode will check if the island is complete before proceeding, the everything mode won't do that check.
 def wallAroundIslands(table, mode="complete"):
+    
+    x_len = len(table)
+    y_len = len(table[1])
+    
     if mode == "complete":
         for i in range(x_len):
             for j in range(y_len):

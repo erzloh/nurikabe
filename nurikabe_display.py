@@ -585,11 +585,10 @@ while active:
                         print("All the islands are not complete")
                         
                 if fill_button_rectangle.collidepoint(event.pos):
-                    table = ns.elimAroundOnes(table)
+                    ns.wallAroundIslands(table)
                     table = ns.elimAdj(table)
                     table = ns.diagonal(table)
                     table = ns.surround(table)
-                    ns.wallAroundIslands(table)
                     
                     
                 if return_button_rectangle.collidepoint(event.pos):
@@ -636,11 +635,11 @@ while active:
                         print("All the islands are not complete")
                       
                 if fill_button_rectangle.collidepoint(event.pos):
-                    table = ns.elimAroundOnes(table)
+                    ns.wallAroundIslands(table)
                     table = ns.elimAdj(table)
                     table = ns.diagonal(table)
                     table = ns.surround(table)
-                    ns.wallAroundIslands(table)
+                    
                 
                 if return_button_rectangle.collidepoint(event.pos):
                     room = 1
