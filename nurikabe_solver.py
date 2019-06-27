@@ -199,10 +199,8 @@ def elimAdj(table):
 
 #Function to turn tiles next to "ones" black ("B")
 def elimAroundOnes(table):
-    
     x_len = len(table)
     y_len = len(table[0])
-    
     for i in range(x_len):
         for j in range(y_len):
             if table[i][j] == "1":
@@ -250,14 +248,10 @@ def wallBlockCheck(table):
     if not foundBlock: #print("No 2x2 blocks in the wall")
         return None
         
-#Function to check if a single island is complete
-tempTable = []
-revertTable = []
-def islandCheck(x, y, table, counter, returning = False):
-    
+#Function to check if a single island is complete, NOT HANDLING CASE WHEN ISLAND TOO BIG, needed for this function
+def islandCheckNotTooBig(x, y, table, counter, tempTable = [], revertTable = [], returning = False):
     x_len = len(table)
     y_len = len(table[1])
-    
     if (x, y) not in tempTable:
         counter = counter-1 #print("counter is",counter)
         if counter == 0: #print("Island complete")
@@ -266,35 +260,41 @@ def islandCheck(x, y, table, counter, returning = False):
     if not returning:
         revertTable.append((x, y))
     if x > 0 and table[x-1][y] == "W" and (x-1, y) not in tempTable: #print("left")
-        return islandCheck(x-1, y, table, counter, returning = False)
+        return islandCheckNotTooBig(x-1, y, table, counter, returning = False)
     elif y > 0 and table[x][y-1] == "W" and (x, y-1) not in tempTable: #print("up")
-        return islandCheck(x, y-1, table, counter, returning = False)
+        return islandCheckNotTooBig(x, y-1, table, counter, returning = False)
     elif (x < x_len-1) and table[x+1][y] == "W" and (x+1, y) not in tempTable: #I wonder if the < x_len-1 works in all cases ###print("right")
-        return islandCheck(x+1, y, table, counter, returning = False)
+        return islandCheckNotTooBig(x+1, y, table, counter, returning = False)
     elif (y < y_len-1) and table[x][y+1] == "W" and (x, y+1) not in tempTable: #print("down")        
-        return islandCheck(x, y+1, table, counter, returning = False)
+        return islandCheckNotTooBig(x, y+1, table, counter, returning = False)
     elif len(revertTable) > 1:
         revertTable.pop() #print("returning")
-        return islandCheck(revertTable[len(revertTable)-1][0], revertTable[len(revertTable)-1][1], table, counter, returning = True)
+        return islandCheckNotTooBig(revertTable[len(revertTable)-1][0], revertTable[len(revertTable)-1][1], table, counter, returning = True)
     else: #print("Island not complete")
         return False
 
+#FINAL Function to check if a single island is complete
+def islandCheck(x, y, table, counter, returning = False):
+    flag = True
+    #counter = int(table[i][j])
+    if not islandCheckNotTooBig(x, y, table, counter, returning = False):
+        flag = False
+    counter += 1
+    if islandCheckNotTooBig(x, y, table, counter, returning = False):
+        flag = False
+    return flag
+
 #Function to check if all islands are complete
 def allIslCheck(table):
-    
     x_len = len(table)
     y_len = len(table[1])
-    
     flag = True
     for i in range(x_len):
         for j in range(y_len):
             if isInt(table, i, j):
-                tempTable.clear()
-                revertTable.clear()
                 counter = int(table[i][j])
                 if flag:
                     flag = islandCheck(i, j, table, counter)
-                    revertTable
     return flag
 
 #Function that returns a requested neighbour. Directions can be: up, down, right, left. "E" = edge
@@ -322,17 +322,15 @@ def neighbour(table, x, y, direction):
 
 #Function to turn a "U" in "B" if surrounded by "B" or edge
 def surround(table):
-    
     x_len = len(table)
     y_len = len(table[0])
-    
     for i in range(x_len):
         for j in range(y_len):
             if table[i][j] == "U" and (neighbour(table,i,j,"up")=="E" or neighbour(table,i,j,"up")=="B") and (neighbour(table,i,j,"down")=="E" or neighbour(table,i,j,"down")=="B") and (neighbour(table,i,j,"left")=="E" or neighbour(table,i,j,"left")=="B") and (neighbour(table,i,j,"right")=="E" or neighbour(table,i,j,"right")=="B"):
                 table[i][j] = "B"
     return table
 
-#Function to return all island parts
+#Function to return all island parts (its size must be known)
 partList = []
 def islandParts(x, y, table, counter, returning = False):
     #print("iteration of islandParts on", x, y)
@@ -363,11 +361,9 @@ def islandParts(x, y, table, counter, returning = False):
         return False
 
 #Function to turn tiles next to islands into "B". It has two modes: "complete" and "everything". The complete mode will check if the island is complete before proceeding, the everything mode won't do that check.
-def wallAroundIslands(table, mode="complete"):
-    
+def wallAroundIslands(table, mode="complete"): 
     x_len = len(table)
     y_len = len(table[1])
-    
     if mode == "complete":
         for i in range(x_len):
             for j in range(y_len):
@@ -380,7 +376,6 @@ def wallAroundIslands(table, mode="complete"):
                         revertTable.clear()
                         partList.clear()
                         tiles = islandParts(i, j, table, int(table[i][j]))
-
                         for tile in tiles:
                             if neighbour(table, tile[0], tile[1], "up") != "W" and neighbour(table, tile[0], tile[1], "up") != "E" and not isIntTwo(neighbour(table, tile[0], tile[1], "up")):
                                 table[tile[0]][tile[1]-1] = "B"
@@ -415,11 +410,6 @@ def printTable(table):
         tempStr = ""
 
 #tables
-table =[["B", "B", "1", "B", "W", "2"],
-        ["1", "B", "B", "B", "B", "B"],
-        ["B", "B", "2", "W", "B", "2"],
-        ["W", "2", "B", "B", "B", "W"]]
-
 table = [["1", "B", "2", "W", "B", "2", "W"],
          ["B", "B", "B", "B", "B", "B", "B"],
          ["2", "W", "B", "4", "W", "B", "1"],
@@ -428,9 +418,14 @@ table = [["1", "B", "2", "W", "B", "2", "W"],
          ["W", "B", "4", "B", "B", "B", "B"],
          ["B", "B", "W", "W", "W", "B", "1"]]
 
+
 table = [["U", "B", "U"],
          ["B", "U", "B"],
          ["U", "B", "U"]]
+table =[["B", "B", "1", "B", "W", "2"],
+        ["1", "B", "B", "B", "B", "B"],
+        ["B", "B", "2", "W", "B", "2"],
+        ["W", "2", "B", "B", "B", "W"]]
 
 #set x and y length of the table
 x_len = len(table)
@@ -446,5 +441,4 @@ table = surround(table)
 print("Any 2x2 blocks in the wall?", wallBlockCheck(table))
 print("Is the wall continuous?", checkWallIntegrity2(table))
 print("Are all islands complete?",allIslCheck(table))
-
-printTable(table)
+#print(islandCheck(1, 0, table, int(table[1][0])))
