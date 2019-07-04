@@ -344,6 +344,17 @@ def neighbour(table, x, y, direction):
         else:
             return table[x + 1][y]
 
+#Function to replace a given neighbour by a string.
+def setNeighbour(x, y, table, direction, value):
+    if neighbour(table, x, y, direction) != "E":
+        if direction == "up":
+            table[x][y - 1] = value
+        if direction == "down":
+            table[x][y + 1] = value
+        if direction == "left":
+            table[x - 1][y] = value
+        if direction == "right":
+            table[x + 1][y] = value
 
 # Function to turn a "U" in "B" if surrounded by "B" or edge
 def surround(table):
@@ -358,9 +369,9 @@ def surround(table):
                 table[i][j] = "B"
     return table
 
-# Function to return all island parts (its size must be known)
+# Function to return all island parts. I has two modes: "complete" (default) (island must be complete to return an array, if not returns False) and "everything" (will always retun an array)
 # partList = []
-def islandParts(x, y, table, counter, partList=[], tempTable=[], revertTable=[], returning=False):
+def islandParts(x, y, table, counter, partList=[], tempTable=[], revertTable=[],mode="complete", returning=False):
     # print("iteration of islandParts on", x, y)
     x_len = len(table)
     y_len = len(table[1])
@@ -375,20 +386,23 @@ def islandParts(x, y, table, counter, partList=[], tempTable=[], revertTable=[],
     if not returning:
         revertTable.append((x, y))
     if x > 0 and table[x - 1][y] == "W" and (x - 1, y) not in tempTable:  # print("left")
-        return islandParts(x - 1, y, table, counter,tempTable, revertTable, returning=False)
+        return islandParts(x - 1, y, table, counter, partList,tempTable, revertTable, mode, returning=False)
     elif y > 0 and table[x][y - 1] == "W" and (x, y - 1) not in tempTable:  # print("up")
-        return islandParts(x, y - 1, table, counter,tempTable, revertTable, returning=False)
+        return islandParts(x, y - 1, table, counter, partList,tempTable, revertTable, mode, returning=False)
     elif (x < x_len - 1) and table[x + 1][y] == "W" and (
     x + 1, y) not in tempTable:  # I wonder if the < x_len-1 works in all cases ###print("right")
-        return islandParts(x + 1, y, table, counter,tempTable, revertTable, returning=False)
+        return islandParts(x + 1, y, table, counter, partList,tempTable, revertTable, mode, returning=False)
     elif (y < y_len - 1) and table[x][y + 1] == "W" and (x, y + 1) not in tempTable:  # print("down")
-        return islandParts(x, y + 1, table, counter,tempTable, revertTable, returning=False)
+        return islandParts(x, y + 1, table, counter, partList,tempTable, revertTable, mode, returning=False)
     elif len(revertTable) > 1:
         revertTable.pop()  # print("returning")
-        return islandParts(revertTable[len(revertTable) - 1][0], revertTable[len(revertTable) - 1][1], table, counter,tempTable, revertTable,
+        return islandParts(revertTable[len(revertTable) - 1][0], revertTable[len(revertTable) - 1][1], table, counter, partList,tempTable, revertTable, mode,
                            returning=True)
     else:  # print("Island not complete")
-        return False
+        if mode == "complete":
+            return False
+        else:
+            return partList
 
 
 # Function to turn tiles next to islands into "B". It has two modes: "complete" and "everything". The complete mode will check if the island is complete before proceeding, the everything mode won't do that check.
@@ -445,6 +459,59 @@ def wallAroundIslands(table, mode="complete"):
                             neighbour(table, i, j, "left")):
                         table[i - 1][j] = "B"
 
+#Function to add tiles to an island if and only if it isn't complete and is surrounded by the Wall everywhere except on one spot. (It keeps relaunching itself until the conditions are not met)
+def addOneTile(x, y, table, counter = None, succeeded = False, returning = False):
+    if returning == False or succeeded == True:
+        if counter == None:
+            counter = int(table[x][y]) - 1
+            if counter == 0:
+                return
+        else:
+            counter -= 1
+        if counter <= 0:
+            return
+        parts = islandParts(x, y, table, int(table[x][y]), [], [], [], mode="everything")
+        print("parts are: ", parts)
+        neighbours = []
+        eligibleParts = []
+        print("part length:",len(parts))
+        for i in range(len(parts)):
+            neighbours.append(neighbour(table, parts[i][0], parts[i][1], "up"))
+            neighbours.append(neighbour(table, parts[i][0], parts[i][1], "right"))
+            neighbours.append(neighbour(table, parts[i][0], parts[i][1], "down"))
+            neighbours.append(neighbour(table, parts[i][0], parts[i][1], "left"))
+            print("neighbours of",x, y, "are: ",neighbours)
+            if neighbours.count("U") == 1:
+                print("true")
+                eligibleParts.append((parts[i][0], parts[i][1]))
+            neighbours.clear()
+        if len(eligibleParts) == 1:
+            print("second true")
+            if neighbour(table, eligibleParts[0][0], eligibleParts[0][1], "up") == "U":
+                setNeighbour(eligibleParts[0][0], eligibleParts[0][1], table, "up", "W")
+                return addOneTile(x, y, table, counter, True, True)
+            if neighbour(table, eligibleParts[0][0], eligibleParts[0][1], "right") == "U":
+                setNeighbour(eligibleParts[0][0], eligibleParts[0][1], table, "right", "W")
+                return addOneTile(x, y, table, counter, True, True)
+            if neighbour(table, eligibleParts[0][0], eligibleParts[0][1], "down") == "U":
+                setNeighbour(eligibleParts[0][0], eligibleParts[0][1], table, "down", "W")
+                return addOneTile(x, y, table, counter, True, True)
+            if neighbour(table, eligibleParts[0][0], eligibleParts[0][1], "left") == "U":
+                setNeighbour(eligibleParts[0][0], eligibleParts[0][1], table, "left", "W")
+                return addOneTile(x, y, table, counter, True, True)
+        else:
+            return addOneTile(x, y, table, counter, False, True)
+    else:
+         return
+
+# Function to triger addOneTile on all islands
+def addOneTileEverywhere(table):
+    x_len = len(table)
+    y_len = len(table[0])
+    for x in range(x_len):
+        for y in range(y_len):
+            if isIntTwo(table[x][y]):
+                addOneTile(x, y, table)
 
 # Function to display table in console
 def printTable(table):
@@ -461,22 +528,15 @@ table = [["1", "B", "2", "W", "B", "2", "W"],
          ["B", "B", "B", "B", "B", "B", "B"],
          ["2", "W", "B", "4", "W", "B", "1"],
          ["B", "B", "W", "W", "B", "B", "B"],
-         ["2", "B", "B", "B", "2", "W", "B"],
+         ["2", "B", "B", "B", "2", "U", "B"],
          ["W", "B", "4", "B", "B", "B", "B"],
          ["B", "B", "W", "W", "W", "B", "1"]]
 
-table = [["U", "B", "U"],
-         ["B", "U", "B"],
-         ["U", "B", "U"]]
-table = [["B", "B", "1", "B", "W", "2"],
-         ["1", "B", "B", "B", "B", "B"],
-         ["B", "B", "2", "W", "B", "2"],
-         ["W", "2", "B", "B", "B", "W"]]
-
-table = [["B", "U", "1", "B", "W", "2"],
-         ["1", "B", "B", "B", "B", "U"],
-         ["U", "B", "2", "W", "B", "2"],
-         ["W", "2", "U", "B", "B", "W"]]
+table = [["U", "U", "U", "U", "U", "U"],
+         ["B", "U", "B", "B", "B", "U"],
+         ["2", "B", "15", "U", "B", "U"],
+         ["U", "U", "B", "U", "B", "U"],
+         ["U", "U", "B", "U", "U", "U"]]
 
 # set x and y length of the table
 x_len = len(table)
@@ -488,14 +548,18 @@ y_len = len(table[0])
 # table = diagonal(table)
 # block_coord = wallBlockCheck(table)
 # print(block_coord[1])
-printTable(table)
-print("Any 2x2 blocks in the wall?", wallBlockCheck(table))
-print("Is the wall continuous?", checkWallIntegrity2(table))
-print("Are all islands complete?", allIslCheck(table))
-print("------------------")
+#printTable(table)
+#print("Any 2x2 blocks in the wall?", wallBlockCheck(table))
+#print("Is the wall continuous?", checkWallIntegrity2(table))
+#print("Are all islands complete?", allIslCheck(table))
+#print("------------------")
 # table = surround(table)
-wallAroundIslands(table)#, "everything")
+#wallAroundIslands(table)#, "everything")
+
+print(islandParts(2, 2, table, int(table[2][2]), mode="everything"))
+#addOneTile(2,2,table)
+addOneTileEverywhere(table)
 printTable(table)
-print("Any 2x2 blocks in the wall?", wallBlockCheck(table))
-print("Is the wall continuous?", checkWallIntegrity2(table))
-print("Are all islands complete?", allIslCheck(table))
+#print("Any 2x2 blocks in the wall?", wallBlockCheck(table))
+#print("Is the wall continuous?", checkWallIntegrity2(table))
+#print("Are all islands complete?", allIslCheck(table))
