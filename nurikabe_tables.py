@@ -56,3 +56,26 @@ table_draw = [["U", "U", "U", "U", "U", "U", "U", "U", "U"],
               ["U", "U", "U", "U", "U", "B", "U", "U", "U"],
               ["U", "U", "U", "U", "U", "U", "U", "U", "U"],
               ["U", "U", "U", "U", "U", "U", "U", "U", "U"]]
+
+# Table Generator (not in use)
+tab_00 = """
+u1uu
+uuu2
+1u2u
+uuuu
+uuuu
+2u2u"""
+
+tab_01 = tab_00.split() # split lines along white space
+
+tab_02 = []
+for line in tab_01:
+    line = line.upper()
+    character_list = list(line) # separates string in list of caracters
+    print(line, character_list)
+    tab_02.append(character_list)
+    
+
+#print('multiline string', tab_00)
+#print('list of lines', tab_01)
+#print('list of characters', tab_02)

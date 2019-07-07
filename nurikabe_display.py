@@ -9,49 +9,16 @@ from pygame import Rect
 import nurikabe_solver as ns # Jacek's program
 import nurikabe_tables as nt # Nurikabe Tables
 
-# Initialize Pygame
-pygame.init()
-
-# Initialize Font
-pygame.font.init()
-font = pygame.font.SysFont("Helvetica", 64)
-font_little = pygame.font.SysFont("Helvetica", 18)
-
-# Create Table
-""" "W" = white
-    "B" = black
-    "U" = undefined """
-
-# Table 1
-table = [["U", "U", "1", "U", "U", "2"],
-         ["1", "U", "U", "U", "U", "U"],
-         ["U", "U", "2", "U", "U", "2"],
-         ["U", "2", "U", "U", "U", "U"]]
-
-# Table Generator
-tab_00 = """
-u1uu
-uuu2
-1u2u
-uuuu
-uuuu
-2u2u"""
-
-tab_01 = tab_00.split() # split lines along white space
-
-tab_02 = []
-for line in tab_01:
-    line = line.upper()
-    character_list = list(line) # separates string in list of caracters
-    print(line, character_list)
-    tab_02.append(character_list)
-    
-
-#print('multiline string', tab_00)
-#print('list of lines', tab_01)
-#print('list of characters', tab_02)
+# These globel variables will be initialized in main()
+window = None
+font = None
+font_little = None
+room_mode = None
 
 # Set x and y length of the table
+table = nt.table1
+debug_table = table
+
 x_len = len(table)
 y_len = len(table[0])
 
@@ -103,17 +70,6 @@ level2_button_rectangle = pygame.Rect(0, 0, 100, 100)
 level3_button_rectangle = pygame.Rect(0, 0, 100, 100)
 level4_button_rectangle = pygame.Rect(0, 0, 100, 100)
 
-active = True # Main Loop Variable
-
-room = 1 # The game starts in room 1, corresponding to the title screen
-
-room_mode = "" # Whether "solve" or "play"
-
-# Create Window
-window_title = "Nurikabe"
-window = pygame.display.set_mode(SCREEN_DIMENSION)
-pygame.display.set_caption(window_title)
-
 
 class App:
     rooms = []
@@ -153,6 +109,7 @@ class Button:
     Button('OPTION', (200, 500))
     """
     # This is a class attribute, accessible by Button.font
+    pygame.font.init()
     font = pygame.font.SysFont("Helvetica", 72)
     
     def __init__(self, label, pos, size=(250, 80), col=BLACK, cmd=''):
@@ -287,9 +244,9 @@ def draw_room1():
     """Draws a title and some buttons."""
     
     window.fill(color1)
-    #b0.draw()
-    #b1.draw()
-    #b2.draw()
+#    button0.draw()
+#    button1.draw()
+#    button2.draw()
 
     # Reset table
     reset_table(table)
@@ -478,308 +435,343 @@ def draw_room6():
 
 # Main Loop
 
-def b0_callback():
+def button0_callback():
     global room_mode, room
     
     print('click on button b0')
     room_mode = "play"
     room = 5
 
-b0 = Button('PLAY', (0, 300), cmd=b0_callback)
-b1 = Button('SOLVE', (0, 400))
-b2 = Button('OPTION', (0, 500))
 
-print(b0, b1, b2)
+def main():
+    global window
+    global SCREEN_DIMENSION
+    global SCREEN_CENTER
+    global font
+    global font_little
+    global room_mode
+    global table
+    global debug_table
+    global x_len
+    global y_len
+    global color1
+    global color2
+
     
-while active:
-            
-    for event in pygame.event.get():
+    # Initialize Pygame
+    pygame.init()
+
+    # Initialize Font
+    pygame.font.init()
+    font = pygame.font.SysFont("Helvetica", 64)
+    font_little = pygame.font.SysFont("Helvetica", 18)
+    
+    # Create Window
+    window_title = "Nurikabe"
+    window = pygame.display.set_mode(SCREEN_DIMENSION)
+    pygame.display.set_caption(window_title)
+
+    button0 = Button('PLAY', (0, 300), cmd=button0_callback)
+    button1 = Button('SOLVE', (0, 400))
+    button2 = Button('OPTION', (0, 500))
+    
+    active = True # Main Loop Variable
+    room = 1 # The game starts in room 1, corresponding to the title screen
+    room_mode = "" # Either "solve" or "play"
         
-        if event.type == QUIT: # If Close The Window
-            active = False
-            
-        elif event.type == KEYDOWN: # If a key is down
-            if event.key == K_ESCAPE:
-                room = 1
+    while active:
                 
+        for event in pygame.event.get():
             
-        elif event.type == MOUSEBUTTONDOWN: # If a mouse button is pressed
-            if room == 1:
-                if play_button_rectangle.collidepoint(event.pos): # If Play Button is pressed
-                    room_mode = "play"
-                    room = 5
+            if event.type == QUIT: # If Close The Window
+                active = False
+                
+            elif event.type == KEYDOWN: # If a key is down
+                if event.key == K_ESCAPE:
+                    room = 1
                     
-                if solve_button_rectangle.collidepoint(event.pos):
-                    room_mode = "solve"
-                    room = 5
+                
+            elif event.type == MOUSEBUTTONDOWN: # If a mouse button is pressed
+                if room == 1:
+                    if play_button_rectangle.collidepoint(event.pos): # If Play Button is pressed
+                        room_mode = "play"
+                        room = 5
+                        
+                    if solve_button_rectangle.collidepoint(event.pos):
+                        room_mode = "solve"
+                        room = 5
+                        
+                    if option_button_rectangle.collidepoint(event.pos):
+                        room = 4
+                        
+                    if button0.rect.collidepoint(event.pos):
+                        button0.cmd()
+                        
+                # PLAYABLE ROOM
+                elif room == 2 or room == 6:
+                    # If the mouse is in the nurikabe grid
+                    if (event.pos[0] < CASE_LENGTH * x_len) and (event.pos[1] < CASE_LENGTH * y_len):
+                        # Get the case index
+                        (i, j) = get_index(event.pos[0], event.pos[1], CASE_LENGTH)
+                        
+                        if table[i][j] == "U":
+                            table[i][j] = "W"
+                            
+                        elif table[i][j] == "W":
+                            table[i][j] = "B"
+                            
+                        elif table[i][j] == "B":
+                            table[i][j] = "U"
+                            
+                    if continuity_button_rectangle.collidepoint(event.pos):
+                        if ns.checkWallIntegrity2(table):
+                            print("the wall is continuous")
+                        elif not ns.checkWallIntegrity2(table):
+                            print("the wall is not continuous")
+                        else:
+                            print("there is no walls")
+                        
+                    if block_2x2_button_rectangle.collidepoint(event.pos):
+                        
+                        block_coord = ns.wallBlockCheck(table)
                     
-                if option_button_rectangle.collidepoint(event.pos):
-                    room = 4
+                        if block_coord != None:
+                            print("there is a 2x2 block")
+                            b0 = block_coord[0]
+                            b1 = block_coord[1]
+                            
+                            debug_table[b0][b1] = "R"
+                        else:
+                            print("there is no 2x2 block")
+                            
+                    if island_complete_button_rectangle.collidepoint(event.pos):
+                        if ns.allIslCheck(table):
+                            print("All the islands are complete")
+                        else:
+                            print("All the islands are not complete")
+                        
+                    if reset_button_rectangle.collidepoint(event.pos):
+                        reset_table(table)
+                        reset_debug_table(debug_table)
+                        
+                    if check_button_rectangle.collidepoint(event.pos):
+                        if ns.checkWallIntegrity2(table):
+                            print("the wall is continuous")
+                        elif not ns.checkWallIntegrity2(table):
+                            print("the wall is not continuous")
+                        elif ns.checkWallIntegrity2(table) == None:
+                            print("there is no walls")
+                        
+                        if ns.wallBlockCheck(table):
+                            print("there is a 2x2 block")
+                        else:
+                            print("there is no 2x2 block")
+                            
+                        if ns.allIslCheck(table):
+                            print("All the islands are complete")
+                        else:
+                            print("All the islands are not complete")
+                            
+                    if fill_button_rectangle.collidepoint(event.pos):
+                        ns.wallAroundIslands(table)
+                        table = ns.elimAdj(table)
+                        table = ns.diagonal(table)
+                        table = ns.surround(table)
+                        
+                        
+                    if return_button_rectangle.collidepoint(event.pos):
+                        room = 1
+                        
+                # SOLVING ROOM
+                elif room == 3:
+                    if around_one_button_rectangle.collidepoint(event.pos):
+                        
+                        table = ns.elimAroundOnes(table)
+                        
+                    if adj_button_rectangle.collidepoint(event.pos):
+                        set_table_length(table)
+                        table = ns.elimAdj(table)
+                        
+                    if diagonal_button_rectangle.collidepoint(event.pos):
+                        table = ns.diagonal(table)
+                        
+                    if surrounded_button_rectangle.collidepoint(event.pos):
+                        table = ns.surround(table)
+                        
+                    if around_island_button_rectangle.collidepoint(event.pos):
+                        ns.wallAroundIslands(table)
+                        
+                    if reset_button_rectangle.collidepoint(event.pos):
+                        reset_table(table)
+                        
+                    if check_button_rectangle.collidepoint(event.pos):
+                        if ns.checkWallIntegrity2(table):
+                            print("the wall is continuous")
+                        elif not ns.checkWallIntegrity2(table):
+                            print("the wall is not continuous")
+                        elif ns.checkWallIntegrity2(table) == None:
+                            print("there is no walls")
+                        
+                        if ns.wallBlockCheck(table):
+                            print("there is a 2x2 block")
+                        else:
+                            print("there is no 2x2 block")
+                            
+                        if ns.allIslCheck(table):
+                            print("All the islands are complete")
+                        else:
+                            print("All the islands are not complete")
+                          
+                    if fill_button_rectangle.collidepoint(event.pos):
+                        ns.wallAroundIslands(table)
+                        table = ns.elimAdj(table)
+                        table = ns.diagonal(table)
+                        table = ns.surround(table)
+                        
                     
-                if b0.rect.collidepoint(event.pos):
-                    b0.cmd()
-                    
-            # PLAYABLE ROOM
-            elif room == 2 or room == 6:
-                # If the mouse is in the nurikabe grid
-                if (event.pos[0] < CASE_LENGTH * x_len) and (event.pos[1] < CASE_LENGTH * y_len):
+                    if return_button_rectangle.collidepoint(event.pos):
+                        room = 1
+                        
+                # OPTION ROOM
+                elif room == 4:
+                    if inverse_color_button_rectangle.collidepoint(event.pos):
+                        if color1 == WHITE:
+                            color1 = BLACK
+                            color2 = WHITE
+                            
+                        elif color1 == BLACK:
+                            color1 = WHITE
+                            color2 = BLACK
+                            
+                    if return_button_rectangle.collidepoint(event.pos):
+                        room = 1
+                        
+                    if enjoy_button_rectangle.collidepoint(event.pos):
+                        
+                        table = nt.table_draw
+                        x_len = len(table)
+                        y_len = len(table[0])
+                        
+                        debug_table = initialize_debug_table()
+                        
+                        room_mode == "draw"
+                        
+                        room = 6
+                        
+                        SCREEN_DIMENSION = ((x_len * CASE_LENGTH) + DISTANCE_BETWEEN_EDGE, (y_len * CASE_LENGTH) + TOOLBAR_DISTANCE)
+                        SCREEN_CENTER    = (SCREEN_DIMENSION[0] / 2, SCREEN_DIMENSION[1] / 2)
+                        window = pygame.display.set_mode(SCREEN_DIMENSION)
+                        
+                        pygame.mixer.music.load("dog_song.mp3")
+                        pygame.mixer.music.play()
+                        
+                # LEVEL CHOOSING ROOM
+                elif room == 5:
+                    if level1_button_rectangle.collidepoint(event.pos): # LEVEL 1
+                        
+                        table = nt.table1
+                        x_len = len(table)
+                        y_len = len(table[0])
+                        
+                        debug_table = initialize_debug_table()
+                        
+                        if room_mode == "play":
+                            room = 2
+                        elif room_mode == "solve":
+                            room = 3
+                        
+                        SCREEN_DIMENSION = ((x_len * CASE_LENGTH) + DISTANCE_BETWEEN_EDGE, (y_len * CASE_LENGTH) + TOOLBAR_DISTANCE)
+                        SCREEN_CENTER    = (SCREEN_DIMENSION[0] / 2, SCREEN_DIMENSION[1] / 2)
+                        window = pygame.display.set_mode(SCREEN_DIMENSION)
+                        
+                    if level2_button_rectangle.collidepoint(event.pos): # LEVEL 2
+                        
+                        table = nt.table2
+                        x_len = len(table)
+                        y_len = len(table[0])
+                        
+                        debug_table = initialize_debug_table()
+                        
+                        if room_mode == "play":
+                            room = 2
+                        elif room_mode == "solve":
+                            room = 3
+                        
+                        SCREEN_DIMENSION = ((x_len * CASE_LENGTH) + DISTANCE_BETWEEN_EDGE, (y_len * CASE_LENGTH) + TOOLBAR_DISTANCE)
+                        SCREEN_CENTER    = (SCREEN_DIMENSION[0] / 2, SCREEN_DIMENSION[1] / 2)
+                        window = pygame.display.set_mode(SCREEN_DIMENSION)
+                        
+                    if level3_button_rectangle.collidepoint(event.pos): # LEVEL 3
+                        
+                        table = nt.table3
+                        x_len = len(table)
+                        y_len = len(table[0])
+                        
+                        debug_table = initialize_debug_table()
+                        
+                        if room_mode == "play":
+                            room = 2
+                        elif room_mode == "solve":
+                            room = 3
+                        
+                        SCREEN_DIMENSION = ((x_len * CASE_LENGTH) + DISTANCE_BETWEEN_EDGE, (y_len * CASE_LENGTH) + TOOLBAR_DISTANCE)
+                        SCREEN_CENTER    = (SCREEN_DIMENSION[0] / 2, SCREEN_DIMENSION[1] / 2)
+                        window = pygame.display.set_mode(SCREEN_DIMENSION)
+                        
+                    if return_button_rectangle.collidepoint(event.pos):
+                        room = 1
+                        
+                    if level4_button_rectangle.collidepoint(event.pos): # LEVEL 4
+                        
+                        table = nt.table4
+                        x_len = len(table)
+                        y_len = len(table[0])
+                        
+                        debug_table = initialize_debug_table()
+                        
+                        if room_mode == "play":
+                            room = 2
+                        elif room_mode == "solve":
+                            room = 3
+                        
+                        SCREEN_DIMENSION = ((x_len * CASE_LENGTH) + DISTANCE_BETWEEN_EDGE, (y_len * CASE_LENGTH) + TOOLBAR_DISTANCE)
+                        SCREEN_CENTER    = (SCREEN_DIMENSION[0] / 2, SCREEN_DIMENSION[1] / 2)
+                        window = pygame.display.set_mode(SCREEN_DIMENSION)
+                        
+                    if return_button_rectangle.collidepoint(event.pos):
+                        room = 1
+            
+            elif event.type == MOUSEMOTION: # If the mouse is moving
+                if room == 2 or room == 6:
                     # Get the case index
                     (i, j) = get_index(event.pos[0], event.pos[1], CASE_LENGTH)
                     
-                    if table[i][j] == "U":
-                        table[i][j] = "W"
-                        
-                    elif table[i][j] == "W":
-                        table[i][j] = "B"
-                        
-                    elif table[i][j] == "B":
-                        table[i][j] = "U"
-                        
-                if continuity_button_rectangle.collidepoint(event.pos):
-                    if ns.checkWallIntegrity2(table):
-                        print("the wall is continuous")
-                    elif not ns.checkWallIntegrity2(table):
-                        print("the wall is not continuous")
-                    else:
-                        print("there is no walls")
+                    cursor_rectangle.x = i * CASE_LENGTH
+                    cursor_rectangle.y = j * CASE_LENGTH + TOOLBAR_DISTANCE
                     
-                if block_2x2_button_rectangle.collidepoint(event.pos):
+                    cursor_rectangle.x = clamp(cursor_rectangle.x, 0, (x_len - 1) * CASE_LENGTH)
+                    cursor_rectangle.y = clamp(cursor_rectangle.y, TOOLBAR_DISTANCE, ((y_len - 1) * CASE_LENGTH) + TOOLBAR_DISTANCE)
                     
-                    block_coord = ns.wallBlockCheck(table)
-                
-                    if block_coord != None:
-                        print("there is a 2x2 block")
-                        b0 = block_coord[0]
-                        b1 = block_coord[1]
-                        
-                        debug_table[b0][b1] = "R"
-                    else:
-                        print("there is no 2x2 block")
-                        
-                if island_complete_button_rectangle.collidepoint(event.pos):
-                    if ns.allIslCheck(table):
-                        print("All the islands are complete")
-                    else:
-                        print("All the islands are not complete")
-                    
-                if reset_button_rectangle.collidepoint(event.pos):
-                    reset_table(table)
-                    reset_debug_table(debug_table)
-                    
-                if check_button_rectangle.collidepoint(event.pos):
-                    if ns.checkWallIntegrity2(table):
-                        print("the wall is continuous")
-                    elif not ns.checkWallIntegrity2(table):
-                        print("the wall is not continuous")
-                    elif ns.checkWallIntegrity2(table) == None:
-                        print("there is no walls")
-                    
-                    if ns.wallBlockCheck(table):
-                        print("there is a 2x2 block")
-                    else:
-                        print("there is no 2x2 block")
-                        
-                    if ns.allIslCheck(table):
-                        print("All the islands are complete")
-                    else:
-                        print("All the islands are not complete")
-                        
-                if fill_button_rectangle.collidepoint(event.pos):
-                    ns.wallAroundIslands(table)
-                    table = ns.elimAdj(table)
-                    table = ns.diagonal(table)
-                    table = ns.surround(table)
-                    
-                    
-                if return_button_rectangle.collidepoint(event.pos):
-                    room = 1
-                    
-            # SOLVING ROOM
+            # All drawing is done here
+            if room == 1:
+                draw_room1()
+            elif room == 2:
+                draw_room2()
             elif room == 3:
-                if around_one_button_rectangle.collidepoint(event.pos):
-                    
-                    table = ns.elimAroundOnes(table)
-                    
-                if adj_button_rectangle.collidepoint(event.pos):
-                    set_table_length(table)
-                    table = ns.elimAdj(table)
-                    
-                if diagonal_button_rectangle.collidepoint(event.pos):
-                    table = ns.diagonal(table)
-                    
-                if surrounded_button_rectangle.collidepoint(event.pos):
-                    table = ns.surround(table)
-                    
-                if around_island_button_rectangle.collidepoint(event.pos):
-                    ns.wallAroundIslands(table)
-                    
-                if reset_button_rectangle.collidepoint(event.pos):
-                    reset_table(table)
-                    
-                if check_button_rectangle.collidepoint(event.pos):
-                    if ns.checkWallIntegrity2(table):
-                        print("the wall is continuous")
-                    elif not ns.checkWallIntegrity2(table):
-                        print("the wall is not continuous")
-                    elif ns.checkWallIntegrity2(table) == None:
-                        print("there is no walls")
-                    
-                    if ns.wallBlockCheck(table):
-                        print("there is a 2x2 block")
-                    else:
-                        print("there is no 2x2 block")
-                        
-                    if ns.allIslCheck(table):
-                        print("All the islands are complete")
-                    else:
-                        print("All the islands are not complete")
-                      
-                if fill_button_rectangle.collidepoint(event.pos):
-                    ns.wallAroundIslands(table)
-                    table = ns.elimAdj(table)
-                    table = ns.diagonal(table)
-                    table = ns.surround(table)
-                    
-                
-                if return_button_rectangle.collidepoint(event.pos):
-                    room = 1
-                    
-            # OPTION ROOM
+                draw_room3()
             elif room == 4:
-                if inverse_color_button_rectangle.collidepoint(event.pos):
-                    if color1 == WHITE:
-                        color1 = BLACK
-                        color2 = WHITE
-                        
-                    elif color1 == BLACK:
-                        color1 = WHITE
-                        color2 = BLACK
-                        
-                if return_button_rectangle.collidepoint(event.pos):
-                    room = 1
-                    
-                if enjoy_button_rectangle.collidepoint(event.pos):
-                    
-                    table = nt.table_draw
-                    x_len = len(table)
-                    y_len = len(table[0])
-                    
-                    debug_table = initialize_debug_table()
-                    
-                    room_mode == "draw"
-                    
-                    room = 6
-                    
-                    SCREEN_DIMENSION = ((x_len * CASE_LENGTH) + DISTANCE_BETWEEN_EDGE, (y_len * CASE_LENGTH) + TOOLBAR_DISTANCE)
-                    SCREEN_CENTER    = (SCREEN_DIMENSION[0] / 2, SCREEN_DIMENSION[1] / 2)
-                    window = pygame.display.set_mode(SCREEN_DIMENSION)
-                    
-                    pygame.mixer.music.load("dog_song.mp3")
-                    pygame.mixer.music.play()
-                    
-            # LEVEL CHOOSING ROOM
+                draw_room4()
             elif room == 5:
-                if level1_button_rectangle.collidepoint(event.pos): # LEVEL 1
-                    
-                    table = nt.table1
-                    x_len = len(table)
-                    y_len = len(table[0])
-                    
-                    debug_table = initialize_debug_table()
-                    
-                    if room_mode == "play":
-                        room = 2
-                    elif room_mode == "solve":
-                        room = 3
-                    
-                    SCREEN_DIMENSION = ((x_len * CASE_LENGTH) + DISTANCE_BETWEEN_EDGE, (y_len * CASE_LENGTH) + TOOLBAR_DISTANCE)
-                    SCREEN_CENTER    = (SCREEN_DIMENSION[0] / 2, SCREEN_DIMENSION[1] / 2)
-                    window = pygame.display.set_mode(SCREEN_DIMENSION)
-                    
-                if level2_button_rectangle.collidepoint(event.pos): # LEVEL 2
-                    
-                    table = nt.table2
-                    x_len = len(table)
-                    y_len = len(table[0])
-                    
-                    debug_table = initialize_debug_table()
-                    
-                    if room_mode == "play":
-                        room = 2
-                    elif room_mode == "solve":
-                        room = 3
-                    
-                    SCREEN_DIMENSION = ((x_len * CASE_LENGTH) + DISTANCE_BETWEEN_EDGE, (y_len * CASE_LENGTH) + TOOLBAR_DISTANCE)
-                    SCREEN_CENTER    = (SCREEN_DIMENSION[0] / 2, SCREEN_DIMENSION[1] / 2)
-                    window = pygame.display.set_mode(SCREEN_DIMENSION)
-                    
-                if level3_button_rectangle.collidepoint(event.pos): # LEVEL 3
-                    
-                    table = nt.table3
-                    x_len = len(table)
-                    y_len = len(table[0])
-                    
-                    debug_table = initialize_debug_table()
-                    
-                    if room_mode == "play":
-                        room = 2
-                    elif room_mode == "solve":
-                        room = 3
-                    
-                    SCREEN_DIMENSION = ((x_len * CASE_LENGTH) + DISTANCE_BETWEEN_EDGE, (y_len * CASE_LENGTH) + TOOLBAR_DISTANCE)
-                    SCREEN_CENTER    = (SCREEN_DIMENSION[0] / 2, SCREEN_DIMENSION[1] / 2)
-                    window = pygame.display.set_mode(SCREEN_DIMENSION)
-                    
-                if return_button_rectangle.collidepoint(event.pos):
-                    room = 1
-                    
-                if level4_button_rectangle.collidepoint(event.pos): # LEVEL 4
-                    
-                    table = nt.table4
-                    x_len = len(table)
-                    y_len = len(table[0])
-                    
-                    debug_table = initialize_debug_table()
-                    
-                    if room_mode == "play":
-                        room = 2
-                    elif room_mode == "solve":
-                        room = 3
-                    
-                    SCREEN_DIMENSION = ((x_len * CASE_LENGTH) + DISTANCE_BETWEEN_EDGE, (y_len * CASE_LENGTH) + TOOLBAR_DISTANCE)
-                    SCREEN_CENTER    = (SCREEN_DIMENSION[0] / 2, SCREEN_DIMENSION[1] / 2)
-                    window = pygame.display.set_mode(SCREEN_DIMENSION)
-                    
-                if return_button_rectangle.collidepoint(event.pos):
-                    room = 1
-        
-        elif event.type == MOUSEMOTION: # If the mouse is moving
-            if room == 2 or room == 6:
-                # Get the case index
-                (i, j) = get_index(event.pos[0], event.pos[1], CASE_LENGTH)
+                draw_room5()
+            elif room == 6:
+                draw_room6()
                 
-                cursor_rectangle.x = i * CASE_LENGTH
-                cursor_rectangle.y = j * CASE_LENGTH + TOOLBAR_DISTANCE
-                
-                cursor_rectangle.x = clamp(cursor_rectangle.x, 0, (x_len - 1) * CASE_LENGTH)
-                cursor_rectangle.y = clamp(cursor_rectangle.y, TOOLBAR_DISTANCE, ((y_len - 1) * CASE_LENGTH) + TOOLBAR_DISTANCE)
-                
-        # All drawing is done here
-        if room == 1:
-            draw_room1()
-        elif room == 2:
-            draw_room2()
-        elif room == 3:
-            draw_room3()
-        elif room == 4:
-            draw_room4()
-        elif room == 5:
-            draw_room5()
-        elif room == 6:
-            draw_room6()
-            
-        pygame.display.update()
+            pygame.display.update()
 
-print("quit")
-pygame.quit()
-exit()
+    print("quit")
+    pygame.quit()
+    exit()
+
+
+if __name__ == '__main__':
+    main()
