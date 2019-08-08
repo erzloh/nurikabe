@@ -1,4 +1,4 @@
-import nurikabeNumbers as ns
+import nurikabe_solver as ns
 import copy #answer from stack overflow by Sukrit Kalra
 
 def returnPotentialTiles(table, x, y): #not used

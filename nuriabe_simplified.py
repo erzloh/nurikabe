@@ -11,6 +11,7 @@ from pygame.locals import *  # Import constant definitions (QUIT, keys, etc)
 import nurikabe_solver as ns # Nurikabe solving functions
 import nurikabe_tables as nt # Nurikabe tables
 import numpy as np # Import numpy module which is used for tables
+import main_loop as ml
 
 # Define colors
 WHITE = (255, 255, 255)
@@ -79,15 +80,15 @@ class App:
         Room()
         Text('Nurikabe Solver by Jacek Wikiera and Eric Holzer', size=20)
         Grid(table)
-        Button('around_one', pos=(600, 100), size=20, cmd='ns.elimAroundOnes(table)', inf = 20, thickness = 2)
-        Button('between_numbers', pos=(600, 150), size=20, cmd='ns.elimAdj(table)', inf = 20, thickness = 2)
-        Button('diagonal', pos=(600, 200), size=20, cmd='ns.diagonal(table)', inf = 20, thickness = 2)
-        Button('surrounded', pos=(600, 250), size=20, cmd='ns.surround(table)', inf = 20, thickness = 2)
-        Button('around_island', pos=(600, 300), size=20, cmd='ns.wallAroundIslands(table)', inf = 20, thickness = 2)
-        Button('reset', pos=(600, 700), size=20, cmd='App.reset(table)', inf = 20, thickness = 2, col=RED)
+        Button('around_one', pos=(600, 50), size=20, cmd='ns.elimAroundOnes(table)', inf = 20, thickness = 2)
+        Button('between_numbers', pos=(600, 100), size=20, cmd='ns.elimAdj(table)', inf = 20, thickness = 2)
+        Button('diagonal', pos=(600, 150), size=20, cmd='ns.diagonal(table)', inf = 20, thickness = 2)
+        Button('surrounded', pos=(600, 200), size=20, cmd='ns.surround(table)', inf = 20, thickness = 2)
+        Button('around_island', pos=(600, 250), size=20, cmd='ns.wallAroundIslands(table)', inf = 20, thickness = 2)
+        Button('solve', pos=(600, 300), size=20, cmd='ml.solve(table)', inf = 20, thickness = 2)
         Button('fill', pos=(600, 600), size=20, cmd='App.fill(table)', inf = 20, thickness = 2, col=GREEN)
         Button('check', pos=(600, 650), size=20, cmd='App.check(table)', inf = 20, thickness = 2, col=BLUE)
-        
+        Button('reset', pos=(600, 700), size=20, cmd='App.reset(table)', inf = 20, thickness = 2, col=RED)
         
     def run(self):
         # Run the main event loop
