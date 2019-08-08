@@ -11,8 +11,53 @@ def areTouching(x1, y1, x2, y2):
         touching = True
     return touching
 
+# Function to check continuity of the wall including undefined space to check if the creation of a continuous wall is possible
+def checkWallIntegrityIncludingUndefined(table):
+    x_len = len(table)
+    y_len = len(table[0])
+    setList = []
+    for i in range(x_len):
+        for j in range(y_len):
+            if (table[i][j] == -1 or table[i][j] == 0) and (len(setList) == 0):
+                setList.append([(i, j)])
+            elif table[i][j] == -1 or table[i][j] == 0:
+                found = False
+                for k in range(len(setList)):
+                    l = 0
+                    while l < len(setList[k]):
+                        if areTouching(i, j, setList[k][l][0], setList[k][l][1]):
+                            setList[k].append((i, j))
+                            found = True
+                            break
+                        l += 1
+                if not found:
+                    setList.append([(i, j)])  # print(setList)
+    for i in range(len(setList)):
+        setList[i] = set(setList[i])  # print(setList)
+    if (len(setList[0] & setList[1])) > 0:
+        pass  # print("hello")
+    i = 0
+    while i < len(setList) - 1:
+        j = 1
+        while j < len(setList):
+            if (len(setList[i] & setList[j])) > 0 and not (setList[i] == setList[j]):
+                setList[i] = setList[i] | setList[j]
+                del setList[j]
+                j = 1
+            else:
+                j += 1
+        i += 1
+    # verify if there is one or more sets
+    # print(setList)
+    if len(setList) > 1:  # print("The wall is not continuous")
+        return False
+    else:  # print("The wall is continuous")
+        return True
+
 # **OWN** **NOT IN USE** Function to check continuity of the wall
 def checkWallIntegrity(table):
+    x_len = len(table)
+    y_len = len(table[0])
     setList = []
     for i in range(x_len):
         for j in range(y_len):
@@ -48,9 +93,9 @@ def checkWallIntegrity(table):
     # verify if there is one or more sets
     # print(setList)
     if len(setList) > 1:  # print("The wall is not continuous")
-        return True
-    else:  # print("The wall is continuous")
         return False
+    else:  # print("The wall is continuous")
+        return True
 
 
 # **FROM THE BOOK** **IN USE**
@@ -187,7 +232,7 @@ def elimAdj(table):
     return table
 
 
-# Function to turn tiles next to "ones" black ("-1")
+# Function to turn tiles next to "ones" black ("-1"), kinda useless, now that there is the wallAroundIslands function
 def elimAroundOnes(table):
     x_len = len(table)
     y_len = len(table[0])
@@ -351,7 +396,7 @@ def surround(table):
     return table
 
 # Function to return all island parts. I has two modes: "complete" (default) (island must be complete to return an array, if not returns False) and "everything" (will always retun an array)
-# partList = []
+# actually might be obsolete because of the returnTiles function which doesn't need to be given the "center" tile of the island.
 def islandParts(x, y, table, counter, partList=None, tempTable=None, revertTable=None,mode="complete", returning=False):
     if partList == None:
         partList, tempTable, revertTable = [], [], []
@@ -401,7 +446,7 @@ def wallAroundIslands(table, mode="complete"):
                         # revertTable.clear()
                         # partList.clear()
                         tiles = islandParts(i, j, table, int(table[i][j]))
-                        print("tiles:",tiles)
+                        #print("tiles:",tiles)
                         for tile in tiles:
                             if neighbour(table, tile[0], tile[1], "up") != -2 and neighbour(table, tile[0], tile[1], "up") != -3 and (neighbour(table, tile[0], tile[1], "up") < 1):
                                 table[tile[0]][tile[1] - 1] = -1
@@ -415,8 +460,8 @@ def wallAroundIslands(table, mode="complete"):
                                                                                                "left") != -3 and (neighbour(table, tile[0], tile[1], "left") < 1):
                                 table[tile[0] - 1][tile[1]] = -1
                     else:
-                        print("Could not put wall around island", i, j,
-                              ". Not complete")  # actually should not happen but who knows
+                        #print("Could not put wall around island", i, j,". Not complete")  # actually should not happen but who knows
+                        pass
     else:
         for i in range(x_len):
             for j in range(y_len):
@@ -486,64 +531,95 @@ def addOneTileEverywhere(table):
 
 # Function to display table in console
 def printTable(table):
+    x_len = len(table)
+    y_len = len(table[0])
     tempStr = ""
     for i in range(y_len):
         for j in range(x_len):
             tempStr += str(table[j][i]) + " "
         print(tempStr)
         tempStr = ""
+# Function to display table in console in the old way
+def printTableOld(table):
+    x_len = len(table)
+    y_len = len(table[0])
+    tempStr = ""
+    for i in range(x_len):
+        for j in range(y_len):
+            if table[i][j] == 0:
+                convert = "U"
+            elif table[i][j] == -1:
+                convert = "B"
+            elif table[i][j] == -2:
+                convert = "W"
+            else:
+                convert = table[i][j]
+            tempStr += str(convert) + " "
+        print(tempStr)
+        tempStr = ""
 
+if __name__ == '__main__':
+    # tables
+    table = [[0, 0, 0, 2,0],
+             [0, 1, 0, -2, 0],
+             [0, 0, 0, 0, 0],
+             [0, 0, 0, 0, 0],
+             [0, 2, 0, 2, 0],
+             [0, 0, 0, 0, 0],
+             [0, 2, 0, 0, 0],
+             [0, 0, 2, 0, 0],
+             [0, 0, 0, 0, 0],
+             [0, 0, 2, 0, 0],
+             [0, 3, 0, 0, 1],
+             ]
+    table =[[1, -1, 0, 0],
+            [0, 0, 1, 0],
+            [0, 0, 0, 0],
+            [2, 0, 2, 0],
+            [0, 0, 0, 0]]
+#############################################################
+#Function to count tiles in an island TEST
+def returnTiles(x, y, table, partList = None):
+    if partList == None:
+        partList = []
+    if  (table[x][y] == -2 or table[x][y] > 0) and (x, y) not in partList:
+        partList.append((x, y))
+        if x > 0:
+            returnTiles(x-1, y, table, partList)
+        if x < len(table)-1:
+            returnTiles(x+1, y, table, partList)
+        if y > 0:
+            returnTiles(x, y-1, table, partList)
+        if y < len(table[0])-1:
+            returnTiles(x, y+1, table, partList)
+    return partList
 
-# tables
-table = [["1", "B", "2", "W", "B", "2", "W"],
-         ["B", "B", "B", "B", "B", "B", "B"],
-         ["2", "W", "B", "4", "W", "B", "1"],
-         ["B", "B", "W", "W", "B", "B", "B"],
-         ["2", "B", "B", "B", "2", "U", "B"],
-         ["W", "B", "4", "B", "B", "B", "B"],
-         ["B", "B", "W", "W", "W", "B", "1"]]
+#############################################################
 
-table = [[0, 0, 0, 0, 0, 0],
-         [-1, 0, -1, -1, -1, 0],
-         [2, -1, 15, 0, -1, 0],
-         [0, 0, -1, 0, -1, 0],
-         [0, 0, -1, 0, 0, 0]]
+if __name__ == '__main__':
+    # set x and y length of the table
+    x_len = len(table)
+    y_len = len(table[0])
 
-table = [[0, 0, 0, 0, 0, 0],
-         [-1, -1, -1, -1, -1, 0],
-         [2, -1, 15, 0, -1, 0],
-         [0, -1, -1, 0, -1, 0],
-         [-1, -1, -1, 0, 0, 0]]
-table = [[0, 0, 0, 2,0],
-         [0, 1, 0, -2, 0],
-         [0, 0, 0, 0, 0],
-         [0, 0, 0, 0, 0],
-         [0, 2, 0, 2, 0],
-         [0, 0, 0, 0, 0],
-         [0, 2, 0, 0, 0],
-         [0, 0, 2, 0, 0],
-         [0, 0, 0, 0, 0],
-         [0, 0, 2, 0, 0],
-         [0, 3, 0, 0, 1],
-         ]
-
-# set x and y length of the table
-x_len = len(table)
-y_len = len(table[0])
-
-##execute functions
-elimAroundOnes(table)
-elimAdj(table)
-diagonal(table)
-
-surround(table)
-wallAroundIslands(table)#, "everything")
-wallAroundIslands(table)
-
-addOneTileEverywhere(table)
-surround(table)
-#wallAroundIslands(table)
-printTable(table)
-print("Any 2x2 blocks in the wall?", wallBlockCheck(table))
-print("Is the wall continuous?", checkWallIntegrity2(table))
-print("Are all islands complete?", allIslCheck(table))
+    ##execute functions
+    """elimAroundOnes(table)
+    elimAdj(table)
+    diagonal(table)
+    
+    surround(table)
+    wallAroundIslands(table)#, "everything")
+    wallAroundIslands(table)
+    
+    addOneTileEverywhere(table)
+    surround(table)
+    #wallAroundIslands(table)
+    printTable(table)
+    print("Any 2x2 blocks in the wall?", wallBlockCheck(table))
+    print("Is the wall continuous?", checkWallIntegrity2(table))
+    print("Are all islands complete?", allIslCheck(table))
+    print("count",countTiles(0, 3, table))
+    
+    wallAroundIslands(table)
+    printTableOld(table)
+    print(table)"""
+    print(checkWallIntegrityIncludingUndefined(table))
