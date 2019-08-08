@@ -158,7 +158,7 @@ class Button(Text):
     
     def draw(self):
         r = self.rect.inflate(40, 40) # return a new rectangle that is bigger
-        pygame.draw.rect(App.screen, BLACK, r, self.thickness)
+        pygame.draw.rect(App.screen, self.col, r, self.thickness)
         super().draw()
         
     def do_event(self, event):
@@ -191,7 +191,7 @@ class Room:
 class Grid:
     """Create a grid object."""
     
-    def __init__(self, table, pos=(50, 50), case_length=100, col=BLACK, thickness=4):
+    def __init__(self, table, pos=(50, 50), case_length=50, col=BLACK, thickness=2):
         n, m = table.shape
         self.n = n # Number of rows
         self.m = m # Number of columns
@@ -213,7 +213,7 @@ class Grid:
                 
                 # Draw the number
                 if self.table[i, j] > 0: 
-                    text = Text(str(table[i, j]), size=72)
+                    text = Text(str(table[i, j]), size=40)
                     text.rect.center = current_rect.center
         
     def draw(self):
