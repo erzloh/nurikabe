@@ -23,12 +23,19 @@ GREEN = (0, 255, 0)
 # Define table
 table = None
 
+table0 =  [[0, 1, 0, 0],
+           [0, 0, 0, 2],
+           [1, 0, 2, 0],
+           [0, 0, 0, 0],
+           [0, 0, 0, 0],
+           [2, 0, 2, 0]]
+
 table1 = np.array([[0, 1, 0, 0],
-                  [0, 0, 0, 2],
-                  [1, 0, 2, 0],
-                  [0, 0, 0, 0],
-                  [0, 0, 0, 0],
-                  [2, 0, 2, 0]])
+                   [0, 0, 0, 2],
+                   [1, 0, 2, 0],
+                   [0, 0, 0, 0],
+                   [0, 0, 0, 0],
+                   [2, 0, 2, 0]])
 
 table2 = np.array([[0, 0, 0, 0, 0],
                    [2, 0, 0, 1, 0],
@@ -50,11 +57,17 @@ table4 = np.array([[1, 0, 2, 0, 2, 0, 0],
                    [2, 0, 0, 0, 0, 0, 0],
                    [0, 0, 1, 0, 0, 0, 1]])
 
+table6 = [[0, 0, 0, 0, 0],
+           [2, 0, 0, 1, 0],
+           [0, 0, 0, 0, 0],
+           [0, 2, 0, 0, 0],
+           [0, 0, 0, 0 ,2]]
+
 table5 = np.zeros((10, 20), dtype=int)
 table5[5, 5] = 1
 
 # The table used
-table = table3
+table = table6
 
 # Define classes
 class App:
@@ -130,8 +143,8 @@ class App:
         elif ns.checkWallIntegrity2(table) == None:
             print("there is no walls")
         
-        if ns.wallBlockCheck(table):
-            print("there is a 2x2 block")
+        if ns.wallBlockCheck(table) != None:
+            print("there is a 2x2 block at " + str(ns.wallBlockCheck(table)))
         else:
             print("there is no 2x2 block")
             
@@ -230,9 +243,12 @@ class Grid:
 
         App.room.objects.append(self)
         
-        n, m = table.shape
-        self.n = n # Number of rows
-        self.m = m # Number of columns
+        #n, m = table.shape
+        #self.n = n # Number of rows
+        #self.m = m # Number of columns
+        
+        self.n = len(table)
+        self.m = len(table[1])
         self.pos = pos
         self.table = table
         self.col = col
@@ -246,7 +262,7 @@ class Grid:
         else:
             self.case_length = 500 // self.m
             
-        self.rect = Rect(*pos, m*self.case_length, n*self.case_length)
+        self.rect = Rect(*pos, self.m*self.case_length, self.n*self.case_length)
         self.create_cell_text()
         self.thickness = (self.case_length * 4) // 100 # Scaled according to the case_length
         
@@ -259,8 +275,10 @@ class Grid:
                 # Draw the number
                 number_size = (self.case_length * 60) // 100 # Scaled according to the case_length
                 
-                if self.table[i, j] > 0: 
-                    text = Text(str(self.table[i, j]), size = number_size)
+                #if self.table[i, j] > 0:
+                if self.table[i][j] > 0:
+                    #text = Text(str(self.table[i, j]), size = number_size)
+                    text = Text(str(self.table[i][j]), size = number_size)
                     text.rect.center = current_rect.center
         
     def draw(self):
@@ -284,11 +302,13 @@ class Grid:
                 current_rect = self.get_cell_rect(i, j)
                 
                 # Draw the cell in black
-                if self.table[i, j] == -1:
+                #if self.table[i, j] == -1:
+                if self.table[i][j] == -1:
                     pygame.draw.rect(App.screen, self.col, current_rect, 0)
                     
                 # Draw the cell in white (little black square)
-                elif self.table[i, j] == -2:
+                #elif self.table[i, j] == -2:
+                elif self.table[i][j] == -2:
                     inf = (self.case_length * -80) // 100 # Scaled according to the case_length
                     
                     current_rect.inflate_ip(inf, inf) # Shrink the current rectangle
