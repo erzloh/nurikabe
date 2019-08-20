@@ -159,7 +159,7 @@ class App:
         table = ns.diagonal(table)
         table = ns.surround(table)
                         
-    def reset(table):
+    def reset_np(table):
         y_len = len(table)
         x_len = len(table[1])
         
@@ -167,6 +167,15 @@ class App:
             for y in range(y_len):
                 if (table[x, y] < 0):
                     table[x, y] = 0
+    
+    def reset(table):
+        y_len = len(table)
+        x_len = len(table[1])
+        
+        for x in range(x_len):
+            for y in range(y_len):
+                if (table[x][y] < 0):
+                    table[x][y] = 0
 
 class Text:
     """Create a text object."""
