@@ -33,8 +33,15 @@ class tile:
         self.impossibleMoves = []
 
 class state:
+    def __init__(self, table):
+        self.table = table
+        self.impossibleMoves = []
+class state2:
     def __init__(self):
         self.tables = []
+class table:
+    def __init__(self, table):
+        self.table = table
         self.impossibleMoves = []
 
 # ✔️Function to check if two given tiles are touching
