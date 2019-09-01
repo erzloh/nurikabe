@@ -4,6 +4,39 @@
 # "E": -3 (edge)
 import sys, math
 
+
+class island:
+    def __init__(self, x, y, size, table):
+        self.table = table
+        self.x = x
+        self.y = y
+        self.size = size
+        self.lastTouched = False
+        self.triedFailedTiles = []
+        self.addedTilesHistory = []
+        self.complete = False
+        self.potentialNewTiles = None
+        #the unused tiles are, if a tile gets removed from the island but its information should be kept
+        self.unusedTiles = []
+        self.tiles = []
+        tempTiles = returnTiles(x, y, self.table)
+        for element in tempTiles:
+            self.tiles.append(tile(element[0], element[1]))
+            #print("appended", element[0], element[1])
+        #self.impossibleMoves = [] moved to a class
+        #impossible moves ex: [[(2, 2), [(2, 1), (2, 3)]]]
+
+class tile:
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+        self.impossibleMoves = []
+
+class state:
+    def __init__(self):
+        self.tables = []
+        self.impossibleMoves = []
+
 # ✔️Function to check if two given tiles are touching
 def areTouching(x1, y1, x2, y2):
     touching = False
@@ -34,8 +67,8 @@ def checkWallIntegrityIncludingUndefined(table):
                     setList.append([(i, j)])  # print(setList)
     for i in range(len(setList)):
         setList[i] = set(setList[i])  # print(setList)
-    if (len(setList[0] & setList[1])) > 0:
-        pass  # print("hello")
+    #if (len(setList[0] & setList[1])) > 0:
+        #pass  # print("hello")
     i = 0
     while i < len(setList) - 1:
         j = 1
@@ -373,6 +406,29 @@ def neighbour(table, x, y, direction):
         else:
             return table[x + 1][y]
 
+# 2nd Function that returns a requested neighbour. Directions can be: up, down, right, left. "-3" = edge
+def neighbour2(table, x, y, direction):
+    if direction == "up":
+        if x == 0:
+            return -3
+        else:
+            return table[x - 1][y]
+    if direction == "down":
+        if x == len(table) - 1:
+            return -3
+        else:
+            return table[x+1][y]
+    if direction == "left":
+        if y == 0:
+            return -3
+        else:
+            return table[x][y-1]
+    if direction == "right":
+        if y == len(table[0]) - 1:
+            return -3
+        else:
+            return table[x][y+1]
+
 #Function to replace a given neighbour by a value.
 def setNeighbour(x, y, table, direction, value):
     if neighbour(table, x, y, direction) != -3:
@@ -560,6 +616,25 @@ def printTableOld(table):
 
 if __name__ == '__main__':
     # tables
+    table = [["1", "B", "2", "W", "B", "2", "W"],
+         ["B", "B", "B", "B", "B", "B", "B"],
+         ["2", "W", "B", "4", "W", "B", "1"],
+         ["B", "B", "W", "W", "B", "B", "B"],
+         ["2", "B", "B", "B", "2", "U", "B"],
+         ["W", "B", "4", "B", "B", "B", "B"],
+         ["B", "B", "W", "W", "W", "B", "1"]]
+
+    table = [[0, 0, 0, 0, 0, 0],
+             [-1, 0, -1, -1, -1, 0],
+             [2, -1, 15, 0, -1, 0],
+             [0, 0, -1, 0, -1, 0],
+             [0, 0, -1, 0, 0, 0]]
+
+    table = [[0, 0, 0, 0, 0, 0],
+             [-1, -1, -1, -1, -1, 0],
+             [2, -1, 15, 0, -1, 0],
+             [0, -1, -1, 0, -1, 0],
+             [-1, -1, -1, 0, 0, 0]]
     table = [[0, 0, 0, 2,0],
              [0, 1, 0, -2, 0],
              [0, 0, 0, 0, 0],
@@ -577,6 +652,22 @@ if __name__ == '__main__':
             [0, 0, 0, 0],
             [2, 0, 2, 0],
             [0, 0, 0, 0]]
+
+#return possible tiles for an incomplete island
+def returnPotentialTiles(table, x, y):
+    tiles = returnTiles(x, y, table)
+    potentialNewTiles = []
+    for item in tiles:
+        if neighbour2(table, item[0], item[1], "up") == 0:
+            potentialNewTiles.append((item[0]-1, item[1]))
+        if neighbour2(table, item[0], item[1], "right") == 0:
+            potentialNewTiles.append((item[0], item[1]+1))
+        if neighbour2(table, item[0], item[1], "down") == 0:
+            potentialNewTiles.append((item[0]+1, item[1]))
+        if neighbour2(table, item[0], item[1], "left") == 0:
+            potentialNewTiles.append((item[0], item[1]-1))
+    return potentialNewTiles
+
 #############################################################
 #Function to count tiles in an island TEST
 def returnTiles(x, y, table, partList = None):
@@ -621,5 +712,7 @@ if __name__ == '__main__':
     
     wallAroundIslands(table)
     printTableOld(table)
+    
+    
     print(table)"""
     print(checkWallIntegrityIncludingUndefined(table))
