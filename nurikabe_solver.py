@@ -554,6 +554,19 @@ def addOneTile(x, y, table, counter = None, succeeded = False, returning = False
         neighbours = []
         eligibleParts = []
         #print("part length:",len(parts))
+        totalOnlyZeros = []
+        islandEligibleForAddingOneTile = False
+        for i in range(len(parts)):
+            totalOnlyZeros.append(neighbour(table, parts[i][0], parts[i][1], "up"))
+            totalOnlyZeros.append(neighbour(table, parts[i][0], parts[i][1], "right"))
+            totalOnlyZeros.append(neighbour(table, parts[i][0], parts[i][1], "down"))
+            totalOnlyZeros.append(neighbour(table, parts[i][0], parts[i][1], "left"))
+            #print("neighbours of",x, y, "are: ",neighbours)
+            if totalOnlyZeros.count(0) == 1:
+              islandEligibleForAddingOneTile = True
+            else:
+                print("island",x,y,"finally not eligible, returning")
+                return
         for i in range(len(parts)):
             neighbours.append(neighbour(table, parts[i][0], parts[i][1], "up"))
             neighbours.append(neighbour(table, parts[i][0], parts[i][1], "right"))
