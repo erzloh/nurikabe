@@ -59,7 +59,11 @@ def logicalMoves(table):
     while tempTable != table:
         tempTable = copy.deepcopy(table)
         ns.wallAroundIslands(table)
+        #print("table before addOneTileEverywhere from logicalMoves:")
+        #ns.printTableOld(table)
         ns.addOneTileEverywhere(table)
+        #print("table after addOneTileEverywhere from logicalMoves:")
+        #ns.printTableOld(table)
         ns.surround(table)
 ###################################################################################
 # <editor-fold desc="Init Stuff">
@@ -82,6 +86,8 @@ for i in range(len(table)):
                 consideredIslands.append(ns.island(i, j, table[i][j], table))
 # </editor-fold>
 while dephth < 500:
+    if dephth == 6:
+        print("dephth 6, debug")
     #do logical moves
     # <editor-fold desc="Logical moves">
     logicalMoves(table)
@@ -98,12 +104,14 @@ while dephth < 500:
             if len(tiles) < table[island.x][island.y]:
                 island.complete = False
                 island.tiles = copy.deepcopy(tiles)
-                print("tiles",tiles)
+                #print("tiles",tiles)
             elif len(tiles) == table[island.x][island.y]:
-                print("tiles",tiles)
+                #print("tiles",tiles)
                 island.complete = True
             else:
-                pprint.pprint("Island too big, errored somewhere");
+                print("table looks like this:"); ns.printTableOld(table)
+                print("Island",island.x,island.y,"too big, errored somewhere")
+                print("Island",island.x,island.y,"tiles:",island.tiles)
                 exit(420)
 
         # chosen island
