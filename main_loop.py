@@ -1,7 +1,6 @@
 import nurikabe_solver as ns
 import copy #answer from stack overflow by Sukrit Kalra, about how to do deepcopy
-
-
+import pprint
 
 if __name__ == '__main__':
     tabela =[[1, 0, 0, 0],
@@ -14,6 +13,11 @@ if __name__ == '__main__':
              [0,0,0,0,0],
              [3,0,1,0,0],
              [0,0,0,0,1]]
+    tabela = [[0, 0, 2, 0, 1],
+              [0, 0, 0, 0, 0],
+              [0, 0, 2, 0, 0],
+              [0, 0, 0, 0, 0],
+              [2, 0, 5, 0, 0]]
 
 currentState = ns.state(tabela)
 table = currentState.table
@@ -90,12 +94,16 @@ while dephth < 500:
     if not returningFromBadState:
         # updating each considered island (mostly checking if complete) and choosing the first valid
         for island in consideredIslands:
-            if len(ns.returnTiles(island.x, island.y, table)) < table[island.x][island.y]:
+            tiles = ns.returnTiles(island.x, island.y, table)
+            if len(tiles) < table[island.x][island.y]:
                 island.complete = False
-            elif len(ns.returnTiles(island.x, island.y, table)) == table[island.x][island.y]:
+                island.tiles = copy.deepcopy(tiles)
+                print("tiles",tiles)
+            elif len(tiles) == table[island.x][island.y]:
+                print("tiles",tiles)
                 island.complete = True
             else:
-                print("Island too big, errored somewhere");
+                pprint.pprint("Island too big, errored somewhere");
                 exit(420)
 
         # chosen island
@@ -124,50 +132,50 @@ while dephth < 500:
             potentialNewTiles = []
             for item in theChosenOne.tiles:
                 # <editor-fold desc="Finding the tiles in all directions">
-                if ns.neighbour2(table, item.x, item.y, "up") == 0:
-                    table[item.x - 1][item.y] = -2
+                if ns.neighbour2(table, item[0], item[1], "up") == 0:
+                    table[item[0] - 1][item[1]] = -2
                     if len(ns.returnTiles(theChosenOne.x, theChosenOne.y, table)) > table[theChosenOne.x][theChosenOne.y]:
                         pass
                     elif not ns.checkWallIntegrityIncludingUndefined(table):
                         pass
-                    elif (item.x - 1, item.y) in currentState.impossibleMoves:
+                    elif (item[0] - 1, item[1]) in currentState.impossibleMoves:
                         pass
                     else:
-                        potentialNewTiles.append((item.x - 1, item.y))
-                    table[item.x - 1][item.y] = 0
-                if ns.neighbour2(table, item.x, item.y, "right") == 0:
-                    table[item.x][item.y + 1] = -2
+                        potentialNewTiles.append((item[0] - 1, item[1]))
+                    table[item[0] - 1][item[1]] = 0
+                if ns.neighbour2(table, item[0], item[1], "right") == 0:
+                    table[item[0]][item[1] + 1] = -2
                     if len(ns.returnTiles(theChosenOne.x, theChosenOne.y, table)) > table[theChosenOne.x][theChosenOne.y]:
                         pass
                     elif not ns.checkWallIntegrityIncludingUndefined(table):
                         pass
-                    elif (item.x, item.y + 1) in currentState.impossibleMoves:
+                    elif (item[0], item[1] + 1) in currentState.impossibleMoves:
                         pass
                     else:
-                        potentialNewTiles.append((item.x, item.y + 1))
-                    table[item.x][item.y + 1] = 0
-                if ns.neighbour2(table, item.x, item.y, "down") == 0:
-                    table[item.x + 1][item.y] = -2
+                        potentialNewTiles.append((item[0], item[1] + 1))
+                    table[item[0]][item[1] + 1] = 0
+                if ns.neighbour2(table, item[0], item[1], "down") == 0:
+                    table[item[0] + 1][item[1]] = -2
                     if len(ns.returnTiles(theChosenOne.x, theChosenOne.y, table)) > table[theChosenOne.x][theChosenOne.y]:
                         pass
                     elif not ns.checkWallIntegrityIncludingUndefined(table):
                         pass
-                    elif (item.x + 1, item.y) in currentState.impossibleMoves:
+                    elif (item[0] + 1, item[1]) in currentState.impossibleMoves:
                         pass
                     else:
-                        potentialNewTiles.append((item.x + 1, item.y))
-                    table[item.x + 1][item.y] = 0
-                if ns.neighbour2(table, item.x, item.y, "left") == 0:
-                    table[item.x][item.y - 1] = -2
+                        potentialNewTiles.append((item[0] + 1, item[1]))
+                    table[item[0] + 1][item[1]] = 0
+                if ns.neighbour2(table, item[0], item[1], "left") == 0:
+                    table[item[0]][item[1] - 1] = -2
                     if len(ns.returnTiles(theChosenOne.x, theChosenOne.y, table)) > table[theChosenOne.x][theChosenOne.y]:
                         pass
                     elif not ns.checkWallIntegrityIncludingUndefined(table):
                         pass
-                    elif (item.x, item.y - 1) in currentState.impossibleMoves:
+                    elif (item[0], item[1] - 1) in currentState.impossibleMoves:
                         pass
                     else:
-                        potentialNewTiles.append((item.x, item.y - 1))
-                    table[item.x][item.y - 1] = 0
+                        potentialNewTiles.append((item[0], item[1] - 1))
+                    table[item[0]][item[1] - 1] = 0
                 # </editor-fold>
             #if there are available potentialNewTiles:
             if len(potentialNewTiles) > 0:
@@ -217,50 +225,50 @@ while dephth < 500:
         table = currentState.table
         for item in theChosenOne.tiles:
             # <editor-fold desc="Finding the tiles in all directions">
-            if ns.neighbour2(table, item.x, item.y, "up") == 0:
-                table[item.x - 1][item.y] = -2
+            if ns.neighbour2(table, item[0], item[1], "up") == 0:
+                table[item[0] - 1][item[1]] = -2
                 if len(ns.returnTiles(theChosenOne.x, theChosenOne.y, table)) > table[theChosenOne.x][theChosenOne.y]:
                     pass
                 elif not ns.checkWallIntegrityIncludingUndefined(table):
                     pass
-                elif (item.x - 1, item.y) in currentState.impossibleMoves:
+                elif (item[0] - 1, item[1]) in currentState.impossibleMoves:
                     pass
                 else:
-                    potentialNewTiles.append((item.x - 1, item.y))
-                table[item.x - 1][item.y] = 0
-            if ns.neighbour2(table, item.x, item.y, "right") == 0:
-                table[item.x][item.y + 1] = -2
+                    potentialNewTiles.append((item[0] - 1, item[1]))
+                table[item[0] - 1][item[1]] = 0
+            if ns.neighbour2(table, item[0], item[1], "right") == 0:
+                table[item[0]][item[1] + 1] = -2
                 if len(ns.returnTiles(theChosenOne.x, theChosenOne.y, table)) > table[theChosenOne.x][theChosenOne.y]:
                     pass
                 elif not ns.checkWallIntegrityIncludingUndefined(table):
                     pass
-                elif (item.x, item.y + 1) in currentState.impossibleMoves:
+                elif (item[0], item[1] + 1) in currentState.impossibleMoves:
                     pass
                 else:
-                    potentialNewTiles.append((item.x, item.y + 1))
-                table[item.x][item.y + 1] = 0
-            if ns.neighbour2(table, item.x, item.y, "down") == 0:
-                table[item.x + 1][item.y] = -2
+                    potentialNewTiles.append((item[0], item[1] + 1))
+                table[item[0]][item[1] + 1] = 0
+            if ns.neighbour2(table, item[0], item[1], "down") == 0:
+                table[item[0] + 1][item[1]] = -2
                 if len(ns.returnTiles(theChosenOne.x, theChosenOne.y, table)) > table[theChosenOne.x][theChosenOne.y]:
                     pass
                 elif not ns.checkWallIntegrityIncludingUndefined(table):
                     pass
-                elif (item.x + 1, item.y) in currentState.impossibleMoves:
+                elif (item[0] + 1, item[1]) in currentState.impossibleMoves:
                     pass
                 else:
-                    potentialNewTiles.append((item.x + 1, item.y))
-                table[item.x + 1][item.y] = 0
-            if ns.neighbour2(table, item.x, item.y, "left") == 0:
-                table[item.x][item.y - 1] = -2
+                    potentialNewTiles.append((item[0] + 1, item[1]))
+                table[item[0] + 1][item[1]] = 0
+            if ns.neighbour2(table, item[0], item[1], "left") == 0:
+                table[item[0]][item[1] - 1] = -2
                 if len(ns.returnTiles(theChosenOne.x, theChosenOne.y, table)) > table[theChosenOne.x][theChosenOne.y]:
                     pass
                 elif not ns.checkWallIntegrityIncludingUndefined(table):
                     pass
-                elif (item.x, item.y - 1) in currentState.impossibleMoves:
+                elif (item[0], item[1] - 1) in currentState.impossibleMoves:
                     pass
                 else:
-                    potentialNewTiles.append((item.x, item.y - 1))
-                table[item.x][item.y - 1] = 0
+                    potentialNewTiles.append((item[0], item[1] - 1))
+                table[item[0]][item[1] - 1] = 0
             # </editor-fold>
         if len(potentialNewTiles) > 0:
             returningFromSameIsland = True
