@@ -8,7 +8,7 @@ import pygame
 from pygame import Rect # Import the Rect class
 from pygame.locals import *  # Import constant definitions (QUIT, keys, etc)
 import nurikabe_solver as ns # Nurikabe solving functions
-import nurikabe_tables as nt # Nurikabe tables
+#import nurikabe_tables as nt # Nurikabe tables
 import numpy as np # Import numpy module which is used for tables
 
 # Define colors
@@ -48,14 +48,18 @@ table4 = np.array([[1, 0, 2, 0, 2, 0, 0],
                    [2, 0, 0, 0, 0, 0, 0],
                    [0, 0, 1, 0, 0, 0, 1]])
 
-tableTest = np.zeros((10, 20), dtype=int)
+table = table1
 
-table = tableTest
-table[5, 5] = 1
+#tableTest = np.zeros((10, 20), dtype=int)
+
+#table = tableTest
+#table[5, 5] = 1
+
+    
 
 # Define classes
 class App:
-    """Create the application. This object is a singleton. This object is created first"""
+    """Create the application. This object is a singleton. This object is created first."""
     rooms  = [] # All the rooms of the app are stocked here
     room   = None # The current room
     screen = None # The window of the application
@@ -97,10 +101,10 @@ class App:
         Button('menu', cmd='App.room = App.rooms[0]', pos=(10, 10), thickness = 2, inf = 10)
         text = Text('Choose a level', pos=(0, 0), size=72)
         text.rect.center = (self.screen_center[0], 30)
-        Button('1', pos=(100, self.screen_center[1]), size=72, cmd='App.room = App.rooms[2];App.grid.set_table(table1);App.grid.playable = True')
-        Button('2', pos=(200, self.screen_center[1]), size=72, cmd='App.room = App.rooms[2];App.grid.set_table(table2)')
-        Button('3', pos=(300, self.screen_center[1]), size=72, cmd='print(3)')
-        Button('4', pos=(400, self.screen_center[1]), size=72, cmd='print(4)')
+        Button('1', pos=(100, self.screen_center[1]), size=72, cmd='App.room = App.rooms[2]; App.grid.set_table(table1); App.grid.playable = True')
+        Button('2', pos=(200, self.screen_center[1]), size=72, cmd='App.room = App.rooms[2]; App.grid.set_table(table2); App.grid.playable = True')
+        Button('3', pos=(300, self.screen_center[1]), size=72, cmd='App.room = App.rooms[2]; App.grid.set_table(table3); App.grid.playable = True')
+        Button('4', pos=(400, self.screen_center[1]), size=72, cmd='App.room = App.rooms[2]; App.grid.set_table(table4); App.grid.playable = True')
         
         # Room 2 (Playable Room)  
         Room()
@@ -112,9 +116,23 @@ class App:
         Button('check_continuity', pos=(600, 100), size=20, cmd='print("check_continuity")', inf = 20, thickness = 2)
         Button('2x2 block', pos=(600, 150), size=20, cmd='print("2x2_block")', inf = 20, thickness = 2)
         Button('island_complete', pos=(600, 200), size=20, cmd='print("island_complete")', inf = 20, thickness = 2)
+        #Button('remove numbers', pos=(600, 250), size=20, cmd='App.grid.remove_numbers()')
         
         App.room = App.rooms[0] # Set the first room to Title Screen Room
         
+    def create_room2(table):
+        del App.rooms[2]
+        Room()
+        Button('menu', cmd='App.room = App.rooms[0]', pos=(10, 10), thickness = 2, inf = 10)
+        App.grid = Grid(table)
+        App.grid.playable = True
+        mode = Text('Mode: play', size=30)
+        mode.rect.center = (self.screen_center[0], 20)
+        Button('check_continuity', pos=(600, 100), size=20, cmd='print("check_continuity")', inf = 20, thickness = 2)
+        Button('2x2 block', pos=(600, 150), size=20, cmd='print("2x2_block")', inf = 20, thickness = 2)
+        Button('island_complete', pos=(600, 200), size=20, cmd='print("island_complete")', inf = 20, thickness = 2)
+        
+
     def run(self):
         # Run the main event loop
         self.active = True
@@ -186,18 +204,21 @@ class Text:
     
     
 class Button(Text):
-    """Create a button object."""
+    """Create a button object (text surrounded by a rectangle). Clicking the button calls a callback function 'cmd'. """
     
     def __init__(self, text, size=24, col=BLACK, pos=(0, 0), cmd='', thickness=4, inf=40):
         super().__init__(text, size, col, pos)
         self.cmd = cmd
         self.thickness = thickness
         self.inf = inf # inflation of the rectangle around the text
+        self.rect = self.rect.inflate(self.inf, self.inf) # return a new rectangle that is bigger
+        self.rect.move_ip(self.inf//2, self.inf//2) # move the rect by half the inflation
         
     def draw(self):
-        r = self.rect.inflate(self.inf, self.inf) # return a new rectangle that is bigger
-        pygame.draw.rect(App.screen, self.col, r, self.thickness)
-        super().draw()
+        #r = self.rect.inflate(self.inf, self.inf) # return a new rectangle that is bigger
+        pygame.draw.rect(App.screen, self.col, self.rect, self.thickness)
+        # text rectangle must be moved by half of button inflate (inf//2)
+        App.screen.blit(self.img, self.rect.move(self.inf//2, self.inf//2))
         
     def do_event(self, event):
         if event.type == MOUSEBUTTONDOWN:
@@ -206,12 +227,13 @@ class Button(Text):
     
 
 class Room:
-    """Create a room object."""
+    """Create a room object. The room object contains all the objects (text, buttons, grid)."""
 
     def __init__(self):
         App.room = self
         App.rooms.append(self)
         self.objects = []
+        self.number_on_grid = 0
     
     def draw(self):
         for object in self.objects:
@@ -236,6 +258,7 @@ class Grid:
         
     def set_table(self, table, pos=(50, 50), col=BLACK):
         n, m = table.shape
+        self.remove_numbers()
         self.n = n # Number of rows
         self.m = m # Number of columns
         self.pos = pos
@@ -244,6 +267,8 @@ class Grid:
         self.selected_cell_pos = 0, 0
         self.cursor_on_grid = False
         self.playable = False
+        self.text_number_len = 0
+        self.cell_text_list = []
         
         # Scale the case_length according to the number of rows and columns
         if self.n > self.m:
@@ -267,6 +292,8 @@ class Grid:
                 if self.table[i, j] > 0: 
                     text = Text(str(self.table[i, j]), size = number_size)
                     text.rect.center = current_rect.center
+                    self.cell_text_list.append(text)
+                    
         
     def draw(self):
         x0, y0 = self.pos
@@ -356,6 +383,17 @@ class Grid:
                     
                 elif self.table[i, j] == -2: # If the cell is white turn it to undefined
                     self.table[i, j] = 0
+                    
+    def remove_numbers(self):
+        """Removes all numbers (actually all 1-character Text)."""
+
+        remove_list = []
+        for x in App.room.objects:
+            if isinstance(x, Text) and len(x.text) == 1:
+                remove_list.append(x)
+                    
+        for x in remove_list:
+            App.room.objects.remove(x) # remove an object from a list
 
 # Run the program
 if __name__ == '__main__':

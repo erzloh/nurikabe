@@ -11,7 +11,7 @@ from pygame.locals import *  # Import constant definitions (QUIT, keys, etc)
 import nurikabe_solver as ns # Nurikabe solving functions
 import nurikabe_tables as nt # Nurikabe tables
 import numpy as np # Import numpy module which is used for tables
-import main_loop as ml
+#import main_loop as ml
 
 # Define colors
 WHITE = (255, 255, 255)
