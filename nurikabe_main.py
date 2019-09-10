@@ -10,6 +10,7 @@ from pygame.locals import *  # Import constant definitions (QUIT, keys, etc)
 import nurikabe_solver as ns # Nurikabe solving functions
 #import nurikabe_tables as nt # Nurikabe tables
 import numpy as np # Import numpy module which is used for tables
+#import main_loop as ml
 
 # Define colors
 WHITE = (255, 255, 255)
@@ -87,7 +88,7 @@ class App:
         play = Button('PLAY', size=72, cmd='App.room = App.rooms[1]')
         play.rect.center = self.screen_center
         
-        solve = Button('SOLVE', size=72, cmd='App.room = App.rooms[1]')
+        solve = Button('SOLVE', size=72, cmd='App.room = App.rooms[3]')
         solve.rect.center = (self.screen_center[0], self.screen_center[1] + 100)
         
         option = Button('OPTION', size=72, cmd='print("OPTION ROOM")')
@@ -96,7 +97,7 @@ class App:
         credit = Text('Made by Eric Holzer and Jacek Wikiera, 2019')
         credit.rect.bottomright = self.screen_size
         
-        # Room 1 (Choosing Level Room)
+        # Room 1 (Choosing Playable Level Room)
         Room()
         Button('menu', cmd='App.room = App.rooms[0]', pos=(10, 10), thickness = 2, inf = 10)
         text = Text('Choose a level', pos=(0, 0), size=72)
@@ -108,29 +109,58 @@ class App:
         
         # Room 2 (Playable Room)  
         Room()
-        Button('menu', cmd='App.room = App.rooms[0]', pos=(10, 10), thickness = 2, inf = 10)
+        Button('menu', cmd='App.reset_np(table); App.room = App.rooms[0]', pos=(10, 10), thickness = 2, inf = 10)
         App.grid = Grid(table)
         App.grid.playable = True
         mode = Text('Mode: play', size=30)
         mode.rect.center = (self.screen_center[0], 20)
-        Button('check_continuity', pos=(600, 100), size=20, cmd='print("check_continuity")', inf = 20, thickness = 2)
-        Button('2x2 block', pos=(600, 150), size=20, cmd='print("2x2_block")', inf = 20, thickness = 2)
-        Button('island_complete', pos=(600, 200), size=20, cmd='print("island_complete")', inf = 20, thickness = 2)
+        Button('check_continuity', pos=(600, 100), size=20, cmd='App.checkWallIntegrity(App.grid.table)', inf = 20, thickness = 2)
+        Button('2x2 block', pos=(600, 150), size=20, cmd='App.wallBlockCheck(App.grid.table)', inf = 20, thickness = 2)
+        Button('island_complete', pos=(600, 200), size=20, cmd='App.allIslCheck(App.grid.table)', inf = 20, thickness = 2)
+        Button('undefined', pos=(600, 250), size=20, cmd='App.checkForUndefined(App.grid.table)', inf = 20, thickness = 2)
+        Button('check', pos=(600, 650), size=20, cmd='App.check(App.grid.table)', inf = 20, thickness = 2, col=BLUE)
         #Button('remove numbers', pos=(600, 250), size=20, cmd='App.grid.remove_numbers()')
+        
+        # Room 3 (Choosing Solving Level Room)
+        Room()
+        Button('menu', cmd='App.room = App.rooms[0]', pos=(10, 10), thickness = 2, inf = 10)
+        text = Text('Choose a level', pos=(0, 0), size=72)
+        text.rect.center = (self.screen_center[0], 30)
+        Button('1', pos=(100, self.screen_center[1]), size=72, cmd='App.room = App.rooms[4]; App.grid2.set_table(table1)')
+        Button('2', pos=(200, self.screen_center[1]), size=72, cmd='App.room = App.rooms[4]; App.grid2.set_table(table2)')
+        Button('3', pos=(300, self.screen_center[1]), size=72, cmd='App.room = App.rooms[4]; App.grid2.set_table(table3)')
+        Button('4', pos=(400, self.screen_center[1]), size=72, cmd='App.room = App.rooms[4]; App.grid2.set_table(table4)')
+        
+        # Room 4 (Solving Room)
+        Room()
+        Button('menu', cmd='App.reset_np(table); App.room = App.rooms[0]', pos=(10, 10), thickness = 2, inf = 10)
+        App.grid2 = Grid(table)
+        App.grid2.playable = False
+        mode = Text('Mode: solve', size=30)
+        mode.rect.center = (self.screen_center[0], 20)
+        Button('around_one', pos=(600, 50), size=20, cmd='ns.elimAroundOnes(App.grid2.table)', inf = 20, thickness = 2)
+        Button('between_numbers', pos=(600, 100), size=20, cmd='ns.elimAdj(App.grid2.table)', inf = 20, thickness = 2)
+        Button('diagonal', pos=(600, 150), size=20, cmd='ns.diagonal(App.grid2.table)', inf = 20, thickness = 2)
+        Button('surrounded', pos=(600, 200), size=20, cmd='ns.surround(App.grid2.table)', inf = 20, thickness = 2)
+        Button('around_island', pos=(600, 250), size=20, cmd='ns.wallAroundIslands(App.grid2.table)', inf = 20, thickness = 2)
+        Button('solve', pos=(600, 300), size=20, cmd='ml.solve(App.grid2.table)', inf = 20, thickness = 2)
+        Button('fill', pos=(600, 600), size=20, cmd='App.fill(App.grid2.table)', inf = 20, thickness = 2, col=GREEN)
+        Button('check', pos=(600, 650), size=20, cmd='App.check(App.grid2.table)', inf = 20, thickness = 2, col=BLUE)
+        Button('reset', pos=(600, 700), size=20, cmd='App.reset_np(App.grid2.table)', inf = 20, thickness = 2, col=RED)
         
         App.room = App.rooms[0] # Set the first room to Title Screen Room
         
-    def create_room2(table):
-        del App.rooms[2]
-        Room()
-        Button('menu', cmd='App.room = App.rooms[0]', pos=(10, 10), thickness = 2, inf = 10)
-        App.grid = Grid(table)
-        App.grid.playable = True
-        mode = Text('Mode: play', size=30)
-        mode.rect.center = (self.screen_center[0], 20)
-        Button('check_continuity', pos=(600, 100), size=20, cmd='print("check_continuity")', inf = 20, thickness = 2)
-        Button('2x2 block', pos=(600, 150), size=20, cmd='print("2x2_block")', inf = 20, thickness = 2)
-        Button('island_complete', pos=(600, 200), size=20, cmd='print("island_complete")', inf = 20, thickness = 2)
+#     def create_room2(table):
+#         del App.rooms[2]
+#         Room()
+#         Button('menu', cmd='App.room = App.rooms[0]', pos=(10, 10), thickness = 2, inf = 10)
+#         App.grid = Grid(table)
+#         App.grid.playable = True
+#         mode = Text('Mode: play', size=30)
+#         mode.rect.center = (self.screen_center[0], 20)
+#         Button('check_continuity', pos=(600, 100), size=20, cmd='print("check_continuity")', inf = 20, thickness = 2)
+#         Button('2x2 block', pos=(600, 150), size=20, cmd='print("2x2_block")', inf = 20, thickness = 2)
+#         Button('island_complete', pos=(600, 200), size=20, cmd='print("island_complete")', inf = 20, thickness = 2)
         
 
     def run(self):
@@ -149,7 +179,8 @@ class App:
                         self.active = False
                         
                 elif event.type == MOUSEBUTTONDOWN:
-                    print(event.pos)
+                    print("")
+                    print("mouse position : ", event.pos)
                         
                 App.room.do_event(event)
             
@@ -167,6 +198,81 @@ class App:
         App.screen.fill(self.background_color)
         App.room.draw()
         pygame.display.update()
+        
+    def checkWallIntegrity(table):
+        if ns.checkWallIntegrity2(table):
+            print("> the wall is continuous")
+        elif not ns.checkWallIntegrity2(table):
+            print("> the wall is not continuous")
+        elif ns.checkWallIntegrity2(table) == None:
+            print("> there is no walls")
+            
+    def wallBlockCheck(table):
+        if ns.wallBlockCheck(table) != None:
+            print("> there is a 2x2 block at " + str(ns.wallBlockCheck(table)))
+        else:
+            print("> there is no 2x2 block")
+            
+    def allIslCheck(table):
+        if ns.allIslCheck(table):
+            print("> All the islands are complete")
+        else:
+            print("> All the islands are not complete")
+            
+    def checkForUndefined(table):
+        if ns.checkForUndefined(table):
+            print("> undefined tile(s) are remaining")
+        else:
+            print("> no undefined tiles found")
+        
+    def check(table):
+        if ns.checkWallIntegrity2(table):
+            print("> the wall is continuous")
+        elif not ns.checkWallIntegrity2(table):
+            print("> the wall is not continuous")
+        elif ns.checkWallIntegrity2(table) == None:
+            print("> there is no walls")
+        
+        if ns.wallBlockCheck(table) != None:
+            print("> there is a 2x2 block at " + str(ns.wallBlockCheck(table)))
+        else:
+            print("> there is no 2x2 block")
+            
+        if ns.allIslCheck(table):
+            print("> All the islands are complete")
+        else:
+            print("> All the islands are not complete")
+            
+        if ns.checkForUndefined(table):
+            print("> undefined tile(s) are remaining")
+        else:
+            print("> no undefined tiles found")
+                
+    def fill(table):
+        ns.wallAroundIslands(table)
+        table = ns.elimAdj(table)
+        table = ns.diagonal(table)
+        table = ns.surround(table)
+                        
+    def reset_np(table):
+        x_len = len(table)
+        
+        y_len = len(table[1])
+        
+        #test
+        for x in range(x_len):
+            for y in range(y_len):
+                if (table[x, y] < 0):
+                    table[x, y] = 0
+    
+    def reset(table):
+        x_len = len(table)
+        y_len = len(table[1])
+        
+        for x in range(x_len):
+            for y in range(y_len):
+                if (table[x][y] < 0):
+                    table[x][y] = 0
         
 
 class Node: # NOT IN USE
@@ -222,7 +328,7 @@ class Button(Text):
         
     def do_event(self, event):
         if event.type == MOUSEBUTTONDOWN:
-            print(self.cmd)
+            print("the button execute : ", self.cmd)
             exec(self.cmd)
     
 
@@ -257,7 +363,7 @@ class Grid:
         
     def set_table(self, table, pos=(50, 50), col=BLACK):
         n, m = table.shape
-        #self.remove_numbers()
+        self.remove_numbers()
         self.n = n # Number of rows
         self.m = m # Number of columns
         self.pos = pos
@@ -372,7 +478,8 @@ class Grid:
             
             if event.type == MOUSEBUTTONDOWN:
                 
-                print(i, j, self.table[i, j])
+                
+                print("cell index : " + "[" + str(i) + "]" + "[" + str(j) + "]" + " | " + "cell state : ", self.table[i, j])
                 
                 if self.table[i, j] == 0: # If the cell is undefined turn it to black
                     self.table[i, j] = -1
@@ -397,4 +504,5 @@ class Grid:
 # Run the program
 if __name__ == '__main__':
     App().run()
+
 
