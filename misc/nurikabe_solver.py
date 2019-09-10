@@ -324,13 +324,6 @@ def wallBlockCheck(table):
     if not foundBlock:  # print("No 2x2 blocks in the wall")
         return None
 
-def checkForUndefined(table):
-    undefinedInTable = False
-    for line in table:
-        if 0 in line:
-            undefinedInTable = True
-            
-    return undefinedInTable
 
 # Function to check if a single island is complete, NOT HANDLING CASE WHEN ISLAND TOO BIG, needed for this function
 def islandCheckNotTooBig(x, y, table, counter, tempTable=None, revertTable=None, returning=False):
@@ -572,7 +565,7 @@ def addOneTile(x, y, table, counter = None, succeeded = False, returning = False
             if totalOnlyZeros.count(0) == 1:
               islandEligibleForAddingOneTile = True
             else:
-                print("island",x,y,"finally not eligible, returning")
+                #print("island",x,y,"finally not eligible, returning")
                 return
         for i in range(len(parts)):
             neighbours.append(neighbour(table, parts[i][0], parts[i][1], "up"))
@@ -743,4 +736,3 @@ if __name__ == '__main__':
     
     print(table)"""
     print(checkWallIntegrityIncludingUndefined(table))
-
