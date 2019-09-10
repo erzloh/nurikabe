@@ -257,7 +257,7 @@ class Grid:
         
     def set_table(self, table, pos=(50, 50), col=BLACK):
         n, m = table.shape
-        #self.remove_numbers()
+        self.remove_numbers()
         self.n = n # Number of rows
         self.m = m # Number of columns
         self.pos = pos
