@@ -13,17 +13,38 @@ if __name__ == '__main__':
              [0,0,0,0,0],
              [3,0,1,0,0],
              [0,0,0,0,1]]
-    tabela = [[0, 0, 2, 0, 1],
+
+tabela =     [[0, 0, 2, 0, 1],
               [0, 0, 0, 0, 0],
               [0, 0, 2, 0, 0],
               [0, 0, 0, 0, 0],
               [2, 0, 5, 0, 0]]
 
-tabela = [[0, 0, 2, 0, 1],
+tabela =     [[0, 0, 0, 0, 0],
+              [2, 0, 0, 0, 2],
               [0, 0, 0, 0, 0],
-              [0, 0, 2, 0, 0],
+              [1, 0, 0, 2, 0],
+              [0, 0, 0, 0, 0]]
+
+"""tabelaBLANK =     [[0, 0, 0, 0, 0],
               [0, 0, 0, 0, 0],
-              [2, 0, 5, 0, 0]]
+              [0, 0, 0, 0, 0],
+              [0, 0, 0, 0, 0],
+              [0, 0, 0, 0, 0]]
+
+tabela =     [[0, 0, 0, 0, 0],
+              [0, 3, 0, 0, 0],
+              [0, 0, 0, 0, 0],
+              [0, 0, 2, 0, 1],
+              [3, 0, 0, 0, 0]]"""
+
+tabela =[[0, 0, 0, 0, 0, 0, 0],
+              [0, 0, 4, 0, 2, 0, 0],
+              [0, 0, 0, 0, 0, 0, 0],
+              [0, 1, 0, 0, 0, 2, 0],
+              [0, 0, 0, 0, 0, 0, 0],
+              [0, 0, 4, 0, 1, 0, 0],
+              [0, 0, 0, 0, 0, 0, 1]]
 
 currentState = ns.state(tabela)
 table = currentState.table
@@ -54,11 +75,30 @@ def printStates(table):
         print(temp)
 #checking function
 def doChecks(table):
-    if ns.wallBlockCheck(table) == None and ns.checkWallIntegrity2(table) and ns.allIslCheck(table):
-        ns.printTableOld(table)
-        return  True
+    flag = True
+    undefinedInTable = False
+    for line in table:
+        if 0 in line:
+            undefinedInTable = True
+    if ns.wallBlockCheck(table) == None:
+        pass
     else:
-        return False
+        flag = False
+    if ns.checkWallIntegrity3(table):
+        pass
+    else:
+        flag = False
+    if ns.allIslCheck(table):
+        pass
+    else:
+        flag = False
+    if not undefinedInTable:
+        pass
+    else:
+        flag = False
+    #ns.printTableOld(table)
+    return flag
+
 #do logical moves
 def logicalMoves(table):
     tempTable = []
@@ -71,18 +111,114 @@ def logicalMoves(table):
         #print("table after addOneTileEverywhere from logicalMoves:")
         #ns.printTableOld(table)
         ns.surround(table)
+#find potential tiles for an island
+def returnPotentialTiles(table, chosenIsland, currentState):
+    potentialNewTiles = []
+    for item in chosenIsland.tiles:
+        # <editor-fold desc="Finding the tiles in all directions">
+        if ns.neighbour2(table, item[0], item[1], "up") == 0:
+            table[item[0] - 1][item[1]] = -2
+            """if len(ns.returnTiles(chosenIsland.x, chosenIsland.y, table)) > table[chosenIsland.x][chosenIsland.y]:
+                pass"""
+            tempTiles = ns.returnTiles(chosenIsland.x, chosenIsland.y, table)
+            counter = 0
+            for tile in tempTiles:
+                if table[tile[0]][tile[1]] > 0:
+                    counter += 1
+            if counter > 1:
+                pass
+            elif not ns.checkWallIntegrityIncludingUndefined(table):
+                pass
+            elif (item[0] - 1, item[1]) in currentState.impossibleMoves:
+                pass
+            else:
+                potentialNewTiles.append((item[0] - 1, item[1]))
+            table[item[0] - 1][item[1]] = 0
+        if ns.neighbour2(table, item[0], item[1], "right") == 0:
+            table[item[0]][item[1] + 1] = -2
+            if len(ns.returnTiles(chosenIsland.x, chosenIsland.y, table)) > table[chosenIsland.x][chosenIsland.y]:
+                pass
+            elif not ns.checkWallIntegrityIncludingUndefined(table):
+                pass
+            elif (item[0], item[1] + 1) in currentState.impossibleMoves:
+                pass
+            else:
+                potentialNewTiles.append((item[0], item[1] + 1))
+            table[item[0]][item[1] + 1] = 0
+        if ns.neighbour2(table, item[0], item[1], "down") == 0:
+            table[item[0] + 1][item[1]] = -2
+            if len(ns.returnTiles(chosenIsland.x, chosenIsland.y, table)) > table[chosenIsland.x][chosenIsland.y]:
+                pass
+            elif not ns.checkWallIntegrityIncludingUndefined(table):
+                pass
+            elif (item[0] + 1, item[1]) in currentState.impossibleMoves:
+                pass
+            else:
+                potentialNewTiles.append((item[0] + 1, item[1]))
+            table[item[0] + 1][item[1]] = 0
+        if ns.neighbour2(table, item[0], item[1], "left") == 0:
+            table[item[0]][item[1] - 1] = -2
+            if len(ns.returnTiles(chosenIsland.x, chosenIsland.y, table)) > table[chosenIsland.x][chosenIsland.y]:
+                pass
+            elif not ns.checkWallIntegrityIncludingUndefined(table):
+                pass
+            elif (item[0], item[1] - 1) in currentState.impossibleMoves:
+                pass
+            else:
+                potentialNewTiles.append((item[0], item[1] - 1))
+            table[item[0]][item[1] - 1] = 0
+    if len(potentialNewTiles) > 0:
+        return potentialNewTiles
+    else:
+        return None
+def updateIslands(consideredIslands, table):
+    for island in consideredIslands:
+        tiles = ns.returnTiles(island.x, island.y, table)
+        if len(tiles) < table[island.x][island.y]:
+            island.complete = False
+            island.tiles = copy.deepcopy(tiles)
+            # print("tiles",tiles)
+        elif len(tiles) == table[island.x][island.y]:
+            # print("tiles",tiles)
+            island.complete = True
+        else:
+            print("table looks like this:");
+            ns.printTableOld(table)
+            print("Island", island.x, island.y, "too big, errored somewhere")
+            print("Island", island.x, island.y, "tiles:", island.tiles)
+            exit(420)
+def chooseIsland(consideredIslands, chosenIsland):
+    """if chosenIsland == None:
+        for island in consideredIslands:
+            if not island.complete:
+                chosenIsland = island
+                break
+    else:
+        if chosenIsland.complete:
+            chosenIsland = None
+            for island in consideredIslands:
+                if not island.complete:
+                    chosenIsland = island
+                    break"""
+    for island in consideredIslands:
+        if not island.complete:
+            chosenIsland = island
+            break
+    return chosenIsland
 ###################################################################################
 # <editor-fold desc="Init Stuff">
-dephth = 0
+depth = 0
 stateHistory = []
-stateHistory.append(ns.state(copy.deepcopy(table))) #no need to do this maybe but it smplifies smth. "Yeah, whatever." - Franklin, Grand Theft Auto: V
+#stateHistory.append(ns.state(copy.deepcopy(table))) #no need to do this maybe but it smplifies smth. "Yeah, whatever." - Franklin, Grand Theft Auto: V
 ns.elimAdj(table)
 ns.diagonal(table)
+originalTable = copy.deepcopy(table)
 returningFromBadState = False
-wasInBadState = False
 lastMove = None
 islandHistory = []
 returningFromSameIsland = False
+lastTouchedIsland = None
+chosenIsland = None
 #list of considered islands
 consideredIslands = []
 for i in range(len(table)):
@@ -90,215 +226,82 @@ for i in range(len(table)):
         if table[i][j] > 0:
             if not ns.islandCheckNotTooBig(i, j, table, table[i][j]):
                 consideredIslands.append(ns.island(i, j, table[i][j], table))
+if len(consideredIslands) > 0:
+    tableCopy = copy.deepcopy(table)
+    wall(tableCopy)
+    if doChecks(tableCopy):
+        wall(table)
+        ns.printTableOld(table)
+        exit("success69")
 # </editor-fold>
-while dephth < 500:
-    if dephth == 6:
-        print("dephth 6, debug")
-    #do logical moves
-    # <editor-fold desc="Logical moves">
-    logicalMoves(table)
-    # </editor-fold>
-    #Check if Nurikabe is complete
-    if doChecks(table):
-        print("Nurikabe complete1"); exit("success")
-#--------------------------------------------------------------------------------------
-    #not bad state
-    if not returningFromBadState:
-        # updating each considered island (mostly checking if complete) and choosing the first valid
-        for island in consideredIslands:
-            tiles = ns.returnTiles(island.x, island.y, table)
-            if len(tiles) < table[island.x][island.y]:
-                island.complete = False
-                island.tiles = copy.deepcopy(tiles)
-                #print("tiles",tiles)
-            elif len(tiles) == table[island.x][island.y]:
-                #print("tiles",tiles)
-                island.complete = True
-            else:
-                print("table looks like this:"); ns.printTableOld(table)
-                print("Island",island.x,island.y,"too big, errored somewhere")
-                print("Island",island.x,island.y,"tiles:",island.tiles)
-                exit(420)
-
-        # chosen island
-        theChosenOne = None
-        for island in consideredIslands:
-            if not island.complete:
-                theChosenOne = island
-                break
-        # if no islands exist, check if nurikabe complete, if not, go back. "Ah sh*t, here we go again." -Carl Johnson, Grand Theft Auto: San Andreas
-        if theChosenOne == None:
-            # wall everything that is null
+#####################################################################################################
+while depth < 10000:
+    tableCopy = copy.deepcopy(table)
+    wall(tableCopy)
+    if doChecks(tableCopy):
+        wall(table)
+        ns.printTableOld(table)
+        exit("success1")
+    if depth == 88:
+        print ("debug")
+    if returningFromBadState == False:
+        print("Not returning from bad state, table:"); ns.printTableOld(table); print("impossible moves:",currentState.impossibleMoves)
+        # -----------------------------------------------------------------------------------------------------------
+        # updating each considered island (mostly checking if complete) and choosing the first valid-----------------
+        updateIslands(consideredIslands, table)
+        #-----------------------------------------------------------------------------------------------------------
+        #Choosing island--------------------------------------------------------------------------------------------
+        chosenIsland = chooseIsland(consideredIslands, chosenIsland)
+        # -----------------------------------------------------------------------------------------------------------
+        #Handling case when all islands are complete-----------------------------------------------------------------
+        if chosenIsland == None:
             wall(table)
-            # do the checks
             if doChecks(table):
-                exit("success")
+                exit("success2")
             else:
-                print("All islands are complete but the Nurikabe is not solved. Returning from bad state")
-                returningFromBadState = True
-        #if there is an available island:
+                print("All islands complete but Nurikabe not solved"); returningFromBadState = True
         else:
-            #get all potential new tiles
-            print("Finding potential new tiles for",theChosenOne.x,theChosenOne.y,", the current table looks like this:")
-            ns.printTableOld(table)
-            print("its impossible moves are:",currentState.impossibleMoves)
-            #here I realized that instead of having the "table", I should have a state with impossible moves.
-            potentialNewTiles = []
-            for item in theChosenOne.tiles:
-                # <editor-fold desc="Finding the tiles in all directions">
-                if ns.neighbour2(table, item[0], item[1], "up") == 0:
-                    table[item[0] - 1][item[1]] = -2
-                    if len(ns.returnTiles(theChosenOne.x, theChosenOne.y, table)) > table[theChosenOne.x][theChosenOne.y]:
-                        pass
-                    elif not ns.checkWallIntegrityIncludingUndefined(table):
-                        pass
-                    elif (item[0] - 1, item[1]) in currentState.impossibleMoves:
-                        pass
-                    else:
-                        potentialNewTiles.append((item[0] - 1, item[1]))
-                    table[item[0] - 1][item[1]] = 0
-                if ns.neighbour2(table, item[0], item[1], "right") == 0:
-                    table[item[0]][item[1] + 1] = -2
-                    if len(ns.returnTiles(theChosenOne.x, theChosenOne.y, table)) > table[theChosenOne.x][theChosenOne.y]:
-                        pass
-                    elif not ns.checkWallIntegrityIncludingUndefined(table):
-                        pass
-                    elif (item[0], item[1] + 1) in currentState.impossibleMoves:
-                        pass
-                    else:
-                        potentialNewTiles.append((item[0], item[1] + 1))
-                    table[item[0]][item[1] + 1] = 0
-                if ns.neighbour2(table, item[0], item[1], "down") == 0:
-                    table[item[0] + 1][item[1]] = -2
-                    if len(ns.returnTiles(theChosenOne.x, theChosenOne.y, table)) > table[theChosenOne.x][theChosenOne.y]:
-                        pass
-                    elif not ns.checkWallIntegrityIncludingUndefined(table):
-                        pass
-                    elif (item[0] + 1, item[1]) in currentState.impossibleMoves:
-                        pass
-                    else:
-                        potentialNewTiles.append((item[0] + 1, item[1]))
-                    table[item[0] + 1][item[1]] = 0
-                if ns.neighbour2(table, item[0], item[1], "left") == 0:
-                    table[item[0]][item[1] - 1] = -2
-                    if len(ns.returnTiles(theChosenOne.x, theChosenOne.y, table)) > table[theChosenOne.x][theChosenOne.y]:
-                        pass
-                    elif not ns.checkWallIntegrityIncludingUndefined(table):
-                        pass
-                    elif (item[0], item[1] - 1) in currentState.impossibleMoves:
-                        pass
-                    else:
-                        potentialNewTiles.append((item[0], item[1] - 1))
-                    table[item[0]][item[1] - 1] = 0
-                # </editor-fold>
-            #if there are available potentialNewTiles:
-            if len(potentialNewTiles) > 0:
-                #doing the supposed move, backing up state before it.
-                #Maybe it's here that I must pop the state list. idk
-                if returningFromSameIsland:
-                    print("Operating on the same island as before, not appending table to stateHistory")
-                else:
-                    print("Not operating on the same island as before, appending table to stateHistory")
-                    stateHistory.append(ns.state(copy.deepcopy(table)))
-                table[potentialNewTiles[0][0]][potentialNewTiles[0][1]] = -2
-                lastMove = (potentialNewTiles[0][0], potentialNewTiles[0][1])
-                islandHistory.append(theChosenOne)
-                print("Found",potentialNewTiles[0][0],potentialNewTiles[0][1], "as a tile and appended to island",theChosenOne.x, theChosenOne.y)
-                print("the table looks like this:")
-                ns.printTableOld(table)
-            #if there are no potentialNewTiles available:
-            else:
-                print("No available potentialNewTiles")
-                print("table looks like this:"); ns.printTableOld(table)
-                #check if nurikabe is complete
+        # -----------------------------------------------------------------------------------------------------------
+        #Doing a supposition on the chosenIsland---------------------------------------------------------------------
+            print("Searching tiles for",chosenIsland.x,chosenIsland.y)
+            potentialTiles = returnPotentialTiles(table, chosenIsland, currentState)
+            if potentialTiles == None:
                 wall(table)
                 if doChecks(table):
-                    exit(3)
+                    exit("success3")
+                    #print("success")
                 else:
-                    returningFromBadState = True
-#----------------------------------------------------------------------------------------------
-    #returning from bad state
+                    print("No potential tiles for island, must go back"); returningFromBadState = True
+            else:
+                currentState.lastMove = (potentialTiles[0][0],potentialTiles[0][1])
+                currentState.lastIsland = copy.deepcopy(chosenIsland)
+                if len(stateHistory) == 0:
+                    stateHistory.append(copy.deepcopy(currentState))
+                    print("appended to stateHistory before supposition:")
+                elif len(stateHistory) > 0 and table != stateHistory[len(stateHistory)-1].table:
+                    stateHistory.append(copy.deepcopy(currentState))
+                    print("appended to stateHistory before supposition:")
+                stateHistory[len(stateHistory)-1].lastMove = (potentialTiles[0][0],potentialTiles[0][1])
+
+                printStates(table)
+                currentState.lastIsland =copy.deepcopy(chosenIsland)
+                lastMove = (potentialTiles[0][0],potentialTiles[0][1])
+                table[potentialTiles[0][0]][potentialTiles[0][1]] = -2
+                print("appended", potentialTiles[0][0], potentialTiles[0][1], "to", chosenIsland.x, chosenIsland.y, "table looks like this:---------------")
+                ns.printTableOld(table)
+        # -----------------------------------------------------------------------------------------------------------
+        # -----------------------------------------------------------------------------------------------------------
     else:
-        #maybe pop here, who knows
-        print("returning from a bad state, the table is like this:")
-        ns.printTableOld(table)
-        print("stateHistory:")
-        printStates(table)
-        #pop only if changing island. Or, maybe pop but before popping transfer all impossible moves to the one before last state. Only pass it the lastIsland does not change.
-        #I guess there should be a check for island change here. Like, listing all possible moves again and seeing if there are any left.
-        #FIRST: the last state should be reverted now because it makes no sense to do any potentialNewTiles checks now
-        currentState = copy.deepcopy(stateHistory[len(stateHistory)-1])
-        print("currentState is now the last element from the state history, it looks like this and its impossibleMoves follow:")
-        ns.printTableOld(currentState.table)
-        print(currentState.impossibleMoves)
-        currentState.impossibleMoves.append(lastMove)
-        print("appended last move,",lastMove,", to currentState.impossibleMoves")
-        #Look for all possible moves for lastIsland:
-        theChosenOne = copy.deepcopy(islandHistory[len(islandHistory) - 1])
-        potentialNewTiles = []
-        table = currentState.table
-        for item in theChosenOne.tiles:
-            # <editor-fold desc="Finding the tiles in all directions">
-            if ns.neighbour2(table, item[0], item[1], "up") == 0:
-                table[item[0] - 1][item[1]] = -2
-                if len(ns.returnTiles(theChosenOne.x, theChosenOne.y, table)) > table[theChosenOne.x][theChosenOne.y]:
-                    pass
-                elif not ns.checkWallIntegrityIncludingUndefined(table):
-                    pass
-                elif (item[0] - 1, item[1]) in currentState.impossibleMoves:
-                    pass
-                else:
-                    potentialNewTiles.append((item[0] - 1, item[1]))
-                table[item[0] - 1][item[1]] = 0
-            if ns.neighbour2(table, item[0], item[1], "right") == 0:
-                table[item[0]][item[1] + 1] = -2
-                if len(ns.returnTiles(theChosenOne.x, theChosenOne.y, table)) > table[theChosenOne.x][theChosenOne.y]:
-                    pass
-                elif not ns.checkWallIntegrityIncludingUndefined(table):
-                    pass
-                elif (item[0], item[1] + 1) in currentState.impossibleMoves:
-                    pass
-                else:
-                    potentialNewTiles.append((item[0], item[1] + 1))
-                table[item[0]][item[1] + 1] = 0
-            if ns.neighbour2(table, item[0], item[1], "down") == 0:
-                table[item[0] + 1][item[1]] = -2
-                if len(ns.returnTiles(theChosenOne.x, theChosenOne.y, table)) > table[theChosenOne.x][theChosenOne.y]:
-                    pass
-                elif not ns.checkWallIntegrityIncludingUndefined(table):
-                    pass
-                elif (item[0] + 1, item[1]) in currentState.impossibleMoves:
-                    pass
-                else:
-                    potentialNewTiles.append((item[0] + 1, item[1]))
-                table[item[0] + 1][item[1]] = 0
-            if ns.neighbour2(table, item[0], item[1], "left") == 0:
-                table[item[0]][item[1] - 1] = -2
-                if len(ns.returnTiles(theChosenOne.x, theChosenOne.y, table)) > table[theChosenOne.x][theChosenOne.y]:
-                    pass
-                elif not ns.checkWallIntegrityIncludingUndefined(table):
-                    pass
-                elif (item[0], item[1] - 1) in currentState.impossibleMoves:
-                    pass
-                else:
-                    potentialNewTiles.append((item[0], item[1] - 1))
-                table[item[0]][item[1] - 1] = 0
-            # </editor-fold>
-        if len(potentialNewTiles) > 0:
-            returningFromSameIsland = True
-            stateHistory[len(stateHistory)-1].impossibleMoves = copy.deepcopy(currentState.impossibleMoves)
-            pass
-        else:
-            returningFromSameIsland = False
+        print ("coming back from a bad state")
+        #pop but revert only to the original unsolved state if can stay on same island
+        popped = False
+        if returnPotentialTiles(stateHistory[len(stateHistory)-1].table, stateHistory[len(stateHistory)-1].lastIsland, stateHistory[len(stateHistory)-1]) == None:
             stateHistory.pop()
-        table = copy.deepcopy(stateHistory[len(stateHistory)-1].table)
+            popped = True
+        #should take last move of this state and append it as impossible move to this state
+        stateHistory[len(stateHistory) - 1].impossibleMoves.append(stateHistory[len(stateHistory)-1].lastMove)
+        currentState = copy.deepcopy(stateHistory[len(stateHistory)-1])
+        table = currentState.table
         returningFromBadState = False
-        wasInBadState = True
-
-
-
-#----------------------------------------------
-    dephth += 1
-    print("going in dephth",dephth,"")
-
-ns.printTableOld(table)
+    depth += 1
+    print("going in depth",depth)
