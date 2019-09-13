@@ -1,6 +1,7 @@
 import nurikabe_solver as ns
 import copy #answer from stack overflow by Sukrit Kalra, about how to do deepcopy
 import pprint
+import numpy as np
 
 if __name__ == '__main__':
     tabela =[[1, 0, 0, 0],
@@ -45,6 +46,14 @@ tabela =     [[0, 0, 0, 0, 1, 0, 0],
               [0, 0, 0, 0, 0, 0, 0],
               [0, 0, 0, 0, 0, 0, 6],
               [0, 0, 6, 0, 0, 0, 0]]
+
+tabela = [[1, 0, 2, 0, 2, 0, 0],
+           [0, 0, 0, 0, 0, 0, 0],
+           [2, 0, 0, 0, 0, 4, 0],
+           [0, 0, 4, 0, 0, 0, 0],
+           [0, 0, 0, 0, 2, 0, 0],
+           [2, 0, 0, 0, 0, 0, 0],
+           [0, 0, 1, 0, 0, 0, 1]]
 
 """tabela =[
 [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -264,7 +273,7 @@ def solve(table, currentState):
             wall(table)
             print("Nurikabe complete")
             ns.printTableOld(table)
-            return
+            return table
     # </editor-fold>
     #####################################################################################################
     while depth < 10000:
@@ -275,7 +284,7 @@ def solve(table, currentState):
             wall(table)
             print("Nurikabe complete")
             ns.printTableOld(table)
-            return
+            return table
         if depth == 6106:
             print ("debug")
         if returningFromBadState == False:
@@ -293,7 +302,7 @@ def solve(table, currentState):
                 if doChecks(table):
                     print("Nurikabe complete")
                     ns.printTable(table)
-                    return
+                    return table
                 else:
                     print("All islands complete but Nurikabe not solved"); returningFromBadState = True
             else:
@@ -306,7 +315,7 @@ def solve(table, currentState):
                     if doChecks(table):
                         print("Nurikabe complete")
                         ns.printTable(table)
-                        return
+                        return table
                     else:
                         print("No potential tiles for island, must go back"); returningFromBadState = True
                 else:
