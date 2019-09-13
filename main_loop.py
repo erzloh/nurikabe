@@ -250,6 +250,7 @@ if len(consideredIslands) > 0:
 # </editor-fold>
 #####################################################################################################
 while depth < 10000:
+    logicalMoves(table)
     tableCopy = copy.deepcopy(table)
     wall(tableCopy)
     if doChecks(tableCopy):
