@@ -38,13 +38,13 @@ tabela =     [[0, 0, 0, 0, 0],
               [0, 0, 2, 0, 1],
               [3, 0, 0, 0, 0]]"""
 
-tabela =[[0, 0, 0, 0, 0, 0, 0],
-              [0, 0, 4, 0, 2, 0, 0],
+tabela =     [[0, 0, 0, 0, 0, 2, 0],
               [0, 0, 0, 0, 0, 0, 0],
-              [0, 1, 0, 0, 0, 2, 0],
+              [0, 0, 0, 0, 0, 0, 7],
               [0, 0, 0, 0, 0, 0, 0],
-              [0, 0, 4, 0, 1, 0, 0],
-              [0, 0, 0, 0, 0, 0, 1]]
+              [0, 0, 0, 0, 0, 0, 7],
+              [0, 0, 0, 0, 0, 0, 0],
+              [0, 0, 3, 0, 3, 0, 0]]
 
 currentState = ns.state(tabela)
 table = currentState.table
@@ -118,8 +118,6 @@ def returnPotentialTiles(table, chosenIsland, currentState):
         # <editor-fold desc="Finding the tiles in all directions">
         if ns.neighbour2(table, item[0], item[1], "up") == 0:
             table[item[0] - 1][item[1]] = -2
-            """if len(ns.returnTiles(chosenIsland.x, chosenIsland.y, table)) > table[chosenIsland.x][chosenIsland.y]:
-                pass"""
             tempTiles = ns.returnTiles(chosenIsland.x, chosenIsland.y, table)
             counter = 0
             for tile in tempTiles:
@@ -136,7 +134,12 @@ def returnPotentialTiles(table, chosenIsland, currentState):
             table[item[0] - 1][item[1]] = 0
         if ns.neighbour2(table, item[0], item[1], "right") == 0:
             table[item[0]][item[1] + 1] = -2
-            if len(ns.returnTiles(chosenIsland.x, chosenIsland.y, table)) > table[chosenIsland.x][chosenIsland.y]:
+            tempTiles = ns.returnTiles(chosenIsland.x, chosenIsland.y, table)
+            counter = 0
+            for tile in tempTiles:
+                if table[tile[0]][tile[1]] > 0:
+                    counter += 1
+            if counter > 1:
                 pass
             elif not ns.checkWallIntegrityIncludingUndefined(table):
                 pass
@@ -147,7 +150,12 @@ def returnPotentialTiles(table, chosenIsland, currentState):
             table[item[0]][item[1] + 1] = 0
         if ns.neighbour2(table, item[0], item[1], "down") == 0:
             table[item[0] + 1][item[1]] = -2
-            if len(ns.returnTiles(chosenIsland.x, chosenIsland.y, table)) > table[chosenIsland.x][chosenIsland.y]:
+            tempTiles = ns.returnTiles(chosenIsland.x, chosenIsland.y, table)
+            counter = 0
+            for tile in tempTiles:
+                if table[tile[0]][tile[1]] > 0:
+                    counter += 1
+            if counter > 1:
                 pass
             elif not ns.checkWallIntegrityIncludingUndefined(table):
                 pass
@@ -158,7 +166,12 @@ def returnPotentialTiles(table, chosenIsland, currentState):
             table[item[0] + 1][item[1]] = 0
         if ns.neighbour2(table, item[0], item[1], "left") == 0:
             table[item[0]][item[1] - 1] = -2
-            if len(ns.returnTiles(chosenIsland.x, chosenIsland.y, table)) > table[chosenIsland.x][chosenIsland.y]:
+            tempTiles = ns.returnTiles(chosenIsland.x, chosenIsland.y, table)
+            counter = 0
+            for tile in tempTiles:
+                if table[tile[0]][tile[1]] > 0:
+                    counter += 1
+            if counter > 1:
                 pass
             elif not ns.checkWallIntegrityIncludingUndefined(table):
                 pass
@@ -242,7 +255,7 @@ while depth < 10000:
         wall(table)
         ns.printTableOld(table)
         exit("success1")
-    if depth == 88:
+    if depth == 8:
         print ("debug")
     if returningFromBadState == False:
         print("Not returning from bad state, table:"); ns.printTableOld(table); print("impossible moves:",currentState.impossibleMoves)
