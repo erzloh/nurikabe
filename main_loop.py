@@ -213,6 +213,7 @@ def chooseIsland(consideredIslands, chosenIsland):
                 if not island.complete:
                     chosenIsland = island
                     break"""
+    chosenIsland = None
     for island in consideredIslands:
         if not island.complete:
             chosenIsland = island
