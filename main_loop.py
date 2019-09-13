@@ -58,8 +58,9 @@ tabela =     [[0, 0, 0, 0, 1, 0, 0],
 [0, 1, 0, 0, 0, 0, 4, 0, 0, 0],
 [0, 0, 0, 0, 0, 0, 0, 0, 1, 0]]"""
 
-currentState = ns.state(tabela)
-table = currentState.table
+if __name__ == '__main__':
+    currentState = ns.state(tabela)
+    table = currentState.table
 #######################################################
 #walling function
 def wall(table):
@@ -342,4 +343,5 @@ def solve(table, currentState):
         depth += 1
         print("going in depth",depth)
 
-solve(table, currentState)
+if __name__ == '__main__':
+    solve(table, currentState)
