@@ -30,21 +30,21 @@ tabela =     [[0, 0, 0, 0, 0],
               [0, 0, 0, 0, 0],
               [0, 0, 0, 0, 0],
               [0, 0, 0, 0, 0],
-              [0, 0, 0, 0, 0]]
+              [0, 0, 0, 0, 0]]"""
 
 tabela =     [[0, 0, 0, 0, 0],
               [0, 3, 0, 0, 0],
               [0, 0, 0, 0, 0],
               [0, 0, 2, 0, 1],
-              [3, 0, 0, 0, 0]]"""
+              [3, 0, 0, 0, 0]]
 
-tabela =     [[0, 0, 0, 0, 1, 0, 0],
+"""tabela =     [[0, 0, 0, 0, 1, 0, 0],
               [1, 0, 0, 0, 0, 0, 0],
               [0, 0, 0, 0, 0, 0, 0],
               [4, 0, 0, 0, 0, 0, 4],
               [0, 0, 0, 0, 0, 0, 0],
               [0, 0, 0, 0, 0, 0, 6],
-              [0, 0, 6, 0, 0, 0, 0]]
+              [0, 0, 6, 0, 0, 0, 0]]"""
 
 tabela =[
 [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -58,6 +58,35 @@ tabela =[
 [0, 1, 0, 0, 0, 0, 4, 0, 0, 0],
 [0, 0, 0, 0, 0, 0, 0, 0, 1, 0]]
 
+tabela =[
+[1, 0, 0, 3, 0, 0, 0, 0, 0, 0],
+[0, 8, 0, 0, 0, 0, 0, 0, 0, 0],
+[0, 0, 0, 0, 6, 0, 0, 0, 0, 1],
+[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+[2, 0, 0, 0, 0, 0, 0, 1, 0, 0],
+[0, 0, 0, 0, 0, 0, 0, 0, 0, 2],
+[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+[3, 0, 0, 0, 0, 2, 0, 0, 0, 0],
+[0, 0, 0, 0, 0, 0, 0, 0, 10, 0],
+[0, 0, 0, 0, 0, 0, 5, 0, 0, 1]]
+
+tabela =[
+[0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0],
+[0, 0, 0, 0, 0, 0, 3, 0, 0, 1, 0, 0, 0, 0, 0],
+[0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 4],
+[0, 0, 0, 1, 0, 0, 0, 3, 0, 1, 0, 0, 0, 0, 0],
+[0, 2, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0],
+[0, 0, 3, 0, 0, 0, 2, 0, 0, 0, 0, 2, 0, 0, 0],
+[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+[0, 0, 0, 1, 0, 3, 0, 2, 0, 1, 0, 4, 0, 0, 0],
+[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3],
+[0, 0, 0, 2, 0, 0, 0, 0, 2, 0, 0, 0, 1, 0, 0],
+[0, 3, 0, 0, 0, 0, 6, 0, 0, 0, 0, 0, 0, 1, 0],
+[0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 3, 0, 0, 0],
+[3, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0],
+[0, 0, 0, 0, 0, 2, 0, 0, 1, 0, 0, 0, 0, 0, 0],
+[0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0]]
+
 currentState = ns.state(tabela)
 table = currentState.table
 #######################################################
@@ -70,7 +99,7 @@ def wall(table):
             if table[i][j] == 0:
                 table[i][j] = -1
 #print states
-def printStates(table):
+def printStates(stateHistory):
     for k in range(len(table)):
         temp = ""
         for state in stateHistory:
@@ -236,10 +265,10 @@ def chooseIsland(consideredIslands, chosenIsland):
 currentState = ns.state(tabela)
 table = currentState.table
 
-depth = 0
-stateHistory = []
 
 def solve(table, currentState):
+    depth = 0
+    stateHistory = []
     ns.elimAdj(table)
     ns.diagonal(table)
     originalTable = copy.deepcopy(table)
@@ -266,7 +295,7 @@ def solve(table, currentState):
             return
     # </editor-fold>
     #####################################################################################################
-    while depth < 10000:
+    while depth < 10000000:
         logicalMoves(table)
         tableCopy = copy.deepcopy(table)
         wall(tableCopy)
@@ -319,7 +348,7 @@ def solve(table, currentState):
                         print("appended to stateHistory before supposition:")
                     stateHistory[len(stateHistory)-1].lastMove = (potentialTiles[0][0],potentialTiles[0][1])
 
-                    printStates(table)
+                    printStates(stateHistory)
                     currentState.lastIsland =copy.deepcopy(chosenIsland)
                     lastMove = (potentialTiles[0][0],potentialTiles[0][1])
                     table[potentialTiles[0][0]][potentialTiles[0][1]] = -2
@@ -342,4 +371,5 @@ def solve(table, currentState):
         depth += 1
         print("going in depth",depth)
 
-solve(table, currentState)
+if __name__ == '__main__':
+    solve(table, currentState)
