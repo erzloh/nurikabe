@@ -49,15 +49,6 @@ table4 = np.array([[1, 0, 2, 0, 2, 0, 0],
                    [2, 0, 0, 0, 0, 0, 0],
                    [0, 0, 1, 0, 0, 0, 1]])
 
-table = table1
-
-#tableTest = np.zeros((10, 20), dtype=int)
-
-#table = tableTest
-#table[5, 5] = 1
-
-    
-
 # Define classes
 class App:
     """Create the application. This object is a singleton. This object is created first."""
@@ -85,13 +76,13 @@ class App:
         title = Text('Nurikabe', size=100)
         title.rect.center = (self.screen_center[0], self.screen_center[1] - 200)
         
-        play = Button('PLAY', size=72, cmd='App.room = App.rooms[1]')
+        play = Button('PLAY', size=64, cmd='App.room = App.rooms[1]')
         play.rect.center = self.screen_center
         
-        solve = Button('SOLVE', size=72, cmd='App.room = App.rooms[3]')
+        solve = Button('SOLVE', size=64, cmd='App.room = App.rooms[3]')
         solve.rect.center = (self.screen_center[0], self.screen_center[1] + 100)
         
-        option = Button('OPTION', size=72, cmd='print("OPTION ROOM")')
+        option = Button('HELP', size=64, cmd='App.room = App.rooms[5]')
         option.rect.center = (self.screen_center[0], self.screen_center[1] + 200)
         
         credit = Text('Made by Eric Holzer and Jacek Wikiera, 2019')
@@ -109,8 +100,8 @@ class App:
         
         # Room 2 (Playable Room)  
         Room()
-        Button('menu', cmd='App.reset_np(table); App.room = App.rooms[0]', pos=(10, 10), thickness = 2, inf = 10)
-        App.grid = Grid(table)
+        Button('menu', cmd='App.reset_np(App.grid.table); App.room = App.rooms[0]', pos=(10, 10), thickness = 2, inf = 10)
+        App.grid = Grid(table1)
         App.grid.playable = True
         mode = Text('Mode: play', size=30)
         mode.rect.center = (self.screen_center[0], 20)
@@ -118,8 +109,10 @@ class App:
         Button('2x2 block', pos=(600, 150), size=20, cmd='App.wallBlockCheck(App.grid.table)', inf = 20, thickness = 2)
         Button('island_complete', pos=(600, 200), size=20, cmd='App.allIslCheck(App.grid.table)', inf = 20, thickness = 2)
         Button('undefined', pos=(600, 250), size=20, cmd='App.checkForUndefined(App.grid.table)', inf = 20, thickness = 2)
+        Button('fill', pos=(600, 600), size=20, cmd='App.fill(App.grid.table)', inf = 20, thickness = 2, col=GREEN)
         Button('check', pos=(600, 650), size=20, cmd='App.check(App.grid.table)', inf = 20, thickness = 2, col=BLUE)
-        #Button('remove numbers', pos=(600, 250), size=20, cmd='App.grid.remove_numbers()')
+        Button('reset', pos=(600, 700), size=20, cmd='App.reset_np(App.grid.table)', inf = 20, thickness = 2, col=RED)
+
         
         # Room 3 (Choosing Solving Level Room)
         Room()
@@ -133,8 +126,8 @@ class App:
         
         # Room 4 (Solving Room)
         Room()
-        Button('menu', cmd='App.reset_np(table); App.room = App.rooms[0]', pos=(10, 10), thickness = 2, inf = 10)
-        App.grid2 = Grid(table)
+        Button('menu', cmd='App.reset_np(table1); App.room = App.rooms[0]', pos=(10, 10), thickness = 2, inf = 10)
+        App.grid2 = Grid(table1)
         App.grid2.playable = False
         mode = Text('Mode: solve', size=30)
         mode.rect.center = (self.screen_center[0], 20)
@@ -142,39 +135,30 @@ class App:
         Button('between_numbers', pos=(600, 100), size=20, cmd='ns.elimAdj(App.grid2.table)', inf = 20, thickness = 2)
         Button('diagonal', pos=(600, 150), size=20, cmd='ns.diagonal(App.grid2.table)', inf = 20, thickness = 2)
         Button('surrounded', pos=(600, 200), size=20, cmd='ns.surround(App.grid2.table)', inf = 20, thickness = 2)
-        Button('around_island', pos=(600, 250), size=20, cmd='ns.wallAroundIslands(App.grid2.table)', inf = 20, thickness = 2)
         Button('solve', pos=(600, 300), size=20, cmd='ml.solve(App.grid2.table)', inf = 20, thickness = 2)
-        Button('fill', pos=(600, 600), size=20, cmd='App.fill(App.grid2.table)', inf = 20, thickness = 2, col=GREEN)
         Button('check', pos=(600, 650), size=20, cmd='App.check(App.grid2.table)', inf = 20, thickness = 2, col=BLUE)
         Button('reset', pos=(600, 700), size=20, cmd='App.reset_np(App.grid2.table)', inf = 20, thickness = 2, col=RED)
         
+        # Room 5 (Help Room)
+        Room()
+        Button('menu', cmd='App.room = App.rooms[0]', pos=(10, 10), thickness = 2, inf = 10)
+        Text('In this program you can either play nurikabe or watch a solver in real time.', pos=(10, 50))
+        Text('This has been made in the context of a school project by Jacek Wikiera and Eric Holzer.', pos=(10, 70))
+        Text('', pos=(10, 90))
+        
         App.room = App.rooms[0] # Set the first room to Title Screen Room
-        
-#     def create_room2(table):
-#         del App.rooms[2]
-#         Room()
-#         Button('menu', cmd='App.room = App.rooms[0]', pos=(10, 10), thickness = 2, inf = 10)
-#         App.grid = Grid(table)
-#         App.grid.playable = True
-#         mode = Text('Mode: play', size=30)
-#         mode.rect.center = (self.screen_center[0], 20)
-#         Button('check_continuity', pos=(600, 100), size=20, cmd='print("check_continuity")', inf = 20, thickness = 2)
-#         Button('2x2 block', pos=(600, 150), size=20, cmd='print("2x2_block")', inf = 20, thickness = 2)
-#         Button('island_complete', pos=(600, 200), size=20, cmd='print("island_complete")', inf = 20, thickness = 2)
-        
 
     def run(self):
-        # Run the main event loop
+        # Run the Event Loop
+        # While the user doesn't close the window, the program is running
         self.active = True
         
         while self.active:
-            
-            # Logic section
             for event in pygame.event.get():
                 if event.type == QUIT: # If the window close button is pressed
                     self.active = False
             
-                elif event.type == KEYDOWN: # If a key is pressed
+                elif event.type == KEYDOWN:
                     if event.key == K_ESCAPE:
                         self.active = False
                         
@@ -183,12 +167,9 @@ class App:
                     print("mouse position : ", event.pos)
                         
                 App.room.do_event(event)
+                print(event)
             
-            # Draw section
-            self.draw()
-            
-            #if App.room == App.rooms[0]:
-               # print(1)
+                self.draw()
                             
         pygame.quit()
         exit()
@@ -199,6 +180,7 @@ class App:
         App.room.draw()
         pygame.display.update()
         
+    # Check Table Functions. Print whether the nurikabe's rules are respected or not
     def checkWallIntegrity(table):
         if ns.checkWallIntegrity2(table):
             print("> the wall is continuous")
@@ -249,14 +231,15 @@ class App:
             print("> no undefined tiles found")
                 
     def fill(table):
+        # Fill the nurikabe with logical moves
         ns.wallAroundIslands(table)
         table = ns.elimAdj(table)
         table = ns.diagonal(table)
         table = ns.surround(table)
                         
     def reset_np(table):
+        # Reset the table (numpy)
         x_len = len(table)
-        
         y_len = len(table[1])
         
         #test
@@ -266,6 +249,7 @@ class App:
                     table[x, y] = 0
     
     def reset(table):
+        # Reset the table
         x_len = len(table)
         y_len = len(table[1])
         
@@ -273,14 +257,6 @@ class App:
             for y in range(y_len):
                 if (table[x][y] < 0):
                     table[x][y] = 0
-        
-
-class Node: # NOT IN USE
-    """Create a node for making hierarchies."""
-    def __init__(self, parent):
-        self.parent = parent
-        self.parent.children.append(self)
-        self.children = []
 
 
 class Text:

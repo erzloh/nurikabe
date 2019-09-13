@@ -333,6 +333,14 @@ def wallBlockCheck(table):
                 return (i, j)
     if not foundBlock:  # print("No 2x2 blocks in the wall")
         return None
+# Function to check for undefined tiles
+def checkForUndefined(table):
+    # return False if there is no undefined tiles
+    undefinedInTable = False
+    for line in table:
+        if 0 in line:
+            undefinedInTable = True
+    return undefinedInTable
 
 
 # Function to check if a single island is complete, NOT HANDLING CASE WHEN ISLAND TOO BIG, needed for this function
