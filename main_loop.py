@@ -38,13 +38,25 @@ tabela =     [[0, 0, 0, 0, 0],
               [0, 0, 2, 0, 1],
               [3, 0, 0, 0, 0]]"""
 
-tabela =     [[0, 0, 0, 0, 0, 2, 0],
+tabela =     [[0, 0, 0, 0, 1, 0, 0],
+              [1, 0, 0, 0, 0, 0, 0],
               [0, 0, 0, 0, 0, 0, 0],
-              [0, 0, 0, 0, 0, 0, 7],
+              [4, 0, 0, 0, 0, 0, 4],
               [0, 0, 0, 0, 0, 0, 0],
-              [0, 0, 0, 0, 0, 0, 7],
-              [0, 0, 0, 0, 0, 0, 0],
-              [0, 0, 3, 0, 3, 0, 0]]
+              [0, 0, 0, 0, 0, 0, 6],
+              [0, 0, 6, 0, 0, 0, 0]]
+
+"""tabela =[
+[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+[0, 0, 0, 3, 0, 0, 0, 0, 0, 0],
+[0, 0, 3, 0, 0, 0, 0, 3, 0, 0],
+[0, 0, 0, 2, 0, 0, 4, 0, 1, 0],
+[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+[0, 3, 0, 1, 0, 0, 2, 0, 0, 0],
+[0, 0, 1, 0, 0, 0, 0, 4, 0, 0],
+[0, 1, 0, 0, 0, 0, 4, 0, 0, 0],
+[0, 0, 0, 0, 0, 0, 0, 0, 1, 0]]"""
 
 currentState = ns.state(tabela)
 table = currentState.table
@@ -58,7 +70,7 @@ def wall(table):
             if table[i][j] == 0:
                 table[i][j] = -1
 #print states
-def printStates(table):
+def printStates(stateHistory):
     for k in range(len(table)):
         temp = ""
         for state in stateHistory:
@@ -199,7 +211,7 @@ def updateIslands(consideredIslands, table):
             ns.printTableOld(table)
             print("Island", island.x, island.y, "too big, errored somewhere")
             print("Island", island.x, island.y, "tiles:", island.tiles)
-            exit(420)
+            return
 def chooseIsland(consideredIslands, chosenIsland):
     """if chosenIsland == None:
         for island in consideredIslands:
@@ -221,102 +233,113 @@ def chooseIsland(consideredIslands, chosenIsland):
     return chosenIsland
 ###################################################################################
 # <editor-fold desc="Init Stuff">
-depth = 0
-stateHistory = []
-#stateHistory.append(ns.state(copy.deepcopy(table))) #no need to do this maybe but it smplifies smth. "Yeah, whatever." - Franklin, Grand Theft Auto: V
-ns.elimAdj(table)
-ns.diagonal(table)
-originalTable = copy.deepcopy(table)
-returningFromBadState = False
-lastMove = None
-islandHistory = []
-returningFromSameIsland = False
-lastTouchedIsland = None
-chosenIsland = None
-#list of considered islands
-consideredIslands = []
-for i in range(len(table)):
-    for j in range(len(table[0])):
-        if table[i][j] > 0:
-            if not ns.islandCheckNotTooBig(i, j, table, table[i][j]):
-                consideredIslands.append(ns.island(i, j, table[i][j], table))
-if len(consideredIslands) > 0:
-    tableCopy = copy.deepcopy(table)
-    wall(tableCopy)
-    if doChecks(tableCopy):
-        wall(table)
-        ns.printTableOld(table)
-        exit("success69")
-# </editor-fold>
-#####################################################################################################
-while depth < 10000:
-    logicalMoves(table)
-    tableCopy = copy.deepcopy(table)
-    wall(tableCopy)
-    if doChecks(tableCopy):
-        wall(table)
-        ns.printTableOld(table)
-        exit("success1")
-    if depth == 8:
-        print ("debug")
-    if returningFromBadState == False:
-        print("Not returning from bad state, table:"); ns.printTableOld(table); print("impossible moves:",currentState.impossibleMoves)
-        # -----------------------------------------------------------------------------------------------------------
-        # updating each considered island (mostly checking if complete) and choosing the first valid-----------------
-        updateIslands(consideredIslands, table)
-        #-----------------------------------------------------------------------------------------------------------
-        #Choosing island--------------------------------------------------------------------------------------------
-        chosenIsland = chooseIsland(consideredIslands, chosenIsland)
-        # -----------------------------------------------------------------------------------------------------------
-        #Handling case when all islands are complete-----------------------------------------------------------------
-        if chosenIsland == None:
+currentState = ns.state(tabela)
+table = currentState.table
+
+
+def solve(table, currentState):
+    depth = 0
+    stateHistory = []
+    ns.elimAdj(table)
+    ns.diagonal(table)
+    originalTable = copy.deepcopy(table)
+    returningFromBadState = False
+    lastMove = None
+    islandHistory = []
+    returningFromSameIsland = False
+    lastTouchedIsland = None
+    chosenIsland = None
+    #list of considered islands
+    consideredIslands = []
+    for i in range(len(table)):
+        for j in range(len(table[0])):
+            if table[i][j] > 0:
+                if not ns.islandCheckNotTooBig(i, j, table, table[i][j]):
+                    consideredIslands.append(ns.island(i, j, table[i][j], table))
+    if len(consideredIslands) > 0:
+        tableCopy = copy.deepcopy(table)
+        wall(tableCopy)
+        if doChecks(tableCopy):
             wall(table)
-            if doChecks(table):
-                exit("success2")
-            else:
-                print("All islands complete but Nurikabe not solved"); returningFromBadState = True
-        else:
-        # -----------------------------------------------------------------------------------------------------------
-        #Doing a supposition on the chosenIsland---------------------------------------------------------------------
-            print("Searching tiles for",chosenIsland.x,chosenIsland.y)
-            potentialTiles = returnPotentialTiles(table, chosenIsland, currentState)
-            if potentialTiles == None:
+            print("Nurikabe complete")
+            ns.printTableOld(table)
+            return
+    # </editor-fold>
+    #####################################################################################################
+    while depth < 10000:
+        logicalMoves(table)
+        tableCopy = copy.deepcopy(table)
+        wall(tableCopy)
+        if doChecks(tableCopy):
+            wall(table)
+            print("Nurikabe complete")
+            ns.printTableOld(table)
+            return
+        if depth == 6106:
+            print ("debug")
+        if returningFromBadState == False:
+            print("Not returning from bad state, table:"); ns.printTableOld(table); print("impossible moves:",currentState.impossibleMoves)
+            # -----------------------------------------------------------------------------------------------------------
+            # updating each considered island (mostly checking if complete) and choosing the first valid-----------------
+            updateIslands(consideredIslands, table)
+            #-----------------------------------------------------------------------------------------------------------
+            #Choosing island--------------------------------------------------------------------------------------------
+            chosenIsland = chooseIsland(consideredIslands, chosenIsland)
+            # -----------------------------------------------------------------------------------------------------------
+            #Handling case when all islands are complete-----------------------------------------------------------------
+            if chosenIsland == None:
                 wall(table)
                 if doChecks(table):
-                    exit("success3")
-                    #print("success")
+                    print("Nurikabe complete")
+                    ns.printTable(table)
+                    return
                 else:
-                    print("No potential tiles for island, must go back"); returningFromBadState = True
+                    print("All islands complete but Nurikabe not solved"); returningFromBadState = True
             else:
-                currentState.lastMove = (potentialTiles[0][0],potentialTiles[0][1])
-                currentState.lastIsland = copy.deepcopy(chosenIsland)
-                if len(stateHistory) == 0:
-                    stateHistory.append(copy.deepcopy(currentState))
-                    print("appended to stateHistory before supposition:")
-                elif len(stateHistory) > 0 and table != stateHistory[len(stateHistory)-1].table:
-                    stateHistory.append(copy.deepcopy(currentState))
-                    print("appended to stateHistory before supposition:")
-                stateHistory[len(stateHistory)-1].lastMove = (potentialTiles[0][0],potentialTiles[0][1])
+            # -----------------------------------------------------------------------------------------------------------
+            #Doing a supposition on the chosenIsland---------------------------------------------------------------------
+                print("Searching tiles for",chosenIsland.x,chosenIsland.y)
+                potentialTiles = returnPotentialTiles(table, chosenIsland, currentState)
+                if potentialTiles == None:
+                    wall(table)
+                    if doChecks(table):
+                        print("Nurikabe complete")
+                        ns.printTable(table)
+                        return
+                    else:
+                        print("No potential tiles for island, must go back"); returningFromBadState = True
+                else:
+                    currentState.lastMove = (potentialTiles[0][0],potentialTiles[0][1])
+                    currentState.lastIsland = copy.deepcopy(chosenIsland)
+                    if len(stateHistory) == 0:
+                        stateHistory.append(copy.deepcopy(currentState))
+                        print("appended to stateHistory before supposition:")
+                    elif len(stateHistory) > 0 and table != stateHistory[len(stateHistory)-1].table:
+                        stateHistory.append(copy.deepcopy(currentState))
+                        print("appended to stateHistory before supposition:")
+                    stateHistory[len(stateHistory)-1].lastMove = (potentialTiles[0][0],potentialTiles[0][1])
 
-                printStates(table)
-                currentState.lastIsland =copy.deepcopy(chosenIsland)
-                lastMove = (potentialTiles[0][0],potentialTiles[0][1])
-                table[potentialTiles[0][0]][potentialTiles[0][1]] = -2
-                print("appended", potentialTiles[0][0], potentialTiles[0][1], "to", chosenIsland.x, chosenIsland.y, "table looks like this:---------------")
-                ns.printTableOld(table)
-        # -----------------------------------------------------------------------------------------------------------
-        # -----------------------------------------------------------------------------------------------------------
-    else:
-        print ("coming back from a bad state")
-        #pop but revert only to the original unsolved state if can stay on same island
-        popped = False
-        if returnPotentialTiles(stateHistory[len(stateHistory)-1].table, stateHistory[len(stateHistory)-1].lastIsland, stateHistory[len(stateHistory)-1]) == None:
-            stateHistory.pop()
-            popped = True
-        #should take last move of this state and append it as impossible move to this state
-        stateHistory[len(stateHistory) - 1].impossibleMoves.append(stateHistory[len(stateHistory)-1].lastMove)
-        currentState = copy.deepcopy(stateHistory[len(stateHistory)-1])
-        table = currentState.table
-        returningFromBadState = False
-    depth += 1
-    print("going in depth",depth)
+                    printStates(stateHistory)
+                    currentState.lastIsland =copy.deepcopy(chosenIsland)
+                    lastMove = (potentialTiles[0][0],potentialTiles[0][1])
+                    table[potentialTiles[0][0]][potentialTiles[0][1]] = -2
+                    print("appended", potentialTiles[0][0], potentialTiles[0][1], "to", chosenIsland.x, chosenIsland.y, "table looks like this:---------------")
+                    ns.printTableOld(table)
+            # -----------------------------------------------------------------------------------------------------------
+            # -----------------------------------------------------------------------------------------------------------
+        else:
+            print ("coming back from a bad state")
+            #pop but revert only to the original unsolved state if can stay on same island
+            popped = False
+            if returnPotentialTiles(stateHistory[len(stateHistory)-1].table, stateHistory[len(stateHistory)-1].lastIsland, stateHistory[len(stateHistory)-1]) == None:
+                stateHistory.pop()
+                popped = True
+            #should take last move of this state and append it as impossible move to this state
+            stateHistory[len(stateHistory) - 1].impossibleMoves.append(stateHistory[len(stateHistory)-1].lastMove)
+            currentState = copy.deepcopy(stateHistory[len(stateHistory)-1])
+            table = currentState.table
+            returningFromBadState = False
+        depth += 1
+        print("going in depth",depth)
+
+solve(table, currentState)
