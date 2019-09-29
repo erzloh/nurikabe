@@ -10,7 +10,7 @@ from pygame.locals import *  # Import constant definitions (QUIT, keys, etc)
 import nurikabe_solver as ns # Nurikabe solving functions
 #import nurikabe_tables as nt # Nurikabe tables
 import numpy as np # Import numpy module which is used for tables
-#import main_loop as ml
+import main_loop as ml
 
 # Define colors
 WHITE = (255, 255, 255)
@@ -48,6 +48,12 @@ table4 = np.array([[1, 0, 2, 0, 2, 0, 0],
                    [0, 0, 0, 0, 2, 0, 0],
                    [2, 0, 0, 0, 0, 0, 0],
                    [0, 0, 1, 0, 0, 0, 1]])
+#
+#table1 =     [[0, 0, 0, 0, 0],
+#              [2, 0, 0, 0, 2],
+#              [0, 0, 0, 0, 0],
+#              [1, 0, 0, 2, 0],
+#              [0, 0, 0, 0, 0]]
 
 # Define classes
 class App:
@@ -135,7 +141,7 @@ class App:
         Button('between_numbers', pos=(600, 100), size=20, cmd='ns.elimAdj(App.grid2.table)', inf = 20, thickness = 2)
         Button('diagonal', pos=(600, 150), size=20, cmd='ns.diagonal(App.grid2.table)', inf = 20, thickness = 2)
         Button('surrounded', pos=(600, 200), size=20, cmd='ns.surround(App.grid2.table)', inf = 20, thickness = 2)
-        Button('solve', pos=(600, 300), size=20, cmd='ml.solve(App.grid2.table)', inf = 20, thickness = 2)
+        Button('solve', pos=(600, 300), size=20, cmd='currentState = ns.state(App.grid2.table);table = currentState.table;ml.solve(table, currentState)', inf = 20, thickness = 2)
         Button('check', pos=(600, 650), size=20, cmd='App.check(App.grid2.table)', inf = 20, thickness = 2, col=BLUE)
         Button('reset', pos=(600, 700), size=20, cmd='App.reset_np(App.grid2.table)', inf = 20, thickness = 2, col=RED)
         
@@ -167,7 +173,6 @@ class App:
                     print("mouse position : ", event.pos)
                         
                 App.room.do_event(event)
-                print(event)
             
                 self.draw()
                             
@@ -338,10 +343,10 @@ class Grid:
         App.room.objects.append(self)
         
     def set_table(self, table, pos=(50, 50), col=BLACK):
-        n, m = table.shape
+        #n, m = table.shape
         self.remove_numbers()
-        self.n = n # Number of rows
-        self.m = m # Number of columns
+        self.n = len(table) # Number of rows
+        self.m = len(table[1]) # Number of columns
         self.pos = pos
         self.table = table
         self.col = col
@@ -357,7 +362,7 @@ class Grid:
         else:
             self.case_length = 500 // self.m
             
-        self.rect = Rect(*pos, m*self.case_length, n*self.case_length)
+        self.rect = Rect(*pos, self.m*self.case_length, self.n*self.case_length)
         self.create_cell_text()
         self.thickness = (self.case_length * 4) // 100 # Scaled according to the case_length
         
@@ -370,8 +375,8 @@ class Grid:
                 # Draw the number
                 number_size = (self.case_length * 60) // 100 # Scaled according to the case_length
                 
-                if self.table[i, j] > 0: 
-                    text = Text(str(self.table[i, j]), size = number_size)
+                if self.table[i][j] > 0: 
+                    text = Text(str(self.table[i][j]), size = number_size)
                     text.rect.center = current_rect.center
                     self.cell_text_list.append(text)
                     
@@ -397,11 +402,11 @@ class Grid:
                 current_rect = self.get_cell_rect(i, j)
                 
                 # Draw the cell in black
-                if self.table[i, j] == -1:
+                if self.table[i][j] == -1:
                     pygame.draw.rect(App.screen, self.col, current_rect, 0)
                     
                 # Draw the cell in white (little black square)
-                elif self.table[i, j] == -2:
+                elif self.table[i][j] == -2:
                     inf = (self.case_length * -80) // 100 # Scaled according to the case_length
                     
                     current_rect.inflate_ip(inf, inf) # Shrink the current rectangle
