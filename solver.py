@@ -1,4 +1,4 @@
-import nurikabe_solver as ns
+import functions as ns
 import copy #answer from stack overflow by Sukrit Kalra, about how to do deepcopy
 import pprint
 import numpy as np

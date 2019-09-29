@@ -1,16 +1,15 @@
 # Nurikabe Display - Version 2.0 (Object Oriented Programming Version)
 # Author : Eric Holzer
 # Created : 28 June 2019
-# Last Edit : 8 August 2019
+# Last Edit : 29 September 2019
 
 # Import modules
 import pygame
 from pygame import Rect # Import the Rect class
-from pygame.locals import *  # Import constant definitions (QUIT, keys, etc)
-import nurikabe_solver as ns # Nurikabe solving functions
-#import nurikabe_tables as nt # Nurikabe tables
-import numpy as np # Import numpy module which is used for tables
-import main_loop as ml
+from pygame.locals import *  # Import coftant definitiof (QUIT, keys, etc)
+import functions as f # Nurikabe solving functions
+import solver as s # Nurikabe solver algorithm
+#import numpy as np
 
 # Define colors
 WHITE = (255, 255, 255)
@@ -22,38 +21,44 @@ GREEN = (0, 255, 0)
 # Define table
 table = None
 
-table1 = np.array([[0, 1, 0, 0],
+table1 = [[0, 1, 0, 0],
                   [0, 0, 0, 2],
                   [1, 0, 2, 0],
                   [0, 0, 0, 0],
                   [0, 0, 0, 0],
-                  [2, 0, 2, 0]])
+                  [2, 0, 2, 0]]
 
-table2 = np.array([[0, 0, 0, 0, 0],
+table2 = [[0, 0, 0, 0, 0],
                    [2, 0, 0, 1, 0],
                    [0, 0, 0, 0, 0],
                    [0, 2, 0, 0, 0],
-                   [0, 0, 0, 0 ,2]])
+                   [0, 0, 0, 0 ,2]]
 
-table3 = np.array([[0, 0, 0, 0, 0],
+table3 = [[0, 0, 0, 0, 0],
                    [0, 0, 0, 1, 0],
                    [0, 0, 3, 0, 0],
                    [1, 0, 0, 0, 0],
-                   [0, 0, 4, 0, 0]])
+                   [0, 0, 4, 0, 0]]
 
-table4 = np.array([[1, 0, 2, 0, 2, 0, 0],
+table4 = [[1, 0, 2, 0, 2, 0, 0],
                    [0, 0, 0, 0, 0, 0, 0],
                    [2, 0, 0, 0, 0, 4, 0],
                    [0, 0, 4, 0, 0, 0, 0],
                    [0, 0, 0, 0, 2, 0, 0],
                    [2, 0, 0, 0, 0, 0, 0],
-                   [0, 0, 1, 0, 0, 0, 1]])
-#
-#table1 =     [[0, 0, 0, 0, 0],
-#              [2, 0, 0, 0, 2],
-#              [0, 0, 0, 0, 0],
-#              [1, 0, 0, 2, 0],
-#              [0, 0, 0, 0, 0]]
+                   [0, 0, 1, 0, 0, 0, 1]]
+
+#table4 =[
+#[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+#[0, 0, 0, 3, 0, 0, 0, 0, 0, 0],
+#[0, 0, 3, 0, 0, 0, 0, 3, 0, 0],
+#[0, 0, 0, 2, 0, 0, 4, 0, 1, 0],
+#[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+#[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+#[0, 3, 0, 1, 0, 0, 2, 0, 0, 0],
+#[0, 0, 1, 0, 0, 0, 0, 4, 0, 0],
+#[0, 1, 0, 0, 0, 0, 4, 0, 0, 0],
+#[0, 0, 0, 0, 0, 0, 0, 0, 1, 0]]
 
 # Define classes
 class App:
@@ -77,12 +82,12 @@ class App:
         
         # Initialize Room and Room objects
         # Room 0 (Title Screen Room)
-        Room()
+        Room() # Create a Room object
                
-        title = Text('Nurikabe', size=100)
+        title = Text('Nurikabe', size=100) # Create a Text object
         title.rect.center = (self.screen_center[0], self.screen_center[1] - 200)
         
-        play = Button('PLAY', size=64, cmd='App.room = App.rooms[1]')
+        play = Button('PLAY', size=64, cmd='App.room = App.rooms[1]') # Create a Button object
         play.rect.center = self.screen_center
         
         solve = Button('SOLVE', size=64, cmd='App.room = App.rooms[3]')
@@ -97,7 +102,7 @@ class App:
         # Room 1 (Choosing Playable Level Room)
         Room()
         Button('menu', cmd='App.room = App.rooms[0]', pos=(10, 10), thickness = 2, inf = 10)
-        text = Text('Choose a level', pos=(0, 0), size=72)
+        text = Text('Choose a level', size=72)
         text.rect.center = (self.screen_center[0], 30)
         Button('1', pos=(100, self.screen_center[1]), size=72, cmd='App.room = App.rooms[2]; App.grid.set_table(table1); App.grid.playable = True')
         Button('2', pos=(200, self.screen_center[1]), size=72, cmd='App.room = App.rooms[2]; App.grid.set_table(table2); App.grid.playable = True')
@@ -106,7 +111,7 @@ class App:
         
         # Room 2 (Playable Room)  
         Room()
-        Button('menu', cmd='App.reset_np(App.grid.table); App.room = App.rooms[0]', pos=(10, 10), thickness = 2, inf = 10)
+        Button('menu', cmd='App.reset(App.grid.table); App.room = App.rooms[0]', pos=(10, 10), thickness = 2, inf = 10)
         App.grid = Grid(table1)
         App.grid.playable = True
         mode = Text('Mode: play', size=30)
@@ -117,8 +122,7 @@ class App:
         Button('undefined', pos=(600, 250), size=20, cmd='App.checkForUndefined(App.grid.table)', inf = 20, thickness = 2)
         Button('fill', pos=(600, 600), size=20, cmd='App.fill(App.grid.table)', inf = 20, thickness = 2, col=GREEN)
         Button('check', pos=(600, 650), size=20, cmd='App.check(App.grid.table)', inf = 20, thickness = 2, col=BLUE)
-        Button('reset', pos=(600, 700), size=20, cmd='App.reset_np(App.grid.table)', inf = 20, thickness = 2, col=RED)
-
+        Button('reset', pos=(600, 700), size=20, cmd='App.reset(App.grid.table)', inf = 20, thickness = 2, col=RED)
         
         # Room 3 (Choosing Solving Level Room)
         Room()
@@ -132,24 +136,24 @@ class App:
         
         # Room 4 (Solving Room)
         Room()
-        Button('menu', cmd='App.reset_np(table1); App.room = App.rooms[0]', pos=(10, 10), thickness = 2, inf = 10)
+        Button('menu', cmd='App.reset(table1); App.room = App.rooms[0]', pos=(10, 10), thickness = 2, inf = 10)
         App.grid2 = Grid(table1)
         App.grid2.playable = False
         mode = Text('Mode: solve', size=30)
         mode.rect.center = (self.screen_center[0], 20)
-        Button('around_one', pos=(600, 50), size=20, cmd='ns.elimAroundOnes(App.grid2.table)', inf = 20, thickness = 2)
-        Button('between_numbers', pos=(600, 100), size=20, cmd='ns.elimAdj(App.grid2.table)', inf = 20, thickness = 2)
-        Button('diagonal', pos=(600, 150), size=20, cmd='ns.diagonal(App.grid2.table)', inf = 20, thickness = 2)
-        Button('surrounded', pos=(600, 200), size=20, cmd='ns.surround(App.grid2.table)', inf = 20, thickness = 2)
-        Button('solve', pos=(600, 300), size=20, cmd='currentState = ns.state(App.grid2.table);table = currentState.table;ml.solve(table, currentState)', inf = 20, thickness = 2)
+        Button('around_one', pos=(600, 50), size=20, cmd='f.elimAroundOnes(App.grid2.table)', inf = 20, thickness = 2)
+        Button('between_numbers', pos=(600, 100), size=20, cmd='f.elimAdj(App.grid2.table)', inf = 20, thickness = 2)
+        Button('diagonal', pos=(600, 150), size=20, cmd='f.diagonal(App.grid2.table)', inf = 20, thickness = 2)
+        Button('surrounded', pos=(600, 200), size=20, cmd='f.surround(App.grid2.table)', inf = 20, thickness = 2)
+        Button('solve', pos=(600, 300), size=20, cmd='currentState = f.state(App.grid2.table);table = currentState.table;s.solve(table, currentState)', inf = 20, thickness = 2)
         Button('check', pos=(600, 650), size=20, cmd='App.check(App.grid2.table)', inf = 20, thickness = 2, col=BLUE)
-        Button('reset', pos=(600, 700), size=20, cmd='App.reset_np(App.grid2.table)', inf = 20, thickness = 2, col=RED)
+        Button('reset', pos=(600, 700), size=20, cmd='App.reset(App.grid2.table)', inf = 20, thickness = 2, col=RED)
         
         # Room 5 (Help Room)
         Room()
         Button('menu', cmd='App.room = App.rooms[0]', pos=(10, 10), thickness = 2, inf = 10)
-        Text('In this program you can either play nurikabe or watch a solver in real time.', pos=(10, 50))
-        Text('This has been made in the context of a school project by Jacek Wikiera and Eric Holzer.', pos=(10, 70))
+        Text('In this program you can either play nurikabe or watch our algorithm do the work.', pos=(10, 50))
+        Text('This has been made in the context of a school project by Jacek Wikiera and Eric Holzer. 2019', pos=(10, 70))
         Text('', pos=(10, 90))
         
         App.room = App.rooms[0] # Set the first room to Title Screen Room
@@ -172,7 +176,7 @@ class App:
                     print("")
                     print("mouse position : ", event.pos)
                         
-                App.room.do_event(event)
+                App.room.do_event(event) # Call the "do_event" function from the current Room object
             
                 self.draw()
                             
@@ -182,72 +186,72 @@ class App:
     def draw(self):
         """Draw the application window."""
         App.screen.fill(self.background_color)
-        App.room.draw()
+        App.room.draw() # Call the "draw" function from the current Room object
         pygame.display.update()
         
     # Check Table Functions. Print whether the nurikabe's rules are respected or not
     def checkWallIntegrity(table):
-        if ns.checkWallIntegrity2(table):
+        if f.checkWallIntegrity2(table):
             print("> the wall is continuous")
-        elif not ns.checkWallIntegrity2(table):
+        elif not f.checkWallIntegrity2(table):
             print("> the wall is not continuous")
-        elif ns.checkWallIntegrity2(table) == None:
+        elif f.checkWallIntegrity2(table) == None:
             print("> there is no walls")
             
     def wallBlockCheck(table):
-        if ns.wallBlockCheck(table) != None:
-            print("> there is a 2x2 block at " + str(ns.wallBlockCheck(table)))
+        if f.wallBlockCheck(table) != None:
+            print("> there is a 2x2 block at " + str(f.wallBlockCheck(table)))
         else:
             print("> there is no 2x2 block")
             
     def allIslCheck(table):
-        if ns.allIslCheck(table):
+        if f.allIslCheck(table):
             print("> All the islands are complete")
         else:
             print("> All the islands are not complete")
             
     def checkForUndefined(table):
-        if ns.checkForUndefined(table):
+        if f.checkForUndefined(table):
             print("> undefined tile(s) are remaining")
         else:
             print("> no undefined tiles found")
         
     def check(table):
-        if ns.checkWallIntegrity2(table):
+        # Check if the nurikabe is correct
+        if f.checkWallIntegrity2(table):
             print("> the wall is continuous")
-        elif not ns.checkWallIntegrity2(table):
+        elif not f.checkWallIntegrity2(table):
             print("> the wall is not continuous")
-        elif ns.checkWallIntegrity2(table) == None:
+        elif f.checkWallIntegrity2(table) == None:
             print("> there is no walls")
         
-        if ns.wallBlockCheck(table) != None:
-            print("> there is a 2x2 block at " + str(ns.wallBlockCheck(table)))
+        if f.wallBlockCheck(table) != None:
+            print("> there is a 2x2 block at " + str(f.wallBlockCheck(table)))
         else:
             print("> there is no 2x2 block")
             
-        if ns.allIslCheck(table):
+        if f.allIslCheck(table):
             print("> All the islands are complete")
         else:
             print("> All the islands are not complete")
             
-        if ns.checkForUndefined(table):
+        if f.checkForUndefined(table):
             print("> undefined tile(s) are remaining")
         else:
             print("> no undefined tiles found")
                 
     def fill(table):
         # Fill the nurikabe with logical moves
-        ns.wallAroundIslands(table)
-        table = ns.elimAdj(table)
-        table = ns.diagonal(table)
-        table = ns.surround(table)
+        f.wallAroundIslands(table)
+        table = f.elimAdj(table)
+        table = f.diagonal(table)
+        table = f.surround(table)
                         
     def reset_np(table):
-        # Reset the table (numpy)
+        # Reset the table using numpy
         x_len = len(table)
         y_len = len(table[1])
         
-        #test
         for x in range(x_len):
             for y in range(y_len):
                 if (table[x, y] < 0):
@@ -278,7 +282,8 @@ class Text:
         
     def render(self):
         font = pygame.font.SysFont("Helvetica", self.size)
-        """Create the surface image of the text."""
+        
+        #Create the surface image of the text
         self.img = font.render(self.text, True, self.col)
         self.rect = self.img.get_rect()
         self.rect.topleft = self.pos
@@ -292,17 +297,17 @@ class Text:
     
 class Button(Text):
     """Create a button object (text surrounded by a rectangle). Clicking the button calls a callback function 'cmd'. """
+    """This object inherit from the Text object."""
     
     def __init__(self, text, size=24, col=BLACK, pos=(0, 0), cmd='', thickness=4, inf=40):
         super().__init__(text, size, col, pos)
         self.cmd = cmd
-        self.thickness = thickness
-        self.inf = inf # inflation of the rectangle around the text
+        self.thickness = thickness # Thickness of the surrounding rectangle
+        self.inf = inf # inflation of the surrounding rectangle
         self.rect = self.rect.inflate(self.inf, self.inf) # return a new rectangle that is bigger
         self.rect.move_ip(self.inf//2, self.inf//2) # move the rect by half the inflation
         
     def draw(self):
-        #r = self.rect.inflate(self.inf, self.inf) # return a new rectangle that is bigger
         pygame.draw.rect(App.screen, self.col, self.rect, self.thickness)
         # text rectangle must be moved by half of button inflate (inf//2)
         App.screen.blit(self.img, self.rect.move(self.inf//2, self.inf//2))
@@ -314,12 +319,12 @@ class Button(Text):
     
 
 class Room:
-    """Create a room object. The room object contains all the objects (text, buttons, grid)."""
+    """Create a room object. The room object contains all the objects (texts, buttons, grid)."""
 
     def __init__(self):
-        App.room = self
-        App.rooms.append(self)
-        self.objects = []
+        App.room = self # Set the room to be the current room
+        App.rooms.append(self) # Append the room to the list of all the rooms of the App
+        self.objects = [] # Room objects List
     
     def draw(self):
         for object in self.objects:
@@ -331,7 +336,7 @@ class Room:
                 if object.rect.collidepoint(event.pos):
                     object.do_event(event)
                     if event.type == MOUSEBUTTONDOWN:
-                        print('mouse click in', object)
+                        print('mouse click in : ', object)
                         
                         
 
@@ -344,7 +349,7 @@ class Grid:
         
     def set_table(self, table, pos=(50, 50), col=BLACK):
         #n, m = table.shape
-        self.remove_numbers()
+        self.remove_numbers() # Remove numbers of previous table (used to fix a bug)
         self.n = len(table) # Number of rows
         self.m = len(table[1]) # Number of columns
         self.pos = pos
@@ -366,7 +371,6 @@ class Grid:
         self.create_cell_text()
         self.thickness = (self.case_length * 4) // 100 # Scaled according to the case_length
         
-    
     def create_cell_text(self):
         for i in range(self.n):
             for j in range(self.m):
@@ -375,12 +379,11 @@ class Grid:
                 # Draw the number
                 number_size = (self.case_length * 60) // 100 # Scaled according to the case_length
                 
-                if self.table[i][j] > 0: 
+                if self.table[i][j] > 0: # if the cell is a number
                     text = Text(str(self.table[i][j]), size = number_size)
                     text.rect.center = current_rect.center
                     self.cell_text_list.append(text)
                     
-        
     def draw(self):
         x0, y0 = self.pos
         
@@ -460,16 +463,16 @@ class Grid:
             if event.type == MOUSEBUTTONDOWN:
                 
                 
-                print("cell index : " + "[" + str(i) + "]" + "[" + str(j) + "]" + " | " + "cell state : ", self.table[i, j])
+                print("cell index : " + "[" + str(i) + "]" + "[" + str(j) + "]" + " | " + "cell state : ", self.table[i][j])
                 
-                if self.table[i, j] == 0: # If the cell is undefined turn it to black
-                    self.table[i, j] = -1
+                if self.table[i][j] == 0: # If the cell is undefined turn it to black
+                    self.table[i][j] = -1
                     
-                elif self.table[i, j] == -1: # If the cell is black turn it to white
-                    self.table[i, j] = -2
+                elif self.table[i][j] == -1: # If the cell is black turn it to white
+                    self.table[i][j] = -2
                     
-                elif self.table[i, j] == -2: # If the cell is white turn it to undefined
-                    self.table[i, j] = 0
+                elif self.table[i][j] == -2: # If the cell is white turn it to undefined
+                    self.table[i][j] = 0
                     
     def remove_numbers(self):
         """Removes all numbers (actually all 1-character Text)."""
