@@ -145,7 +145,7 @@ class App:
         Button('between_numbers', pos=(600, 100), size=20, cmd='f.elimAdj(App.grid2.table)', inf = 20, thickness = 2)
         Button('diagonal', pos=(600, 150), size=20, cmd='f.diagonal(App.grid2.table)', inf = 20, thickness = 2)
         Button('surrounded', pos=(600, 200), size=20, cmd='f.surround(App.grid2.table)', inf = 20, thickness = 2)
-        Button('solve', pos=(600, 300), size=20, cmd='currentState = f.state(App.grid2.table);table = currentState.table;s.solve(table, currentState)', inf = 20, thickness = 2)
+        Button('solve', pos=(600, 300), size=20, cmd='currentState = f.state(App.grid2.table);table = currentState.table;s.solve(table, currentState);App.grid2.table=s.solve(table, currentState);', inf = 20, thickness = 2)
         Button('check', pos=(600, 650), size=20, cmd='App.check(App.grid2.table)', inf = 20, thickness = 2, col=BLUE)
         Button('reset', pos=(600, 700), size=20, cmd='App.reset(App.grid2.table)', inf = 20, thickness = 2, col=RED)
         
