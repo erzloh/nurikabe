@@ -485,8 +485,7 @@ class Grid:
         for x in remove_list:
             App.room.objects.remove(x) # remove an object from a list
 
+
 # Run the program
 if __name__ == '__main__':
     App().run()
-
-
