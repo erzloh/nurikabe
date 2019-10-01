@@ -1,6 +1,21 @@
 import functions as fn
 import copy  # answer from stack overflow by Sukrit Kalra, about how to do deepcopy
+
 # import numpy as np
+
+
+"""grid =[
+[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+[0, 0, 0, 3, 0, 0, 0, 0, 0, 0],
+[0, 0, 3, 0, 0, 0, 0, 3, 0, 0],
+[0, 0, 0, 2, 0, 0, 4, 0, 1, 0],
+[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+[0, 3, 0, 1, 0, 0, 2, 0, 0, 0],
+[0, 0, 1, 0, 0, 0, 0, 4, 0, 0],
+[0, 1, 0, 0, 0, 0, 4, 0, 0, 0],
+[0, 0, 0, 0, 0, 0, 0, 0, 1, 0]]"""
+
 
 def solve(table, currentState):
     depth = 0
