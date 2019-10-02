@@ -1,10 +1,5 @@
-# "U": 0
-# "B": -1
-# "W": -2
-# "E": -3 (edge)
 import sys, math
 import copy
-
 
 class island:
     def __init__(self, x, y, size):
@@ -30,7 +25,6 @@ def areTouching(x1, y1, x2, y2):
 def elimAdj(table):
     x_len = len(table)
     y_len = len(table[0])
-
     for i in range(x_len):
         for j in range(y_len):
             # check in the right direction
@@ -386,6 +380,7 @@ def checkWallIntegrity3(table, mode="normal"):
                 islandSum += table[i][j]
                 islandCount += len(returnTiles(i, j, table))
     tempCoords = None
+    coords = None
     for i in range(x_len):
         for j in range(y_len):
             if table[i][j] == -1 or (table[i][j] == 0 and mode == "undefined"):
@@ -393,12 +388,16 @@ def checkWallIntegrity3(table, mode="normal"):
                 break
     if mode == "undefined":
         print("debug")
-    partList = returnTiles(coords[0], coords[1], table, None, -1, True)
-    if mode == "normal" and (len(partList)+islandSum == x_len*y_len):
-        return True
-    elif mode == "undefined" and (len(partList)+islandCount == x_len*y_len):
-        return True
+    if coords != None:
+        partList = returnTiles(coords[0], coords[1], table, None, -1, True)
+        if mode == "normal" and (len(partList)+islandSum == x_len*y_len):
+            return True
+        elif mode == "undefined" and (len(partList)+islandCount == x_len*y_len):
+            return True
+        else:
+            return False
     else:
+        print("No wall present")
         return False
 
 #do logical moves
@@ -555,10 +554,3 @@ def doChecks(table):
     else:
         flag = False
     return flag
-
-#############################################################
-
-if __name__ == '__main__':
-    # set x and y length of the table
-    x_len = len(table)
-    y_len = len(table[0])
