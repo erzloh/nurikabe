@@ -50,17 +50,19 @@ table4 = [[1, 0, 2, 0, 2, 0, 0],
           [0, 0, 1, 0, 0, 0, 1]]
 
 
-# table4 =[
-# [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-# [0, 0, 0, 3, 0, 0, 0, 0, 0, 0],
-# [0, 0, 3, 0, 0, 0, 0, 3, 0, 0],
-# [0, 0, 0, 2, 0, 0, 4, 0, 1, 0],
-# [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-# [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-# [0, 3, 0, 1, 0, 0, 2, 0, 0, 0],
-# [0, 0, 1, 0, 0, 0, 0, 4, 0, 0],
-# [0, 1, 0, 0, 0, 0, 4, 0, 0, 0],
-# [0, 0, 0, 0, 0, 0, 0, 0, 1, 0]]
+
+
+table4 =[
+ [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+ [0, 0, 0, 3, 0, 0, 0, 0, 0, 0],
+ [0, 0, 3, 0, 0, 0, 0, 3, 0, 0],
+ [0, 0, 0, 2, 0, 0, 4, 0, 1, 0],
+ [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+ [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+ [0, 3, 0, 1, 0, 0, 2, 0, 0, 0],
+ [0, 0, 1, 0, 0, 0, 0, 4, 0, 0],
+ [0, 1, 0, 0, 0, 0, 4, 0, 0, 0],
+ [0, 0, 0, 0, 0, 0, 0, 0, 1, 0]]
 
 # Define classes
 class App:
@@ -137,17 +139,17 @@ class App:
         text = Text('Choose a level', pos=(0, 0), size=72)
         text.rect.center = (self.screen_center[0], 30)
         Button('1', pos=(100, self.screen_center[1]), size=72,
-               cmd='App.room = App.rooms[4]; App.grid2.set_table(table1)')
+               cmd='App.room = App.rooms[4]; App.grid2.set_table(table1); App.reset(App.grid2.table)')
         Button('2', pos=(200, self.screen_center[1]), size=72,
-               cmd='App.room = App.rooms[4]; App.grid2.set_table(table2)')
+               cmd='App.room = App.rooms[4]; App.grid2.set_table(table2); App.reset(App.grid2.table)')
         Button('3', pos=(300, self.screen_center[1]), size=72,
-               cmd='App.room = App.rooms[4]; App.grid2.set_table(table3)')
+               cmd='App.room = App.rooms[4]; App.grid2.set_table(table3); App.reset(App.grid2.table)')
         Button('4', pos=(400, self.screen_center[1]), size=72,
-               cmd='App.room = App.rooms[4]; App.grid2.set_table(table4)')
+               cmd='App.room = App.rooms[4]; App.grid2.set_table(table4); App.reset(App.grid2.table)')
 
         # Room 4 (Solving Room)
         Room()
-        Button('menu', cmd='App.reset(table1); App.room = App.rooms[0]', pos=(10, 10), thickness=2, inf=10)
+        Button('menu', cmd='App.reset(App.grid2.table); App.room = App.rooms[0]', pos=(10, 10), thickness=2, inf=10)
         App.grid2 = Grid(table1)
         App.grid2.playable = False
         mode = Text('Mode: solve', size=30)
@@ -232,7 +234,7 @@ class App:
 
     def check(table):
         # Check if the nurikabe is correct
-        if f.checkWallIntegrity2(table):
+        if f.checkWallIntegrity3(table):
             print("> the wall is continuous")
         elif not f.checkWallIntegrity2(table):
             print("> the wall is not continuous")
