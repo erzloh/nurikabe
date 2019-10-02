@@ -91,13 +91,13 @@ class App:
         title = Text('Nurikabe', size=100)  # Create a Text object
         title.rect.center = (self.screen_center[0], self.screen_center[1] - 200)
 
-        play = Button('PLAY', size=64, cmd='App.room = App.rooms[1]')  # Create a Button object
+        play = Button('PLAY', size=50, cmd='App.room = App.rooms[1]')  # Create a Button object
         play.rect.center = self.screen_center
 
-        solve = Button('SOLVE', size=64, cmd='App.room = App.rooms[3]')
+        solve = Button('SOLVE', size=50, cmd='App.room = App.rooms[3]')
         solve.rect.center = (self.screen_center[0], self.screen_center[1] + 100)
 
-        option = Button('HELP', size=64, cmd='App.room = App.rooms[5]')
+        option = Button('HELP', size=50, cmd='App.room = App.rooms[5]')
         option.rect.center = (self.screen_center[0], self.screen_center[1] + 200)
 
         credit = Text('Made by Eric Holzer and Jacek Wikiera, 2019')
@@ -108,13 +108,13 @@ class App:
         Button('menu', cmd='App.room = App.rooms[0]', pos=(10, 10), thickness=2, inf=10)
         text = Text('Choose a level', size=72)
         text.rect.center = (self.screen_center[0], 30)
-        Button('1', pos=(100, self.screen_center[1]), size=72,
+        Button('1', pos=(100, self.screen_center[1]), size=64,
                cmd='App.room = App.rooms[2]; App.grid.set_table(table1); App.grid.playable = True')
-        Button('2', pos=(200, self.screen_center[1]), size=72,
+        Button('2', pos=(200, self.screen_center[1]), size=64,
                cmd='App.room = App.rooms[2]; App.grid.set_table(table2); App.grid.playable = True')
-        Button('3', pos=(300, self.screen_center[1]), size=72,
+        Button('3', pos=(300, self.screen_center[1]), size=64,
                cmd='App.room = App.rooms[2]; App.grid.set_table(table3); App.grid.playable = True')
-        Button('4', pos=(400, self.screen_center[1]), size=72,
+        Button('4', pos=(400, self.screen_center[1]), size=64,
                cmd='App.room = App.rooms[2]; App.grid.set_table(table4); App.grid.playable = True')
 
         # Room 2 (Playable Room)
@@ -124,27 +124,27 @@ class App:
         App.grid.playable = True
         mode = Text('Mode: play', size=30)
         mode.rect.center = (self.screen_center[0], 20)
-        Button('check_continuity', pos=(600, 100), size=20, cmd='App.checkWallIntegrity(App.grid.table)', inf=20,
+        Button('check_continuity', pos=(600, 100), size=15, cmd='App.checkWallIntegrity(App.grid.table)', inf=20,
                thickness=2)
-        Button('2x2 block', pos=(600, 150), size=20, cmd='App.wallBlockCheck(App.grid.table)', inf=20, thickness=2)
-        Button('island_complete', pos=(600, 200), size=20, cmd='App.allIslCheck(App.grid.table)', inf=20, thickness=2)
-        Button('undefined', pos=(600, 250), size=20, cmd='App.checkForUndefined(App.grid.table)', inf=20, thickness=2)
-        Button('fill', pos=(600, 600), size=20, cmd='App.fill(App.grid.table)', inf=20, thickness=2, col=GREEN)
-        Button('check', pos=(600, 650), size=20, cmd='App.check(App.grid.table)', inf=20, thickness=2, col=BLUE)
-        Button('reset', pos=(600, 700), size=20, cmd='App.reset(App.grid.table)', inf=20, thickness=2, col=RED)
+        Button('2x2 block', pos=(600, 150), size=15, cmd='App.wallBlockCheck(App.grid.table)', inf=20, thickness=2)
+        Button('island_complete', pos=(600, 200), size=15, cmd='App.allIslCheck(App.grid.table)', inf=20, thickness=2)
+        Button('undefined', pos=(600, 250), size=15, cmd='App.checkForUndefined(App.grid.table)', inf=20, thickness=2)
+        Button('fill', pos=(600, 600), size=15, cmd='App.fill(App.grid.table)', inf=20, thickness=2, col=GREEN)
+        Button('check', pos=(600, 650), size=15, cmd='App.check(App.grid.table)', inf=20, thickness=2, col=BLUE)
+        Button('reset', pos=(600, 700), size=15, cmd='App.reset(App.grid.table)', inf=20, thickness=2, col=RED)
 
         # Room 3 (Choosing Solving Level Room)
         Room()
         Button('menu', cmd='App.room = App.rooms[0]', pos=(10, 10), thickness=2, inf=10)
         text = Text('Choose a level', pos=(0, 0), size=72)
         text.rect.center = (self.screen_center[0], 30)
-        Button('1', pos=(100, self.screen_center[1]), size=72,
+        Button('1', pos=(100, self.screen_center[1]), size=64,
                cmd='App.room = App.rooms[4]; App.grid2.set_table(table1); App.reset(App.grid2.table)')
-        Button('2', pos=(200, self.screen_center[1]), size=72,
+        Button('2', pos=(200, self.screen_center[1]), size=64,
                cmd='App.room = App.rooms[4]; App.grid2.set_table(table2); App.reset(App.grid2.table)')
-        Button('3', pos=(300, self.screen_center[1]), size=72,
+        Button('3', pos=(300, self.screen_center[1]), size=64,
                cmd='App.room = App.rooms[4]; App.grid2.set_table(table3); App.reset(App.grid2.table)')
-        Button('4', pos=(400, self.screen_center[1]), size=72,
+        Button('4', pos=(400, self.screen_center[1]), size=64,
                cmd='App.room = App.rooms[4]; App.grid2.set_table(table4); App.reset(App.grid2.table)')
 
         # Room 4 (Solving Room)
@@ -154,15 +154,15 @@ class App:
         App.grid2.playable = False
         mode = Text('Mode: solve', size=30)
         mode.rect.center = (self.screen_center[0], 20)
-        Button('around_one', pos=(600, 50), size=20, cmd='f.elimAroundOnes(App.grid2.table)', inf=20, thickness=2)
-        Button('between_numbers', pos=(600, 100), size=20, cmd='f.elimAdj(App.grid2.table)', inf=20, thickness=2)
-        Button('diagonal', pos=(600, 150), size=20, cmd='f.diagonal(App.grid2.table)', inf=20, thickness=2)
-        Button('surrounded', pos=(600, 200), size=20, cmd='f.surround(App.grid2.table)', inf=20, thickness=2)
-        Button('solve', pos=(600, 300), size=20,
+        Button('around_one', pos=(600, 50), size=15, cmd='f.elimAroundOnes(App.grid2.table)', inf=20, thickness=2)
+        Button('between_numbers', pos=(600, 100), size=15, cmd='f.elimAdj(App.grid2.table)', inf=20, thickness=2)
+        Button('diagonal', pos=(600, 150), size=15, cmd='f.diagonal(App.grid2.table)', inf=20, thickness=2)
+        Button('surrounded', pos=(600, 200), size=15, cmd='f.surround(App.grid2.table)', inf=20, thickness=2)
+        Button('solve', pos=(600, 300), size=15,
                cmd='currentState = f.state(App.grid2.table);table = currentState.table;App.grid2.table=s.solve(table, currentState);',
                inf=20, thickness=2)
-        Button('check', pos=(600, 650), size=20, cmd='App.check(App.grid2.table)', inf=20, thickness=2, col=BLUE)
-        Button('reset', pos=(600, 700), size=20, cmd='App.reset(App.grid2.table)', inf=20, thickness=2, col=RED)
+        Button('check', pos=(600, 650), size=15, cmd='App.check(App.grid2.table)', inf=20, thickness=2, col=BLUE)
+        Button('reset', pos=(600, 700), size=15, cmd='App.reset(App.grid2.table)', inf=20, thickness=2, col=RED)
 
         # Room 5 (Help Room)
         Room()
@@ -207,11 +207,11 @@ class App:
 
     # Check Table Functions. Print whether the nurikabe's rules are respected or not
     def checkWallIntegrity(table):
-        if f.checkWallIntegrity2(table):
+        if f.checkWallIntegrity3(table):
             print("> the wall is continuous")
-        elif not f.checkWallIntegrity2(table):
+        elif not f.checkWallIntegrity3(table):
             print("> the wall is not continuous")
-        elif f.checkWallIntegrity2(table) == None:
+        elif f.checkWallIntegrity3(table) == None:
             print("> there is no walls")
 
     def wallBlockCheck(table):
@@ -236,9 +236,9 @@ class App:
         # Check if the nurikabe is correct
         if f.checkWallIntegrity3(table):
             print("> the wall is continuous")
-        elif not f.checkWallIntegrity2(table):
+        elif not f.checkWallIntegrity3(table):
             print("> the wall is not continuous")
-        elif f.checkWallIntegrity2(table) == None:
+        elif f.checkWallIntegrity3(table) == None:
             print("> there is no walls")
 
         if f.wallBlockCheck(table) != None:
